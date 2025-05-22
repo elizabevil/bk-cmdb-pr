@@ -60,6 +60,7 @@ const (
 	LabelAppCode     = "app_code"
 	LabelHost        = "host"
 	LabelUser        = "user"
+	LabelTenantId    = "tenant_id"
 )
 
 // labels
@@ -96,7 +97,7 @@ func NewService(conf Config) *Service {
 
 	srv := Service{conf: conf, registry: register}
 
-	requestTotalLabels := []string{LabelHandler, LabelHTTPStatus, LabelOrigin, LabelAppCode}
+	requestTotalLabels := []string{LabelHandler, LabelHTTPStatus, LabelOrigin, LabelAppCode, LabelTenantId}
 
 	srv.requestTotal = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
@@ -113,7 +114,7 @@ func NewService(conf Config) *Service {
 			Help:    "Histogram of latencies for HTTP requests.",
 			Buckets: []float64{10, 30, 50, 70, 100, 200, 300, 400, 500, 1000, 2000, 5000},
 		},
-		[]string{LabelHandler, LabelAppCode},
+		[]string{LabelHandler, LabelAppCode, LabelTenantId},
 	)
 	register.MustRegister(srv.requestDuration)
 	register.MustRegister(prometheus.NewProcessCollector(prometheus.ProcessCollectorOpts{}))
@@ -126,7 +127,7 @@ func NewService(conf Config) *Service {
 				Name: Namespace + "_user_http_request_total",
 				Help: "user http request total.",
 			},
-			[]string{LabelUser, LabelOrigin},
+			[]string{LabelUser, LabelOrigin, LabelTenantId},
 		)
 		register.MustRegister(srv.userTotal)
 	}
@@ -192,22 +193,30 @@ func (s *Service) HTTPMiddleware(next http.Handler) http.Handler {
 		}
 
 		appCode := httpheader.GetAppCode(r.Header)
-		s.requestDuration.With(s.label(LabelHandler, uri, LabelAppCode, appCode)).
-			Observe(float64(time.Since(before) / time.Millisecond))
+		tenantID := httpheader.GetTenantID(r.Header)
+		s.requestDuration.With(s.label(
+			LabelHandler, uri,
+			LabelAppCode, appCode,
+			LabelTenantId, tenantID,
+		)).Observe(float64(time.Since(before) / time.Millisecond))
 
 		requestTotalLabels := []string{
 			LabelHandler, uri,
 			LabelHTTPStatus, strconv.Itoa(resp.StatusCode()),
 			LabelOrigin, getOrigin(r.Header),
 			LabelAppCode, appCode,
+			LabelTenantId, tenantID,
 		}
 
 		s.requestTotal.With(s.label(requestTotalLabels...)).Inc()
 
 		// add user metrics for api-server
 		if s.conf.ProcessName == types.CC_MODULE_APISERVER {
-			s.userTotal.With(s.label(LabelUser, httpheader.GetUser(r.Header), LabelOrigin,
-				getOrigin(r.Header))).Inc()
+			s.userTotal.With(s.label(
+				LabelUser, httpheader.GetUser(r.Header),
+				LabelOrigin, getOrigin(r.Header),
+				LabelTenantId, tenantID,
+			)).Inc()
 		}
 	})
 }
@@ -224,7 +233,7 @@ func (s *Service) RestfulMiddleWare(req *restful.Request, resp *restful.Response
 
 func (s *Service) label(labelKVs ...string) prometheus.Labels {
 	labels := prometheus.Labels{}
-	for index := 0; index < len(labelKVs); index += 2 {
+	for index := 0; index < len(labelKVs)-1; index += 2 {
 		labels[labelKVs[index]] = labelKVs[index+1]
 	}
 	return labels
