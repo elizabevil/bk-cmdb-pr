@@ -369,8 +369,9 @@ func (s *service) authorizeReq(req *restful.Request, user meta.UserInfo, resourc
 
 	s.noPermissionRequestTotal.With(
 		prometheus.Labels{
-			metrics.LabelHandler: path,
-			metrics.LabelAppCode: httpheader.GetAppCode(req.Request.Header),
+			metrics.LabelHandler:  path,
+			metrics.LabelAppCode:  httpheader.GetAppCode(req.Request.Header),
+			metrics.LabelTenantId: httpheader.GetTenantID(req.Request.Header),
 		},
 	).Inc()
 
