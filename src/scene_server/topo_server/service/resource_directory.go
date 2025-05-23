@@ -254,7 +254,7 @@ func (s *Service) SearchResourceDirectory(ctx *rest.Contexts) {
 	}
 
 	// if fuzzy search, change the string query to regexp
-	if input.IsFuzzy == true {
+	if input.IsFuzzy {
 		for k, v := range input.Condition {
 			field, ok := v.(string)
 			if ok {
@@ -362,7 +362,7 @@ func (s *Service) SearchResourceDirectory(ctx *rest.Contexts) {
 	for _, moduleID := range moduleIDArr {
 		moduleInfo := mapModuleIdInfo[moduleID]
 		moduleInfo["host_count"] = 0
-		if count, exist := moduleHostsCount[moduleID]; exist == true {
+		if count, exist := moduleHostsCount[moduleID]; exist {
 			moduleInfo["host_count"] = count
 		}
 		retInfo = append(retInfo, moduleInfo)

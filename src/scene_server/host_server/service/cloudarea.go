@@ -55,7 +55,7 @@ func (s *Service) FindManyCloudArea(ctx *rest.Contexts) {
 	}
 
 	// if fuzzy search, change the string query to regexp
-	if input.IsFuzzy == true {
+	if input.IsFuzzy {
 		for k, v := range input.Condition {
 			field, ok := v.(string)
 			if ok {

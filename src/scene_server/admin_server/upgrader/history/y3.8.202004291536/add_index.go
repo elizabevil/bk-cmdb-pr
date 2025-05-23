@@ -35,7 +35,7 @@ func createIndex(ctx context.Context, db dal.RDB, tableName string, createIndexA
 		existIdxMap[index.Name] = true
 	}
 	for _, index := range createIndexArr {
-		if _, ok := existIdxMap[index.Name]; ok == true {
+		if _, ok := existIdxMap[index.Name]; ok {
 			continue
 		}
 		if err = db.Table(tableName).CreateIndex(ctx, index); err != nil && !db.IsDuplicatedError(err) {

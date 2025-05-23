@@ -815,7 +815,7 @@ func (h *importInstance) addHostInstance(cloudID, index, appID int64, moduleIDs 
 	hostID := int64(result.Created.ID)
 	var hResult []metadata.ExceptionResult
 	var option interface{}
-	if toInternalModule == true {
+	if toInternalModule {
 		if len(moduleIDs) == 0 {
 			err := h.ccErr.CCErrorf(common.CCErrCommParamsInvalid, common.BKModuleIDField)
 			return 0, err

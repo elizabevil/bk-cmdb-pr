@@ -15,7 +15,6 @@ package common
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -84,7 +83,7 @@ func ReadPid() (int, error) {
 		return 0, fmt.Errorf("pidfile is empty")
 	}
 
-	d, err := ioutil.ReadFile(pidfile)
+	d, err := os.ReadFile(pidfile)
 	if err != nil {
 		return 0, err
 	}

@@ -78,7 +78,7 @@ func (s *Service) FindSystemUserConfigBKSwitch(ctx *rest.Contexts) {
 	}
 	canModify := false
 	if data != nil {
-		if data.BluekingModify.Flag == true && data.BluekingModify.ExpireAt > time.Now().Unix() {
+		if data.BluekingModify.Flag && data.BluekingModify.ExpireAt > time.Now().Unix() {
 			canModify = true
 		}
 	}

@@ -59,7 +59,7 @@ func changeSetUniqueIndex(ctx context.Context, db dal.RDB, conf *upgrader.Config
 			_, ok1 := indexKeyMap[common.BKParentIDField]
 			_, ok2 := indexKeyMap[common.BKSetNameField]
 			if ok1 && ok2 {
-				if index.Unique == true {
+				if index.Unique {
 					isCreateUniqueSetName = false
 				} else {
 					if err := db.Table(tableName).DropIndex(ctx, index.Name); err != nil {

@@ -35,7 +35,7 @@ func createSetTemplateTables(ctx context.Context, db dal.RDB, conf *upgrader.Con
 		if err != nil {
 			return err
 		}
-		if exists == true {
+		if exists {
 			continue
 		}
 

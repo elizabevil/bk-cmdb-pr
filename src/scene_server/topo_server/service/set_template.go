@@ -686,7 +686,7 @@ func (s *Service) ListSetTplRelatedSetsWeb(ctx *rest.Contexts) {
 			return
 		}
 		hostCount := 0
-		if _, ok := set2Hosts[set.SetID]; ok == true {
+		if _, ok := set2Hosts[set.SetID]; ok {
 			hostCount = len(set2Hosts[set.SetID])
 		}
 		setInstanceResult.Info[index]["host_count"] = hostCount

@@ -80,7 +80,7 @@ func (m *instanceManager) fetchBizIDFromInstance(kit *rest.Kit, objID string, in
 		fallthrough
 	case common.BKInnerObjIDApp, common.BKInnerObjIDSet, common.BKInnerObjIDModule, common.BKInnerObjIDProc:
 		biz, exist := instanceData[common.BKAppIDField]
-		if exist == false {
+		if !exist {
 			return 0, nil
 		}
 		bizID, err := util.GetInt64ByInterface(biz)
@@ -92,7 +92,7 @@ func (m *instanceManager) fetchBizIDFromInstance(kit *rest.Kit, objID string, in
 		return 0, nil
 	default:
 		biz, exist := instanceData[common.BKAppIDField]
-		if exist == false {
+		if !exist {
 			return 0, nil
 		}
 		bizID, err := util.GetInt64ByInterface(biz)
@@ -289,7 +289,7 @@ func (m *instanceManager) validateCreateInstValue(kit *rest.Kit, objID string, i
 
 func (m *instanceManager) validateModuleCreate(kit *rest.Kit, instanceData mapstr.MapStr, valid *validator) error {
 	svcTplIDIf, exist := instanceData[common.BKServiceTemplateIDField]
-	if exist == false {
+	if !exist {
 		return valid.errIf.Errorf(common.CCErrCommParamsNeedSet, common.BKServiceTemplateIDField)
 	}
 	svcTplID, err := util.GetInt64ByInterface(svcTplIDIf)
@@ -300,7 +300,7 @@ func (m *instanceManager) validateModuleCreate(kit *rest.Kit, instanceData mapst
 		return nil
 	}
 	svcCategoryIDIf, exist := instanceData[common.BKServiceCategoryIDField]
-	if exist == false {
+	if !exist {
 		return valid.errIf.Errorf(common.CCErrCommParamsNeedSet, common.BKServiceCategoryIDField)
 	}
 	svcCategoryID, err := util.GetInt64ByInterface(svcCategoryIDIf)
@@ -308,7 +308,7 @@ func (m *instanceManager) validateModuleCreate(kit *rest.Kit, instanceData mapst
 		return valid.errIf.Errorf(common.CCErrCommParamsNeedInt, common.BKServiceCategoryIDField)
 	}
 	bizIDIf, exist := instanceData[common.BKAppIDField]
-	if exist == false {
+	if !exist {
 		return valid.errIf.Errorf(common.CCErrCommParamsNeedSet, common.BKAppIDField)
 	}
 	bizID, err := util.GetInt64ByInterface(bizIDIf)

@@ -15,7 +15,6 @@ package errors
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -95,7 +94,7 @@ func LoadErrorResourceFromDir(dir string) (map[string]ErrorCode, error) {
 		language := items[len(items)-2 : len(items)-1]
 
 		// analysis error package file
-		data, rerr := ioutil.ReadFile(path)
+		data, rerr := os.ReadFile(path)
 		if nil != rerr {
 			return rerr
 		}

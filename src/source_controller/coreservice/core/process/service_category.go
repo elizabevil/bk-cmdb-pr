@@ -287,7 +287,7 @@ func (p *processOperation) DeleteServiceCategory(kit *rest.Kit, categoryID int64
 
 	// 允许全局模式下删除
 	/*
-		if category.IsBuiltIn == true {
+		if category.IsBuiltIn {
 			blog.Errorf("DeleteServiceCategory failed, forbidden delete built-in category, code: %d, rid: %s", common.CCErrCommOperateBuiltInItemForbidden, kit.Rid)
 			err := kit.CCError.CCError(common.CCErrCommOperateBuiltInItemForbidden)
 			return err
