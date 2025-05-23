@@ -1035,7 +1035,7 @@ func (s *Service) countTopoNodeHosts(ctx *rest.Contexts, bizID int64,
 		}
 		hostIDs := make([]int64, 0)
 		for _, item := range relationResult.Info {
-			if _, ok := moduleIDMap[item.ModuleID]; ok == true {
+			if _, ok := moduleIDMap[item.ModuleID]; ok {
 				hostIDs = append(hostIDs, item.HostID)
 			}
 		}

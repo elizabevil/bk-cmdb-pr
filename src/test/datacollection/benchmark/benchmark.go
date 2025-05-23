@@ -16,7 +16,6 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"sync"
 
@@ -53,7 +52,7 @@ func genBenchmarkMQCmd() *cobra.Command {
 
 			if len(file) != 0 {
 				// read benchmark message data from local file.
-				data, err := ioutil.ReadFile(file)
+				data, err := os.ReadFile(file)
 				if err != nil {
 					panic(err)
 				}

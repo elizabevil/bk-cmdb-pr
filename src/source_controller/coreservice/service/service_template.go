@@ -190,7 +190,7 @@ func (s *coreService) ListServiceTemplateDetail(ctx *rest.Contexts) {
 			ProcessTemplates: make([]metadata.ProcessTemplate, 0),
 		}
 		processTemplates, exist := serviceProcessTemplateMap[item.ID]
-		if exist == true {
+		if exist {
 			templateDetail.ProcessTemplates = processTemplates
 		}
 		templateDetails = append(templateDetails, templateDetail)

@@ -45,7 +45,7 @@ func ExtractRequestIDFromContext(ctx context.Context) string {
 	}
 	rid := ctx.Value(common.ContextRequestIDField)
 	ridValue, ok := rid.(string)
-	if ok == true {
+	if ok {
 		return ridValue
 	}
 	return ""
@@ -58,7 +58,7 @@ func ExtractOwnerFromContext(ctx context.Context) string {
 	}
 	owner := ctx.Value(common.ContextRequestTenantField)
 	ownerValue, ok := owner.(string)
-	if ok == true {
+	if ok {
 		return ownerValue
 	}
 	return ""
@@ -92,7 +92,7 @@ func ExtractRequestUserFromContext(ctx context.Context) string {
 	}
 	user := ctx.Value(common.ContextRequestUserField)
 	userValue, ok := user.(string)
-	if ok == true {
+	if ok {
 		return userValue
 	}
 	return ""

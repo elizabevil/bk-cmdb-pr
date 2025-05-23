@@ -189,7 +189,7 @@ func (reporter *HtmlReporter) generateSummaryHtml() {
 		}
 	}
 
-	summary, err := ioutil.ReadFile(dir + "/summary.html")
+	summary, err := os.ReadFile(dir + "/summary.html")
 	if err != nil {
 		fmt.Printf("Failed to open summary Html report file\n\t%s", err.Error())
 		return

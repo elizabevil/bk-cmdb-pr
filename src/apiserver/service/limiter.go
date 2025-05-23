@@ -119,7 +119,7 @@ func (l *Limiter) setRules(rules map[string]*metadata.LimiterRule) {
 func (l *Limiter) GetRules() map[string]*metadata.LimiterRule {
 	l.lock.RLock()
 	defer l.lock.RUnlock()
-	rules := make(map[string]*metadata.LimiterRule)
+	rules := make(map[string]*metadata.LimiterRule, len(l.rules))
 	for k, v := range l.rules {
 		rule := *v
 		rules[k] = &rule
@@ -141,21 +141,24 @@ func (l *Limiter) GetMatchedRule(req *restful.Request) *metadata.LimiterRule {
 	var min int64 = 999999
 	rules := l.GetRules()
 	for _, r := range rules {
-		if r.AppCode == "" && r.User == "" && r.IP == "" && r.Url == "" && r.Method == "" {
+		emptyAppCode := r.AppCode == ""
+		emptyUser := r.User == ""
+		emptyIP := r.IP == ""
+		if emptyAppCode && emptyUser && emptyIP && r.Url == "" && r.Method == "" {
 			blog.Errorf("wrong rule format, one of appcode, user, ip, url, method must be set, r:%#v", *r)
 			continue
 		}
-		if r.AppCode != "" {
+		if !emptyAppCode {
 			if r.AppCode != httpheader.GetAppCode(header) {
 				continue
 			}
 		}
-		if r.User != "" {
+		if !emptyUser {
 			if r.User != httpheader.GetUser(header) {
 				continue
 			}
 		}
-		if r.IP != "" {
+		if !emptyIP {
 			hit := false
 			ips := strings.Split(r.IP, ",")
 			for _, ip := range ips {
@@ -185,7 +188,7 @@ func (l *Limiter) GetMatchedRule(req *restful.Request) *metadata.LimiterRule {
 			}
 		}
 
-		if r.DenyAll == true {
+		if r.DenyAll {
 			matchedRule = r
 			break
 		}

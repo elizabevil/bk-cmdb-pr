@@ -16,7 +16,6 @@ package language
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -79,7 +78,7 @@ func LoadLanguageResourceFromDir(dir string) (map[string]LanguageMap, error) {
 		language := items[len(items)-2 : len(items)-1]
 
 		// analysis language package file
-		data, rerr := ioutil.ReadFile(path)
+		data, rerr := os.ReadFile(path)
 		if nil != rerr {
 			return fmt.Errorf("read language file %v, error: %v", path, rerr)
 		}

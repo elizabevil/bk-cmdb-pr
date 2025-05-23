@@ -544,7 +544,7 @@ func (r CombinedRule) Match(matcher Matcher) bool {
 		return true
 	case ConditionOr:
 		for _, rule := range r.Rules {
-			if rule.Match(matcher) == true {
+			if rule.Match(matcher) {
 				return true
 			}
 		}

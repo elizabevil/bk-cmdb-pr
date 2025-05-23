@@ -14,7 +14,6 @@ package cmd
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -106,7 +105,7 @@ func checkFileType(path string) error {
 	if fileType != "yaml" && fileType != "yml" {
 		return fmt.Errorf("file format error")
 	}
-	file, _ := ioutil.ReadFile(path)
+	file, _ := os.ReadFile(path)
 	result := make(map[string]interface{})
 	err := yaml.Unmarshal(file, &result)
 	if err != nil {

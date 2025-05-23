@@ -82,13 +82,28 @@ func IntArrayUnique(a []int64) (ret []int64) {
 	return ret
 }
 
+// ArrayUniqueWithGeneric get unique T array
+func ArrayUniqueWithGeneric[T comparable](a []T) (ret []T) {
+	unique := make(map[T]struct{})
+	ret = make([]T, 0, len(a)>>2)
+	for _, val := range a {
+		if _, exists := unique[val]; exists {
+			continue
+		}
+		unique[val] = struct{}{}
+		ret = append(ret, val)
+	}
+
+	return ret
+}
+
 // BoolArrayUnique TODO
 func BoolArrayUnique(a []bool) (ret []bool) {
 	ret = make([]bool, 0)
 	trueExist := false
 	falseExist := false
 	for _, item := range a {
-		if item == true {
+		if item {
 			trueExist = true
 		}
 		if item == false {
@@ -173,7 +188,7 @@ func IntArrIntersection(slice1 []int64, slice2 []int64) []int64 {
 		intMap[i] = true
 	}
 	for _, j := range slice2 {
-		if _, ok := intMap[j]; ok == true {
+		if _, ok := intMap[j]; ok {
 			intersectInt = append(intersectInt, j)
 		}
 	}

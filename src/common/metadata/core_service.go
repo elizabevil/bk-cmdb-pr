@@ -226,7 +226,7 @@ func (node *TopoInstanceNode) Name() string {
 		val, exist = node.Detail[common.BKInstNameField]
 	}
 
-	if exist == true {
+	if exist {
 		name = util.GetStrByInterface(val)
 	} else {
 		blog.V(7).Infof("extract topo instance node:%+v name failed", *node)

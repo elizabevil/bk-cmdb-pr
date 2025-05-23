@@ -1560,7 +1560,7 @@ func (attribute Attribute) PrettyValue(ctx context.Context, val interface{}) (st
 	switch fieldType {
 	case common.FieldTypeSingleChar, common.FieldTypeLongChar:
 		value, ok := val.(string)
-		if ok == false {
+		if !ok {
 			return "", fmt.Errorf("invalid value type for %s, value: %+v", fieldType, val)
 		}
 		return value, nil
@@ -1596,13 +1596,13 @@ func (attribute Attribute) PrettyValue(ctx context.Context, val interface{}) (st
 		return "", fmt.Errorf("invalid value for %s, value: %s", fieldType, valStr)
 	case common.FieldTypeDate:
 		valStr, ok := val.(string)
-		if ok == false {
+		if !ok {
 			return "", fmt.Errorf("invalid data type for %s, value: %+v", fieldType, val)
 		}
 		return valStr, nil
 	case common.FieldTypeTime:
 		valStr, ok := val.(string)
-		if ok == false {
+		if !ok {
 			return "", fmt.Errorf("invalid value type for %s, value: %+v", fieldType, val)
 		}
 		return valStr, nil
@@ -1615,13 +1615,13 @@ func (attribute Attribute) PrettyValue(ctx context.Context, val interface{}) (st
 		}
 	case common.FieldTypeBool:
 		value, ok := val.(bool)
-		if ok == false {
+		if !ok {
 			return "", fmt.Errorf("invalid value type for %s, value: %+v", fieldType, val)
 		}
 		return strconv.FormatBool(value), nil
 	case common.FieldTypeUser:
 		value, ok := val.(string)
-		if ok == false {
+		if !ok {
 			return "", fmt.Errorf("invalid value type for %s, value: %+v", fieldType, val)
 		}
 		return value, nil
@@ -1747,7 +1747,7 @@ func CheckAllowHostApplyOnField(field *Attribute) bool {
 	if field.PropertyType == common.FieldTypeInnerTable {
 		return false
 	}
-	if allow, exist := HostApplyFieldMap[field.PropertyID]; exist == true {
+	if allow, exist := HostApplyFieldMap[field.PropertyID]; exist {
 		return allow
 	}
 	return true

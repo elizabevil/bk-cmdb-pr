@@ -18,7 +18,7 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"fmt"
-	"io/ioutil"
+	"os"
 )
 
 // ClientTLSConfNoVerify TODO
@@ -86,7 +86,7 @@ func ServerTLSVerifyClient(caFile, certFile, keyFile, passwd string) (*tls.Confi
 }
 
 func loadCa(caFile string) (*x509.CertPool, error) {
-	ca, err := ioutil.ReadFile(caFile)
+	ca, err := os.ReadFile(caFile)
 	if err != nil {
 		return nil, err
 	}
@@ -101,7 +101,7 @@ func loadCa(caFile string) (*x509.CertPool, error) {
 
 func loadCertificates(certFile, keyFile, passwd string) (*tls.Certificate, error) {
 	// key file
-	priKey, err := ioutil.ReadFile(keyFile)
+	priKey, err := os.ReadFile(keyFile)
 	if err != nil {
 		return nil, err
 	}
@@ -124,7 +124,7 @@ func loadCertificates(certFile, keyFile, passwd string) (*tls.Certificate, error
 	}
 
 	// certificate
-	certData, err := ioutil.ReadFile(certFile)
+	certData, err := os.ReadFile(certFile)
 	if err != nil {
 		return nil, err
 	}

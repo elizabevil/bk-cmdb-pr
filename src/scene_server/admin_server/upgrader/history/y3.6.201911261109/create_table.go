@@ -75,7 +75,7 @@ func upsertTable(ctx context.Context, db dal.RDB, conf *history.Config, tableNam
 		existIdxMap[idx.Name] = true
 	}
 	for _, index := range indices {
-		if _, ok := existIdxMap[index.Name]; ok == true {
+		if _, ok := existIdxMap[index.Name]; ok {
 			continue
 		}
 		if err = db.Table(tableName).CreateIndex(ctx, index); err != nil && !db.IsDuplicatedError(err) {

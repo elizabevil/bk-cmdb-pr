@@ -50,7 +50,7 @@ type CCErrorIf interface {
 // NewFromStdError TODO
 func NewFromStdError(err error, defaultErrCode int) CCErrorCoder {
 	ccErr, ok := err.(CCErrorCoder)
-	if ok == true {
+	if ok {
 		return ccErr
 	}
 	return New(defaultErrCode, err.Error())

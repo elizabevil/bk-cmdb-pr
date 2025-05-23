@@ -62,7 +62,7 @@ func (ps *ProcServer) listServiceCategory(ctx *rest.Contexts, withStatistics boo
 		WithStatistics: withStatistics,
 	}
 	/*
-		if ps.AuthManager.Enabled() == true {
+		if ps.AuthManager.Enabled() {
 			authorizedCategoryIDs, err := ps.AuthManager.ListAuthorizedServiceCategoryIDs(ctx.Kit.Ctx, ctx.Kit.Header, bizID)
 			if err != nil {
 				blog.Errorf("ListAuthorizedServiceCategoryIDs failed, bizID: %d, err: %+v, rid: %s", bizID, err, ctx.Kit.Rid)
@@ -73,7 +73,7 @@ func (ps *ProcServer) listServiceCategory(ctx *rest.Contexts, withStatistics boo
 			if listOption.ServiceCategoryIDs != nil {
 				ids := make([]int64, 0)
 				for _, id := range listOption.ServiceCategoryIDs {
-					if util.InArray(id, authorizedCategoryIDs) == true {
+					if util.InArray(id, authorizedCategoryIDs) {
 						ids = append(ids, id)
 					}
 				}

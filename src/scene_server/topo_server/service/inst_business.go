@@ -586,7 +586,7 @@ func (s *Service) SearchBusiness(ctx *rest.Contexts) {
 		return
 	}
 	// userFieldArr Fields in the business are user-type fields
-	var userFields []string
+	userFields := make([]string, 0, len(attrArr.Info))
 	for _, attribute := range attrArr.Info {
 		userFields = append(userFields, attribute.PropertyID)
 	}
@@ -602,7 +602,7 @@ func (s *Service) SearchBusiness(ctx *rest.Contexts) {
 		// constrict that bk_biz_id field can only be a numeric value,
 		// operators like or/in/and is not allowed.
 		if bizcond, ok := biz.(map[string]interface{}); ok {
-			if cond, ok := bizcond["$eq"]; ok {
+			if cond, ok := bizcond[common.BKDBEQ]; ok {
 				bizID, err := util.GetInt64ByInterface(cond)
 				if err != nil {
 					ctx.RespErrorCodeOnly(common.CCErrCommParamsInvalid, "", common.BKAppIDField)
@@ -610,7 +610,7 @@ func (s *Service) SearchBusiness(ctx *rest.Contexts) {
 				}
 				bizIDs = []int64{bizID}
 			}
-			if cond, ok := bizcond["$in"]; ok {
+			if cond, ok := bizcond[common.BKDBIN]; ok {
 				if conds, ok := cond.([]interface{}); ok {
 					for _, c := range conds {
 						bizID, err := util.GetInt64ByInterface(c)

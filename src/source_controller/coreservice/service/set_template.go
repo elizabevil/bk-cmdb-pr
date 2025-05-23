@@ -178,7 +178,7 @@ func (s *coreService) CountSetTplInstances(ctx *rest.Contexts) {
 	result := make([]metadata.CountSetTplInstItem, 0)
 	if err := mongodb.Shard(ctx.Kit.ShardOpts()).Table(common.BKTableNameBaseSet).AggregateAll(ctx.Kit.Ctx, pipeline,
 		&result); err != nil {
-		if mongodb.IsNotFoundError(err) == true {
+		if mongodb.IsNotFoundError(err) {
 			result = make([]metadata.CountSetTplInstItem, 0)
 		} else {
 			blog.Errorf("find set failed, bizID: %d, option: %v, err: %v, rid: %s", bizID, option, err, ctx.Kit.Rid)

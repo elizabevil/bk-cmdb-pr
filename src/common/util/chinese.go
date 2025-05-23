@@ -20,7 +20,7 @@ package util
 import (
 	"bytes"
 	"encoding/hex"
-	"io/ioutil"
+	"io"
 	"strconv"
 
 	"golang.org/x/text/encoding/simplifiedchinese"
@@ -40,7 +40,7 @@ func GetInitials(input string) string {
 	initials := string([]rune(input)[:1])
 
 	// transform the initials into gbk format
-	gbkInitials, err := ioutil.ReadAll(transform.NewReader(bytes.NewReader([]byte(initials)),
+	gbkInitials, err := io.ReadAll(transform.NewReader(bytes.NewReader([]byte(initials)),
 		simplifiedchinese.GBK.NewEncoder()))
 	if err != nil {
 		return initials

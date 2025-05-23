@@ -37,7 +37,7 @@ func (s *service) AuthVerify(req *restful.Request, resp *restful.Response) {
 	tenantID := httpheader.GetTenantID(pheader)
 	rid := httpheader.GetRid(pheader)
 
-	if auth.EnableAuthorize() == false {
+	if !auth.EnableAuthorize() {
 		blog.Errorf("inappropriate calling, auth is disabled, rid: %s", rid)
 		resp.WriteError(http.StatusBadRequest,
 			&metadata.RespError{Msg: defErr.Error(common.CCErrCommInappropriateVisitToIAM)})
@@ -134,7 +134,7 @@ func (s *service) GetAnyAuthorizedAppList(req *restful.Request, resp *restful.Re
 	defErr := s.engine.CCErr.CreateDefaultCCErrorIf(httpheader.GetLanguage(pheader))
 	rid := httpheader.GetRid(pheader)
 
-	if auth.EnableAuthorize() == false {
+	if !auth.EnableAuthorize() {
 		blog.Errorf("inappropriate calling, auth is disabled, rid: %s", rid)
 		resp.WriteError(http.StatusBadRequest,
 			&metadata.RespError{Msg: defErr.Error(common.CCErrCommInappropriateVisitToIAM)})
@@ -179,7 +179,7 @@ func (s *service) GetAnyAuthorizedAppList(req *restful.Request, resp *restful.Re
 		}
 
 		input = params.SearchParams{
-			Condition: mapstr.MapStr{common.BKAppIDField: mapstr.MapStr{"$in": appIDList}},
+			Condition: mapstr.MapStr{common.BKAppIDField: mapstr.MapStr{common.BKDBIN: appIDList}},
 		}
 	}
 

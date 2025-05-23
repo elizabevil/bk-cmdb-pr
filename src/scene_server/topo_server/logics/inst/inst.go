@@ -770,64 +770,7 @@ func (c *commonInst) FindInstByAssociationInst(kit *rest.Kit, objID string,
 		}
 
 		for _, objCondition := range objs {
-			if objCondition.Operator != common.BKDBEQ {
-				if objID == keyObjID {
-					if objCondition.Operator == common.BKDBLIKE ||
-						objCondition.Operator == common.BKDBMULTIPLELike {
-						switch t := objCondition.Value.(type) {
-						case string:
-							instCond[objCondition.Field] = map[string]interface{}{
-								objCondition.Operator: gparams.SpecialCharChange(t),
-							}
-						default:
-							// deal self condition
-							instCond[objCondition.Field] = map[string]interface{}{
-								objCondition.Operator: objCondition.Value,
-							}
-						}
-					} else if objCondition.Operator == common.BKDBLT ||
-						objCondition.Operator == common.BKDBLTE ||
-						objCondition.Operator == common.BKDBGT ||
-						objCondition.Operator == common.BKDBGTE {
-
-						// fix condition covered when do date range search action.
-						// ISSUE: https://github.com/TencentBlueKing/bk-cmdb/issues/5302
-						if _, isExist := instCond[objCondition.Field]; !isExist {
-							instCond[objCondition.Field] = make(map[string]interface{})
-						}
-						if condValue, ok := instCond[objCondition.Field].(map[string]interface{}); ok {
-							condValue[objCondition.Operator] = objCondition.Value
-						}
-					} else {
-						// deal self condition
-						instCond[objCondition.Field] = map[string]interface{}{
-							objCondition.Operator: objCondition.Value,
-						}
-					}
-				} else {
-					// deal association condition
-					cond[objCondition.Field] = map[string]interface{}{
-						objCondition.Operator: objCondition.Value,
-					}
-				}
-			} else {
-				if objID == keyObjID {
-					// deal self condition
-					switch t := objCondition.Value.(type) {
-					case string:
-						instCond[objCondition.Field] = map[string]interface{}{
-							common.BKDBEQ: t,
-						}
-					default:
-						instCond[objCondition.Field] = objCondition.Value
-					}
-
-				} else {
-					// deal association condition
-					cond[objCondition.Field] = objCondition.Value
-				}
-			}
-
+			conditionOperator(objCondition, objID, keyObjID, instCond, cond)
 		}
 
 		if objID == keyObjID {
@@ -909,6 +852,64 @@ func (c *commonInst) FindInstByAssociationInst(kit *rest.Kit, objID string,
 		query.Fields = fields
 	}
 	return c.FindInst(kit, objID, query)
+}
+
+func conditionOperator(objCondition ConditionItem, objID, keyObjID string, instCond, cond map[string]interface{}) {
+	if objCondition.Operator != common.BKDBEQ {
+		if objID == keyObjID {
+			switch objCondition.Operator {
+			case common.BKDBLIKE, common.BKDBMULTIPLELike:
+				switch t := objCondition.Value.(type) {
+				case string:
+					instCond[objCondition.Field] = map[string]interface{}{
+						objCondition.Operator: gparams.SpecialCharChange(t),
+					}
+				default:
+					// deal self condition
+					instCond[objCondition.Field] = map[string]interface{}{
+						objCondition.Operator: objCondition.Value,
+					}
+				}
+
+			case common.BKDBLT, common.BKDBLTE, common.BKDBGT, common.BKDBGTE:
+				// fix condition covered when do date range search action.
+				// ISSUE: https://github.com/TencentBlueKing/bk-cmdb/issues/5302
+				if _, isExist := instCond[objCondition.Field]; !isExist {
+					instCond[objCondition.Field] = make(map[string]interface{})
+				}
+				if condValue, ok := instCond[objCondition.Field].(map[string]interface{}); ok {
+					condValue[objCondition.Operator] = objCondition.Value
+				}
+
+			default:
+				// deal self condition
+				instCond[objCondition.Field] = map[string]interface{}{
+					objCondition.Operator: objCondition.Value,
+				}
+
+			}
+			return
+		}
+		// deal association condition
+		cond[objCondition.Field] = map[string]interface{}{
+			objCondition.Operator: objCondition.Value,
+		}
+		return
+	}
+	if objID == keyObjID {
+		// deal self condition
+		switch t := objCondition.Value.(type) {
+		case string:
+			instCond[objCondition.Field] = map[string]interface{}{
+				common.BKDBEQ: t,
+			}
+		default:
+			instCond[objCondition.Field] = objCondition.Value
+		}
+		return
+	}
+	// deal association condition
+	cond[objCondition.Field] = objCondition.Value
 }
 
 // UpdateInst update instance by condition

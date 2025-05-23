@@ -17,7 +17,6 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 
 	"configcenter/src/common"
@@ -26,7 +25,6 @@ import (
 	"configcenter/src/common/errors"
 	"configcenter/src/common/http/rest"
 	"configcenter/src/common/mapstr"
-	"configcenter/src/common/mapstruct"
 	"configcenter/src/common/metadata"
 	"configcenter/src/common/util"
 
@@ -390,182 +388,6 @@ func (ps *ProcServer) generateUpdateProcessAudit(kit *rest.Kit, input metadata.U
 	auditLogs := audit.GenerateAuditLog(generateAuditParameter)
 
 	return auditLogs, nil
-}
-
-func (ps *ProcServer) updateProcessInstances(kit *rest.Kit, input metadata.UpdateRawProcessInstanceInput) ([]int64,
-	errors.CCErrorCoder) {
-	bizID := input.BizID
-
-	processIDs := make([]int64, 0)
-	input.Processes = make([]metadata.Process, 0)
-	for _, pData := range input.Raw {
-		process := metadata.Process{}
-		if err := mapstr.DecodeFromMapStr(&process, pData); err != nil {
-			blog.Errorf("unmarshal request body failed, data: %+v, err: %v, rid: %s", pData, err.Error(), kit.Rid)
-			return nil, kit.CCError.CCError(common.CCErrCommJSONUnmarshalFailed)
-		}
-		input.Processes = append(input.Processes, process)
-
-		if process.ProcessID == 0 {
-			blog.Errorf("update process instance failed, process_id invalid, rid: %s", kit.Rid)
-			return nil, kit.CCError.CCErrorf(common.CCErrCommParamsInvalid, common.BKProcessIDField)
-		}
-		processIDs = append(processIDs, process.ProcessID)
-	}
-	processIDs = util.IntArrayUnique(processIDs)
-	option := &metadata.ListProcessInstanceRelationOption{
-		BusinessID: bizID,
-		ProcessIDs: processIDs,
-		Page:       metadata.BasePage{Limit: common.BKNoLimit},
-	}
-	relations, err := ps.CoreAPI.CoreService().Process().ListProcessInstanceRelation(kit.Ctx, kit.Header,
-		option)
-	if err != nil {
-		blog.Errorf("search process instance relation failed, option: %+v, err: %v, rid: %s", option, err, kit.Rid)
-		return nil, err
-	}
-
-	// make sure all process valid
-	foundProcessIDs := make([]int64, 0)
-	hostIDs := make([]int64, 0)
-	for _, relation := range relations.Info {
-		foundProcessIDs = append(foundProcessIDs, relation.ProcessID)
-		if relation.ProcessTemplateID != common.ServiceTemplateIDNotSet {
-			hostIDs = append(hostIDs, relation.HostID)
-		}
-	}
-	invalidProcessIDs := make([]string, 0)
-	for _, processID := range processIDs {
-		if !util.InArray(processID, foundProcessIDs) {
-			invalidProcessIDs = append(invalidProcessIDs, strconv.FormatInt(processID, 10))
-		}
-	}
-	if len(invalidProcessIDs) > 0 {
-		blog.Errorf("update process instance failed, process %+v not found", invalidProcessIDs)
-		msg := fmt.Sprintf("[%s: %s]", common.BKProcessIDField, strings.Join(invalidProcessIDs, ","))
-		err := kit.CCError.CCErrorf(common.CCErrCommParamsIsInvalid, msg)
-		return nil, err
-	}
-
-	processTemplateMap := make(map[int64]*metadata.ProcessTemplate)
-	for _, relation := range relations.Info {
-		if relation.ProcessTemplateID == common.ServiceTemplateIDNotSet {
-			continue
-		}
-		if _, exist := processTemplateMap[relation.ProcessTemplateID]; exist {
-			continue
-		}
-		processTemplate, err := ps.CoreAPI.CoreService().Process().GetProcessTemplate(kit.Ctx, kit.Header,
-			relation.ProcessTemplateID)
-		if err != nil {
-			blog.Errorf("get process template failed, processTemplateID: %d, err: %v, rid: %s",
-				relation.ProcessTemplateID, err, kit.Rid)
-			return nil, err
-		}
-		processTemplateMap[relation.ProcessTemplateID] = processTemplate
-	}
-
-	process2ServiceInstanceMap := make(map[int64]*metadata.ProcessInstanceRelation)
-	for i := range relations.Info {
-		process2ServiceInstanceMap[relations.Info[i].ProcessID] = &relations.Info[i]
-	}
-
-	hostMap, err := ps.Logic.GetHostIPMapByID(kit, hostIDs)
-	if err != nil {
-		return nil, err
-	}
-
-	processDataMap := make(map[int64]map[string]interface{})
-	for idx, process := range input.Processes {
-		// 单独提取需要被重置成 nil 的字段
-		raw := input.Raw[idx]
-		clearFields := make([]string, 0)
-		for key, value := range raw {
-			if value == nil {
-				clearFields = append(clearFields, key)
-			}
-		}
-		clearFields = metadata.FilterValidFields(clearFields)
-
-		relation, exist := process2ServiceInstanceMap[process.ProcessID]
-		if !exist {
-			err := kit.CCError.CCErrorf(common.CCErrCommParamsInvalid, common.BKProcessIDField)
-			blog.Errorf("process related service instance not found, process: %+v, err: %v, rid: %s", process, err,
-				kit.Rid)
-			return nil, err
-		}
-
-		var processData map[string]interface{}
-		if relation.ProcessTemplateID == common.ServiceTemplateIDNotSet {
-			process.BusinessID = bizID
-			var err error
-			processData, err = mapstruct.Struct2Map(process)
-			if err != nil {
-				blog.Errorf("json Unmarshal process failed, processData: %+v, err: %v, rid: %s", processData, err,
-					kit.Rid)
-				return nil, kit.CCError.CCError(common.CCErrCommJsonDecode)
-			}
-			delete(processData, common.BKProcessIDField)
-			delete(processData, common.MetadataField)
-			delete(processData, common.LastTimeField)
-			delete(processData, common.CreateTimeField)
-		} else {
-			processTemplate, exist := processTemplateMap[relation.ProcessTemplateID]
-			if !exist {
-				err := kit.CCError.CCError(common.CCErrCommNotFound)
-				blog.Errorf("process related template not found, relation: %+v, err: %v, rid: %s", relation, err,
-					kit.Rid)
-				return nil, err
-			}
-			var compareErr error
-			processData, compareErr = processTemplate.ExtractInstanceUpdateData(&process, hostMap[relation.HostID])
-			if compareErr != nil {
-				blog.Errorf("extract process (%+v) update data failed, err: %v, rid: %s", process, err, kit.Rid)
-				return nil, errors.New(common.CCErrCommParamsInvalid, compareErr.Error())
-			}
-			clearFields = processTemplate.GetEditableFields(clearFields)
-		}
-		// set field value as nil
-		for _, field := range clearFields {
-			processData[field] = nil
-		}
-		processDataMap[process.ProcessID] = processData
-	}
-
-	var wg sync.WaitGroup
-	var firstErr errors.CCErrorCoder
-	pipeline := make(chan bool, 10)
-
-	for processID := range processDataMap {
-		pipeline <- true
-		wg.Add(1)
-
-		go func(processID int64, processData map[string]interface{}) {
-			defer func() {
-				wg.Done()
-				<-pipeline
-			}()
-
-			err := ps.Logic.UpdateProcessInstance(kit, processID, processData)
-			if err != nil {
-				blog.Errorf("UpdateProcessInstance failed, processID: %d, process: %+v, err: %v, rid: %s", processID,
-					processData, err, kit.Rid)
-				if firstErr == nil {
-					firstErr = err
-				}
-				return
-			}
-
-		}(processID, processDataMap[processID])
-	}
-
-	wg.Wait()
-
-	if firstErr != nil {
-		return nil, firstErr
-	}
-
-	return processIDs, nil
 }
 
 // checkHostsInModule check if hosts are in the business module, can only create service instance for hosts in it
@@ -1291,7 +1113,7 @@ func (ps *ProcServer) listProcessRelatedInfo(ctx *rest.Contexts, bizID int64, pr
 		return
 	}
 
-	srvInstDetailMap, moduleArr := make(map[int64]metadata.ServiceInstanceDetailOfP), make([]int64, 0)
+	srvInstDetailMap, moduleArr := make(map[int64]metadata.ServiceInstanceDetailOfP, len(instances.Info)), make([]int64, 0, len(instances.Info))
 	srvInstModuleMap := make(map[int64]int64)
 
 	for _, inst := range instances.Info {
