@@ -591,7 +591,7 @@ func (p *hostApplyRule) RunHostApplyOnHosts(kit *rest.Kit, bizID int64, relation
 	}
 
 	enableModuleMap, haveHostApplyIDs, srvTemplateIDMap, cErr := getModuleIDsAndSrvTempIDs(kit, modules)
-	if err != nil {
+	if cErr != nil {
 		return result, cErr
 	}
 

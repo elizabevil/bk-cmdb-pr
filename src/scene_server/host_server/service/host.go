@@ -16,7 +16,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"strconv"
 	"strings"
 	"sync"
@@ -63,8 +63,7 @@ func (s *Service) DeleteHostBatchFromResourcePool(ctx *rest.Contexts) {
 	}
 
 	hostIDArr := strings.Split(opt.HostID, ",")
-	var iHostIDArr []int64
-	delCondsArr := make([][]map[string]interface{}, 0)
+	iHostIDArr := make([]int64, 0, len(hostIDArr))
 	for _, i := range hostIDArr {
 		iHostID, err := strconv.ParseInt(i, 10, 64)
 		if err != nil {
@@ -94,6 +93,7 @@ func (s *Service) DeleteHostBatchFromResourcePool(ctx *rest.Contexts) {
 		return
 	}
 
+	delCondsArr := make([][]map[string]interface{}, 0)
 	for _, iHostID := range iHostIDArr {
 		asstCond := map[string]interface{}{
 			common.BKDBOR: []map[string]interface{}{
@@ -138,9 +138,6 @@ func (s *Service) DeleteHostBatchFromResourcePool(ctx *rest.Contexts) {
 		}
 		delConds := make([]map[string]interface{}, 0)
 		for objID, instIDs := range asstInstMap {
-			if len(instIDs) < 0 {
-				continue
-			}
 			instIDField := common.GetInstIDField(objID)
 			instCond := map[string]interface{}{
 				instIDField: map[string]interface{}{
@@ -419,7 +416,7 @@ func (s *Service) AddHostByExcel(ctx *rest.Contexts) {
 func (s *Service) AddHostToResourcePool(ctx *rest.Contexts) {
 
 	hostList := new(meta.AddHostToResourcePoolHostList)
-	body, err := ioutil.ReadAll(ctx.Request.Request.Body)
+	body, err := io.ReadAll(ctx.Request.Request.Body)
 	if err != nil {
 		blog.Errorf("read request body failed, err: %v, rid: %s", err, ctx.Kit.Rid)
 		ctx.RespAutoError(ctx.Kit.CCError.CCError(common.CCErrCommHTTPReadBodyFailed))
@@ -1168,40 +1165,44 @@ func (s *Service) CloneHostProperty(ctx *rest.Contexts) {
 		return
 	}
 
-	// can only use ip or id for one.
-	if (len(input.OrgIP) != 0 || len(input.DstIP) != 0) && (input.OrgID > 0 || input.DstID > 0) {
+	useIP := input.OrgIP != "" || input.DstIP != ""
+	useID := input.OrgID > 0 || input.DstID > 0
+
+	switch {
+	// must only use ip or id for one.
+	case useIP && useID:
 		ctx.RespErrorCodeOnly(common.CCErrCommParamsIsInvalid, "invalid org/dst ip or id")
 		return
-	}
 
-	if (len(input.OrgIP) == 0 && len(input.DstIP) == 0) && (input.OrgID <= 0 && input.DstID <= 0) {
-		ctx.RespErrorCodeOnly(common.CCErrCommParamsIsInvalid, "invalid org/dst ip or id")
-		return
-	}
-
-	if (len(input.OrgIP) != 0 || len(input.DstIP) != 0) && (len(input.OrgIP) == 0 || len(input.DstIP) == 0) {
+	// no params
+	case !useIP && !useID:
 		ctx.RespErrorCodeOnly(common.CCErrCommParamsIsInvalid, "no parameter")
 		return
 	}
 
-	if input.OrgID < 0 || input.DstID < 0 {
-		ctx.RespErrorCodeOnly(common.CCErrCommParamsIsInvalid, "invalid org/dst id")
-		return
+	// ip
+	if useIP {
+		if input.OrgIP == "" || input.DstIP == "" {
+			ctx.RespErrorCodeOnly(common.CCErrCommParamsIsInvalid, "need org/dst ip ")
+			return
+		}
+		if input.OrgIP == input.DstIP {
+			ctx.RespEntity(nil)
+			return
+		}
 	}
 
-	if (input.OrgID > 0 || input.DstID > 0) && (input.OrgID <= 0 || input.DstID <= 0) {
-		ctx.RespErrorCodeOnly(common.CCErrCommParamsIsInvalid, "invalid org/dst id")
-		return
-	}
-
-	if (len(input.OrgIP) != 0 && len(input.DstIP) != 0) && (input.OrgIP == input.DstIP) {
-		ctx.RespEntity(nil)
-		return
-	}
-
-	if (input.OrgID > 0 && input.DstID > 0) && (input.OrgID == input.DstID) {
-		ctx.RespEntity(nil)
-		return
+	//id
+	if useID {
+		if input.OrgID <= 0 || input.DstID <= 0 {
+			ctx.RespErrorCodeOnly(common.CCErrCommParamsIsInvalid, "invalid org/dst id")
+			return
+		}
+		// 5. 源目标相同，无需克隆
+		if input.OrgID == input.DstID {
+			ctx.RespEntity(nil)
+			return
+		}
 	}
 
 	// authorization check
@@ -1472,7 +1473,7 @@ func (s *Service) countBizHostCPU(kit *rest.Kit, bizID int64) (meta.BizHostCpuCo
 				return meta.BizHostCpuCount{}, kit.CCError.CCErrorf(common.CCErrCommParamsInvalid, "bk_cpu")
 			}
 
-			if cpuCnt == 0 {
+			if cpuCount == 0 {
 				cnt.NoCpuHostCount++
 				continue
 			}

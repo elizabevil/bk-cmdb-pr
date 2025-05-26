@@ -92,7 +92,7 @@ func addObjAttDescData(ctx context.Context, db dal.RDB, conf *history.Config) er
 		},
 		common.BKPropertyIDField: "bk_name",
 	}
-
+	// TODO why not return error
 	db.Table(tablename).Delete(ctx, selector)
 
 	return nil

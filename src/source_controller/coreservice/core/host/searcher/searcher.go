@@ -96,7 +96,7 @@ func (s *Searcher) ListHosts(kit *rest.Kit, option metadata.ListHosts) (*metadat
 			if err != nil {
 				return nil, err
 			}
-			if skip == false {
+			if !skip {
 				return searchResult, nil
 			}
 		}

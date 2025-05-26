@@ -33,7 +33,6 @@ func (lgc *Logics) ListAttrValue(kit *rest.Kit, resourceType iam.TypeID, filter 
 	if objID == "" && !iam.IsIAMSysInstance(resourceType) {
 		return &types.ListAttrValueResult{Count: 0, Results: []types.AttrValueResource{}}, nil
 	}
-	var attrType string
 
 	param := metadata.QueryCondition{
 		Condition: map[string]interface{}{
@@ -70,7 +69,10 @@ func (lgc *Logics) ListAttrValue(kit *rest.Kit, resourceType iam.TypeID, filter 
 	}
 
 	attr := res.Info[0]
-	attrType = attr.PropertyType
+
+	attrType := attr.PropertyType
+
+	// TODO always false
 	if attrType != common.FieldTypeEnum && attrType != common.FieldTypeList {
 		return &types.ListAttrValueResult{Count: 0, Results: []types.AttrValueResource{}}, nil
 	}

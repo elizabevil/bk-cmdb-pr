@@ -134,9 +134,9 @@ func (m *associationModel) UpdateModelAssociation(kit *rest.Kit,
 	// bk_asst_obj_id is allowed for add business model level
 	validFields := []string{"bk_obj_asst_name", "bk_asst_obj_id"}
 	validData := map[string]interface{}{}
-	filterOutFields := []string{}
+	filterOutFields := make([]string, 0)
 	for key, val := range inputParam.Data {
-		if isValidField := util.Contains(validFields, key); isValidField == false {
+		if isValidField := util.Contains(validFields, key); !isValidField {
 			filterOutFields = append(filterOutFields, key)
 			continue
 		}
@@ -215,7 +215,7 @@ func (m *associationModel) DeleteModelAssociation(kit *rest.Kit,
 	}
 
 	// if the model association was already used in instance association, then the deletion operation must be abandoned
-	associationIDS := []string{}
+	associationIDS := make([]string, 0, len(needDeleteAssocaitionItems))
 	for _, assocaitionItem := range needDeleteAssocaitionItems {
 		associationIDS = append(associationIDS, assocaitionItem.AssociationName)
 	}
@@ -260,7 +260,7 @@ func (m *associationModel) CascadeDeleteModelAssociation(kit *rest.Kit,
 	}
 
 	// if the model association was already used in instance association, then the deletion operation must be abandoned
-	associationIDS := []string{}
+	associationIDS := make([]string, 0, len(needDeleteAssocaitionItems))
 	for _, assocaitionItem := range needDeleteAssocaitionItems {
 		associationIDS = append(associationIDS, assocaitionItem.AssociationName)
 	}

@@ -103,7 +103,11 @@ func (ps *ProcServer) getProcessTemplates(kit *rest.Kit, relations []metadata.Pr
 		if _, ok := processTemplateMap[relation.ProcessTemplateID]; ok {
 			continue
 		}
-		template, err := ps.CoreAPI.CoreService().Process().GetProcessTemplate(kit.Ctx, kit.Header, relation.ProcessTemplateID)
+		template, err := ps.CoreAPI.CoreService().Process().GetProcessTemplate(
+			kit.Ctx,
+			kit.Header,
+			relation.ProcessTemplateID,
+		)
 		if err != nil {
 			blog.Errorf("get process template failed, ID: %d, err: %v, rid: %s", relation.ProcessTemplateID, err, kit.Rid)
 			return nil, err
@@ -151,7 +155,12 @@ func (ps *ProcServer) buildProcessUpdateData(
 				blog.Errorf("json Unmarshal process failed, processData: %+v, err: %v, rid: %s", processData, err, kit.Rid)
 				return nil, kit.CCError.CCError(common.CCErrCommJsonDecode)
 			}
-			for _, field := range []string{common.BKProcessIDField, common.MetadataField, common.LastTimeField, common.CreateTimeField} {
+			for _, field := range []string{
+				common.BKProcessIDField,
+				common.MetadataField,
+				common.LastTimeField,
+				common.CreateTimeField,
+			} {
 				delete(processData, field)
 			}
 		} else {
@@ -203,7 +212,7 @@ func (ps *ProcServer) batchUpdateProcessInstances(kit *rest.Kit, dataMap map[int
 			}()
 			err := ps.Logic.UpdateProcessInstance(kit, processID, processData)
 			if err != nil {
-				blog.Errorf("UpdateProcessInstance failed, ID: %d, data: %+v, err: %v, rid: %s", processID, processData, err, kit.Rid)
+				blog.Errorf("UpdateProcessInstance failed,ID: %d,data: %+v,err: %v,rid: %s", processID, processData, err, kit.Rid)
 				firstErr.CompareAndSwap(nil, err)
 			}
 		}(pid, data)

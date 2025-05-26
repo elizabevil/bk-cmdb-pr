@@ -331,7 +331,7 @@ func (s *coreService) SearchModelWithAttribute(ctx *rest.Contexts) {
 // GetModelStatistics 用于统计各个模型的实例数(Web页面展示需要)
 func (s *coreService) GetModelStatistics(ctx *rest.Contexts) {
 	// statistics data include all object model statistics.
-	statistics := []metadata.ObjectIDCount{}
+	statistics := make([]metadata.ObjectIDCount, 0, 1<<2)
 
 	// stat set count.
 	filter := map[string]interface{}{}

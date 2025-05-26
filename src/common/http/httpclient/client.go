@@ -16,7 +16,7 @@ import (
 	"bytes"
 	"context"
 	"crypto/tls"
-	"io/ioutil"
+	"io"
 	"net"
 	"net/http"
 	"time"
@@ -199,7 +199,7 @@ func (client *HttpClient) Request(url, method string, header http.Header, data [
 
 	defer rsp.Body.Close()
 
-	body, err := ioutil.ReadAll(rsp.Body)
+	body, err := io.ReadAll(rsp.Body)
 
 	return body, err
 }
@@ -235,7 +235,7 @@ func (client *HttpClient) RequestEx(url, method string, header http.Header, data
 
 	defer rsp.Body.Close()
 
-	body, err := ioutil.ReadAll(rsp.Body)
+	body, err := io.ReadAll(rsp.Body)
 
 	return rsp.StatusCode, body, err
 }
