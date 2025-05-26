@@ -116,10 +116,8 @@ func (c *DynamicGroupCondition) Validate(attributeMap map[string]string) error {
 		return err
 	}
 
-	if c.Field == common.BKServiceTemplateIDField {
-		if c.Operator != DynamicGroupOperatorIN {
-			return fmt.Errorf("service template field only support $in operator, not support operator, %s", c.Operator)
-		}
+	if c.Field == common.BKServiceTemplateIDField && c.Operator != DynamicGroupOperatorIN {
+		return fmt.Errorf("service template field only support $in operator, not support operator, %s", c.Operator)
 	}
 
 	switch attrType {

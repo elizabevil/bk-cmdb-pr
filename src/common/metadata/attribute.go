@@ -1558,7 +1558,7 @@ func (attribute Attribute) PrettyValue(ctx context.Context, val interface{}) (st
 
 	fieldType := attribute.PropertyType
 	switch fieldType {
-	case common.FieldTypeSingleChar, common.FieldTypeLongChar:
+	case common.FieldTypeSingleChar, common.FieldTypeLongChar, common.FieldTypeDate, common.FieldTypeTime, common.FieldTypeUser, common.FieldTypeTimeZone:
 		value, ok := val.(string)
 		if !ok {
 			return "", fmt.Errorf("invalid value type for %s, value: %+v", fieldType, val)
@@ -1594,37 +1594,14 @@ func (attribute Attribute) PrettyValue(ctx context.Context, val interface{}) (st
 			}
 		}
 		return "", fmt.Errorf("invalid value for %s, value: %s", fieldType, valStr)
-	case common.FieldTypeDate:
-		valStr, ok := val.(string)
-		if !ok {
-			return "", fmt.Errorf("invalid data type for %s, value: %+v", fieldType, val)
-		}
-		return valStr, nil
-	case common.FieldTypeTime:
-		valStr, ok := val.(string)
-		if !ok {
-			return "", fmt.Errorf("invalid value type for %s, value: %+v", fieldType, val)
-		}
-		return valStr, nil
-	case common.FieldTypeTimeZone:
-		switch value := val.(type) {
-		case string:
-			return value, nil
-		default:
-			return "", fmt.Errorf("invalid value type for %s, value: %+v", fieldType, val)
-		}
+
 	case common.FieldTypeBool:
 		value, ok := val.(bool)
 		if !ok {
 			return "", fmt.Errorf("invalid value type for %s, value: %+v", fieldType, val)
 		}
 		return strconv.FormatBool(value), nil
-	case common.FieldTypeUser:
-		value, ok := val.(string)
-		if !ok {
-			return "", fmt.Errorf("invalid value type for %s, value: %+v", fieldType, val)
-		}
-		return value, nil
+
 	case common.FieldTypeList:
 		strVal, ok := val.(string)
 		if !ok {

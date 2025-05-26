@@ -14,6 +14,7 @@ package service
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"reflect"
 	"sort"
@@ -553,191 +554,39 @@ func handleSpecialBusinessFieldSearchCond(input map[string]interface{}, userFiel
 	return output
 }
 
-// SearchBusiness search the business by condition
 func (s *Service) SearchBusiness(ctx *rest.Contexts) {
 	searchCond := new(metadata.QueryBusinessRequest)
-	if err := ctx.DecodeInto(&searchCond); err != nil {
-		blog.Errorf("failed to parse the params, error info is %s, rid: %s", err.Error(), ctx.Kit.Rid)
-		ctx.RespErrorCodeOnly(common.CCErrCommJSONUnmarshalFailed, "")
+	if err := ParseParamsFromCtx(ctx, &searchCond); err != nil {
 		return
 	}
 
-	// parameters condition and biz_property_filter cannot be set at the same time.
 	if searchCond.Condition != nil && searchCond.BizPropertyFilter != nil {
-		blog.Errorf("failed to parse the params, condition and biz_property_filter cannot be set at the same "+
-			"time, rid: %s", ctx.Kit.Rid)
-		ctx.RespErrorCodeOnly(common.CCErrCommParamsInvalid, "condition and biz_property_filter cannot be set "+
-			"at the same time")
+		blog.Errorf("condition and biz_property_filter cannot both be set, rid: %s", ctx.Kit.Rid)
+		ctx.RespErrorCodeOnly(common.CCErrCommParamsInvalid, "condition and biz_property_filter cannot be set at the same time")
 		return
 	}
-
-	opt := &metadata.QueryCondition{
-		Condition: mapstr.MapStr{
-			metadata.AttributeFieldObjectID:     common.BKInnerObjIDApp,
-			metadata.AttributeFieldPropertyType: common.FieldTypeUser,
-		},
-		DisableCounter: true,
-	}
-	attrArr, err := s.Engine.CoreAPI.CoreService().Model().ReadModelAttr(ctx.Kit.Ctx, ctx.Kit.Header,
-		common.BKInnerObjIDApp, opt)
-	if err != nil {
-		blog.Errorf("failed get the business attribute, %s, rid:%s", err.Error(), ctx.Kit.Rid)
+	if err := s.injectUserTypeFields(ctx, searchCond); err != nil {
 		ctx.RespAutoError(err)
 		return
 	}
-	// userFieldArr Fields in the business are user-type fields
-	userFields := make([]string, 0, len(attrArr.Info))
-	for _, attribute := range attrArr.Info {
-		userFields = append(userFields, attribute.PropertyID)
-	}
 
-	searchCond.Condition = handleSpecialBusinessFieldSearchCond(searchCond.Condition, userFields)
-
-	// parse business id from user's condition for testing.
-	bizIDs := make([]int64, 0)
-	authBizIDs := make([]int64, 0)
-	defErr := ctx.Kit.CCError
-	biz, exist := searchCond.Condition[common.BKAppIDField]
-	if exist {
-		// constrict that bk_biz_id field can only be a numeric value,
-		// operators like or/in/and is not allowed.
-		if bizcond, ok := biz.(map[string]interface{}); ok {
-			if cond, ok := bizcond[common.BKDBEQ]; ok {
-				bizID, err := util.GetInt64ByInterface(cond)
-				if err != nil {
-					ctx.RespErrorCodeOnly(common.CCErrCommParamsInvalid, "", common.BKAppIDField)
-					return
-				}
-				bizIDs = []int64{bizID}
-			}
-			if cond, ok := bizcond[common.BKDBIN]; ok {
-				if conds, ok := cond.([]interface{}); ok {
-					for _, c := range conds {
-						bizID, err := util.GetInt64ByInterface(c)
-						if err != nil {
-							ctx.RespErrorCodeOnly(common.CCErrCommParamsInvalid, "", common.BKAppIDField)
-							return
-						}
-						bizIDs = append(bizIDs, bizID)
-					}
-				}
-			}
-		} else {
-			bizID, err := util.GetInt64ByInterface(searchCond.Condition[common.BKAppIDField])
-			if err != nil {
-				ctx.RespAutoError(ctx.Kit.CCError.Errorf(common.CCErrCommParamsInvalid, common.BKAppIDField))
-				return
-			}
-			bizIDs = []int64{bizID}
-		}
+	bizIDs, err := s.extractBizIDs(searchCond.Condition)
+	if err != nil {
+		ctx.RespErrorCodeOnly(common.CCErrCommParamsInvalid, "", common.BKAppIDField)
+		return
 	}
 
 	if s.AuthManager.Enabled() {
-		authInput := meta.ListAuthorizedResourcesParam{
-			UserName:     ctx.Kit.User,
-			ResourceType: meta.Business,
-			Action:       meta.Find,
-		}
-		authorizedRes, err := s.AuthManager.Authorizer.ListAuthorizedResources(ctx.Kit.Ctx, ctx.Kit.Header, authInput)
-		if err != nil {
-			blog.Errorf("[api-biz] SearchBusiness failed, ListAuthorizedResources failed, user: %s, err: %s,"+
-				" rid: %s", ctx.Kit.User, err.Error(), ctx.Kit.Rid)
-			ctx.RespErrorCodeOnly(common.CCErrorTopoGetAuthorizedBusinessListFailed, "")
+		if err := s.filterByAuthorization(ctx, searchCond, bizIDs); err != nil {
 			return
-		}
-		appList := make([]int64, 0)
-
-		// if isAny is true means we have all bizIds authority, else we should parse ids list that we have authority.
-		if authorizedRes.IsAny {
-			// if user assign the ids,add the ids to the condition.
-			if len(bizIDs) > 0 {
-				searchCond.Condition[common.BKAppIDField] = mapstr.MapStr{common.BKDBIN: bizIDs}
-			}
-
-		} else {
-			for _, resourceID := range authorizedRes.Ids {
-				bizID, err := strconv.ParseInt(resourceID, 10, 64)
-				if err != nil {
-					blog.Errorf("parse bizID(%s) failed, err: %v, rid: %s", bizID, err, ctx.Kit.Rid)
-					ctx.RespAutoError(ctx.Kit.CCError.CCErrorf(common.CCErrCommParamsNeedInt, common.BKAppIDField))
-					return
-				}
-				appList = append(appList, bizID)
-			}
-			if len(bizIDs) > 0 {
-				// this means that user want to find a specific business.now we check if he has this authority.
-				for _, bizID := range bizIDs {
-					if util.InArray(bizID, appList) {
-						// authBizIDs store the authorized bizIDs
-						authBizIDs = append(authBizIDs, bizID)
-					}
-				}
-				if len(authBizIDs) > 0 {
-					searchCond.Condition[common.BKAppIDField] = mapstr.MapStr{common.BKDBIN: authBizIDs}
-				} else {
-					// if there are no qualified bizIDs, return null
-					result := make(mapstr.MapStr)
-					result.Set("count", 0)
-					result.Set("info", []mapstr.MapStr{})
-					ctx.RespEntity(result)
-					return
-				}
-				// now you have the authority.
-			} else {
-				if len(appList) == 0 {
-					ctx.RespEntityWithCount(0, make([]mapstr.MapStr, 0))
-					return
-				}
-
-				// sort for prepare to find business with page.
-				sort.Sort(util.Int64Slice(appList))
-				// user can only find business that is already authorized.
-				searchCond.Condition[common.BKAppIDField] = mapstr.MapStr{common.BKDBIN: appList}
-			}
 		}
 	}
 
-	// Only one of biz_property_filter and condition parameters can take effect, and condition is not recommended to
-	// continue to use it.
-	if searchCond.BizPropertyFilter != nil {
-		option := &querybuilder.RuleOption{
-			NeedSameSliceElementType: true,
-			MaxSliceElementsCount:    querybuilder.DefaultMaxSliceElementsCount,
-			MaxConditionOrRulesCount: querybuilder.DefaultMaxConditionOrRulesCount,
-		}
-
-		if key, err := searchCond.BizPropertyFilter.Validate(option); err != nil {
-			blog.Errorf("bizPropertyFilter is illegal, err: %v, rid:%s", err, ctx.Kit.Rid)
-			ccErr := defErr.CCErrorf(common.CCErrCommParamsInvalid, fmt.Sprintf("biz.property.%s", key))
-			ctx.RespAutoError(ccErr)
-			return
-		}
-
-		if searchCond.BizPropertyFilter.GetDeep() > querybuilder.MaxDeep {
-			blog.Errorf("bizPropertyFilter is illegal, err: %v, rid: %s", err, ctx.Kit.Rid, ctx.Kit.Rid)
-			ccErr := defErr.CCErrorf(common.CCErrCommParamsInvalid,
-				fmt.Sprintf("exceed max query condition deepth: %d", querybuilder.MaxDeep))
-			ctx.RespAutoError(ccErr)
-			return
-		}
-
-		mgoFilter, key, err := searchCond.BizPropertyFilter.ToMgo()
-		if err != nil {
-			blog.Errorf("BizPropertyFilter ToMgo failed: %s, err: %v,  rid:%s", searchCond.BizPropertyFilter,
-				err, ctx.Kit.Rid)
-			ctx.RespAutoError(ctx.Kit.CCError.CCErrorf(common.CCErrCommParamsInvalid,
-				err.Error()+fmt.Sprintf(", biz_property_filter.%s", key)))
-			return
-		}
-		searchCond.Condition = mgoFilter
+	if err := s.applyBizPropertyFilter(ctx, searchCond); err != nil {
+		return
 	}
 
-	if _, ok := searchCond.Condition[common.BKDataStatusField]; !ok {
-		searchCond.Condition[common.BKDataStatusField] = mapstr.MapStr{common.BKDBNE: common.DataStatusDisabled}
-	}
-
-	// can only find normal business, but not resource pool business
-	searchCond.Condition[common.BKDefaultField] = 0
+	s.ensureDefaultCondition(searchCond)
 
 	query := &metadata.QueryCondition{
 		Condition:     searchCond.Condition,
@@ -746,18 +595,184 @@ func (s *Service) SearchBusiness(ctx *rest.Contexts) {
 		Page:          searchCond.Page,
 	}
 
-	cnt, instItems, err := s.Logics.BusinessOperation().FindBiz(ctx.Kit, query)
+	count, items, err := s.Logics.BusinessOperation().FindBiz(ctx.Kit, query)
 	if err != nil {
 		blog.Errorf("find business failed, err: %v, rid: %s", err, ctx.Kit.Rid)
 		ctx.RespAutoError(err)
 		return
 	}
 
-	result := make(mapstr.MapStr)
-	result.Set("count", cnt)
-	result.Set("info", instItems)
-
+	result := mapstr.MapStr{
+		"count": count,
+		"info":  items,
+	}
 	ctx.RespEntity(result)
+}
+func (s *Service) injectUserTypeFields(ctx *rest.Contexts, req *metadata.QueryBusinessRequest) error {
+	opt := &metadata.QueryCondition{
+		Condition: mapstr.MapStr{
+			metadata.AttributeFieldObjectID:     common.BKInnerObjIDApp,
+			metadata.AttributeFieldPropertyType: common.FieldTypeUser,
+		},
+		DisableCounter: true,
+	}
+	attrArr, err := s.Engine.CoreAPI.CoreService().Model().ReadModelAttr(ctx.Kit.Ctx, ctx.Kit.Header, common.BKInnerObjIDApp, opt)
+	if err != nil {
+		blog.Errorf("failed to get business attribute, err: %s, rid: %s", err.Error(), ctx.Kit.Rid)
+		return err
+	}
+
+	userFields := make([]string, 0, len(attrArr.Info))
+	for _, attr := range attrArr.Info {
+		userFields = append(userFields, attr.PropertyID)
+	}
+	req.Condition = handleSpecialBusinessFieldSearchCond(req.Condition, userFields)
+	return nil
+}
+
+// 提取bk_biz_id
+func (s *Service) extractBizIDs(cond mapstr.MapStr) ([]int64, error) {
+	var ids []int64
+	val, exists := cond[common.BKAppIDField]
+	if !exists {
+		return ids, nil
+	}
+
+	switch v := val.(type) {
+	case map[string]interface{}:
+		if eq, ok := v[common.BKDBEQ]; ok {
+			id, err := util.GetInt64ByInterface(eq)
+			if err != nil {
+				return nil, err
+			}
+			ids = append(ids, id)
+		}
+		if in, ok := v[common.BKDBIN]; ok {
+			for _, raw := range in.([]interface{}) {
+				id, err := util.GetInt64ByInterface(raw)
+				if err != nil {
+					return nil, err
+				}
+				ids = append(ids, id)
+			}
+		}
+	default:
+		id, err := util.GetInt64ByInterface(val)
+		if err != nil {
+			return nil, err
+		}
+		ids = append(ids, id)
+	}
+	return ids, nil
+}
+
+// filterByAuthorization
+func (s *Service) filterByAuthorization(ctx *rest.Contexts, req *metadata.QueryBusinessRequest, bizIDs []int64) error {
+	authInput := meta.ListAuthorizedResourcesParam{
+		UserName:     ctx.Kit.User,
+		ResourceType: meta.Business,
+		Action:       meta.Find,
+	}
+	authRes, err := s.AuthManager.Authorizer.ListAuthorizedResources(ctx.Kit.Ctx, ctx.Kit.Header, authInput)
+	if err != nil {
+		blog.Errorf("ListAuthorizedResources failed, user: %s, err: %v, rid: %s", ctx.Kit.User, err, ctx.Kit.Rid)
+		ctx.RespErrorCodeOnly(common.CCErrorTopoGetAuthorizedBusinessListFailed, "")
+		return err
+	}
+
+	if authRes.IsAny {
+		if len(bizIDs) > 0 {
+			req.Condition[common.BKAppIDField] = mapstr.MapStr{common.BKDBIN: bizIDs}
+		}
+		return nil
+	}
+
+	appList := make([]int64, 0, len(authRes.Ids))
+	for _, id := range authRes.Ids {
+		bid, err := strconv.ParseInt(id, 10, 64)
+		if err != nil {
+			ctx.RespAutoError(ctx.Kit.CCError.CCErrorf(common.CCErrCommParamsNeedInt, common.BKAppIDField))
+			return err
+		}
+		appList = append(appList, bid)
+	}
+
+	if len(bizIDs) > 0 {
+		authBizIDs := []int64{}
+		for _, id := range bizIDs {
+			if util.InArray(id, appList) {
+				authBizIDs = append(authBizIDs, id)
+			}
+		}
+		if len(authBizIDs) == 0 {
+			ctx.RespEntityWithCount(0, []mapstr.MapStr{})
+			return errors.New("no authorized biz")
+		}
+		req.Condition[common.BKAppIDField] = mapstr.MapStr{common.BKDBIN: authBizIDs}
+		return nil
+	}
+
+	if len(appList) == 0 {
+		ctx.RespEntityWithCount(0, []mapstr.MapStr{})
+		return errors.New("no authorized biz")
+	}
+
+	sort.Sort(util.Int64Slice(appList))
+	req.Condition[common.BKAppIDField] = mapstr.MapStr{common.BKDBIN: appList}
+	return nil
+}
+
+// applyBizPropertyFilter
+func (s *Service) applyBizPropertyFilter(ctx *rest.Contexts, req *metadata.QueryBusinessRequest) error {
+	if req.BizPropertyFilter == nil {
+		return nil
+	}
+
+	option := &querybuilder.RuleOption{
+		NeedSameSliceElementType: true,
+		MaxSliceElementsCount:    querybuilder.DefaultMaxSliceElementsCount,
+		MaxConditionOrRulesCount: querybuilder.DefaultMaxConditionOrRulesCount,
+	}
+
+	if key, err := req.BizPropertyFilter.Validate(option); err != nil {
+		blog.Errorf("invalid BizPropertyFilter, err: %v, rid: %s", err, ctx.Kit.Rid)
+		ctx.RespAutoError(ctx.Kit.CCError.CCErrorf(common.CCErrCommParamsInvalid, fmt.Sprintf("biz.property.%s", key)))
+		return err
+	}
+
+	if req.BizPropertyFilter.GetDeep() > querybuilder.MaxDeep {
+		err := fmt.Errorf("exceed max query condition depth: %d", querybuilder.MaxDeep)
+		blog.Errorf("bizPropertyFilter too deep, rid: %s", ctx.Kit.Rid)
+		ctx.RespAutoError(ctx.Kit.CCError.CCErrorf(common.CCErrCommParamsInvalid, err.Error()))
+		return err
+	}
+
+	mgoFilter, key, err := req.BizPropertyFilter.ToMgo()
+	if err != nil {
+		blog.Errorf("ToMgo failed: %s, err: %v, rid: %s", req.BizPropertyFilter, err, ctx.Kit.Rid)
+		ctx.RespAutoError(ctx.Kit.CCError.CCErrorf(common.CCErrCommParamsInvalid, err.Error()+fmt.Sprintf(", biz_property_filter.%s", key)))
+		return err
+	}
+	req.Condition = mgoFilter
+	return nil
+}
+
+// ensureDefaultCondition
+func (s *Service) ensureDefaultCondition(req *metadata.QueryBusinessRequest) {
+	if _, ok := req.Condition[common.BKDataStatusField]; !ok {
+		req.Condition[common.BKDataStatusField] = mapstr.MapStr{common.BKDBNE: common.DataStatusDisabled}
+	}
+	req.Condition[common.BKDefaultField] = 0
+}
+
+// ParseParamsFromCtx
+func ParseParamsFromCtx[T any](ctx *rest.Contexts, req *T) error {
+	if err := ctx.DecodeInto(req); err != nil {
+		blog.Errorf("failed to parse the params, error info is %s, rid: %s", err.Error(), ctx.Kit.Rid)
+		ctx.RespErrorCodeOnly(common.CCErrCommJSONUnmarshalFailed, "")
+		return err
+	}
+	return nil
 }
 
 // GetResourcePoolBiz get resource pool business info, right now only returns biz id

@@ -107,11 +107,7 @@ func setStructByMapStr(targetType reflect.Type, targetValue reflect.Value, value
 		tags := strings.Split(tag, ",")
 
 		tagVal, ok := values[tags[0]]
-		if !ok {
-			continue
-		}
-
-		if nil == tagVal {
+		if !ok || tagVal == nil {
 			continue
 		}
 

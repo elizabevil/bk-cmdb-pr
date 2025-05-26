@@ -353,7 +353,7 @@ func (s *Service) SearchResourceDirectory(ctx *rest.Contexts) {
 	}
 	moduleHostsCount := make(map[int64]int64)
 	for _, item := range hostModuleRelations.Info {
-		if _, exist := moduleHostsCount[item.ModuleID]; exist == false {
+		if _, exist := moduleHostsCount[item.ModuleID]; !exist {
 			moduleHostsCount[item.ModuleID] = 0
 		}
 		moduleHostsCount[item.ModuleID] += 1
