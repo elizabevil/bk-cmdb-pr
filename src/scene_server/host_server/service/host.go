@@ -63,7 +63,7 @@ func (s *Service) DeleteHostBatchFromResourcePool(ctx *rest.Contexts) {
 	}
 
 	hostIDArr := strings.Split(opt.HostID, ",")
-	var iHostIDArr []int64
+	var iHostIDArr []int64 = make([]int64, 0, len(hostIDArr))
 	delCondsArr := make([][]map[string]interface{}, 0)
 	for _, i := range hostIDArr {
 		iHostID, err := strconv.ParseInt(i, 10, 64)
@@ -138,9 +138,6 @@ func (s *Service) DeleteHostBatchFromResourcePool(ctx *rest.Contexts) {
 		}
 		delConds := make([]map[string]interface{}, 0)
 		for objID, instIDs := range asstInstMap {
-			if len(instIDs) < 0 {
-				continue
-			}
 			instIDField := common.GetInstIDField(objID)
 			instCond := map[string]interface{}{
 				instIDField: map[string]interface{}{
@@ -1168,40 +1165,42 @@ func (s *Service) CloneHostProperty(ctx *rest.Contexts) {
 		return
 	}
 
-	// can only use ip or id for one.
-	if (len(input.OrgIP) != 0 || len(input.DstIP) != 0) && (input.OrgID > 0 || input.DstID > 0) {
+	useIP := input.OrgIP != "" || input.DstIP != ""
+	useID := input.OrgID > 0 || input.DstID > 0
+
+	switch {
+	// must only use ip or id for one.
+	case useIP && useID:
 		ctx.RespErrorCodeOnly(common.CCErrCommParamsIsInvalid, "invalid org/dst ip or id")
 		return
-	}
 
-	if (len(input.OrgIP) == 0 && len(input.DstIP) == 0) && (input.OrgID <= 0 && input.DstID <= 0) {
-		ctx.RespErrorCodeOnly(common.CCErrCommParamsIsInvalid, "invalid org/dst ip or id")
-		return
-	}
-
-	if (len(input.OrgIP) != 0 || len(input.DstIP) != 0) && (len(input.OrgIP) == 0 || len(input.DstIP) == 0) {
+	// no params
+	case !useIP && !useID:
 		ctx.RespErrorCodeOnly(common.CCErrCommParamsIsInvalid, "no parameter")
 		return
 	}
 
-	if input.OrgID < 0 || input.DstID < 0 {
-		ctx.RespErrorCodeOnly(common.CCErrCommParamsIsInvalid, "invalid org/dst id")
-		return
+	// ip
+	if useIP {
+		if input.OrgIP == "" || input.DstIP == "" {
+			ctx.RespErrorCodeOnly(common.CCErrCommParamsIsInvalid, "need org/dst ip ")
+		}
+		if input.OrgIP == input.DstIP {
+			ctx.RespEntity(nil)
+		}
 	}
 
-	if (input.OrgID > 0 || input.DstID > 0) && (input.OrgID <= 0 || input.DstID <= 0) {
-		ctx.RespErrorCodeOnly(common.CCErrCommParamsIsInvalid, "invalid org/dst id")
-		return
-	}
-
-	if (len(input.OrgIP) != 0 && len(input.DstIP) != 0) && (input.OrgIP == input.DstIP) {
-		ctx.RespEntity(nil)
-		return
-	}
-
-	if (input.OrgID > 0 && input.DstID > 0) && (input.OrgID == input.DstID) {
-		ctx.RespEntity(nil)
-		return
+	//id
+	if useID {
+		if input.OrgID <= 0 || input.DstID <= 0 {
+			ctx.RespErrorCodeOnly(common.CCErrCommParamsIsInvalid, "invalid org/dst id")
+			return
+		}
+		// 5. 源目标相同，无需克隆
+		if input.OrgID == input.DstID {
+			ctx.RespEntity(nil)
+			return
+		}
 	}
 
 	// authorization check
