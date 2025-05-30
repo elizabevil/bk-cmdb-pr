@@ -21,13 +21,13 @@ import (
 
 // CommitTransaction to commit transaction
 func (s *coreService) CommitTransaction(ctx *rest.Contexts) {
-	cap := new(metadata.TxnCapable)
-	if err := ctx.DecodeInto(cap); err != nil {
+	req := new(metadata.TxnCapable)
+	if err := ctx.DecodeInto(req); err != nil {
 		ctx.RespErrorCodeOnly(common.CCErrCommHTTPInputInvalid, "decode transaction request body failed, err: %v", err)
 		return
 	}
 
-	err := mongodb.Shard(ctx.Kit.ShardOpts()).CommitTransaction(ctx.Kit.Ctx, cap)
+	err := mongodb.Shard(ctx.Kit.ShardOpts()).CommitTransaction(ctx.Kit.Ctx, req)
 	if err != nil {
 		ctx.RespAutoError(ctx.Kit.CCError.Errorf(common.CCErrCommCommitTransactionFailed, err.Error()))
 		return
@@ -38,13 +38,13 @@ func (s *coreService) CommitTransaction(ctx *rest.Contexts) {
 
 // AbortTransaction to abort transaction
 func (s *coreService) AbortTransaction(ctx *rest.Contexts) {
-	cap := new(metadata.TxnCapable)
-	if err := ctx.DecodeInto(cap); err != nil {
+	req := new(metadata.TxnCapable)
+	if err := ctx.DecodeInto(req); err != nil {
 		ctx.RespErrorCodeOnly(common.CCErrCommHTTPInputInvalid, "decode transaction request body failed, err: %v", err)
 		return
 	}
 
-	retry, err := mongodb.Shard(ctx.Kit.ShardOpts()).AbortTransaction(ctx.Kit.Ctx, cap)
+	retry, err := mongodb.Shard(ctx.Kit.ShardOpts()).AbortTransaction(ctx.Kit.Ctx, req)
 	if err != nil {
 		ctx.RespAutoError(ctx.Kit.CCError.Errorf(common.CCErrCommCommitTransactionFailed, err.Error()))
 		return

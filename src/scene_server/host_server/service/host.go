@@ -16,7 +16,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"strconv"
 	"strings"
 	"sync"
@@ -63,8 +63,7 @@ func (s *Service) DeleteHostBatchFromResourcePool(ctx *rest.Contexts) {
 	}
 
 	hostIDArr := strings.Split(opt.HostID, ",")
-	var iHostIDArr []int64 = make([]int64, 0, len(hostIDArr))
-	delCondsArr := make([][]map[string]interface{}, 0)
+	iHostIDArr := make([]int64, 0, len(hostIDArr))
 	for _, i := range hostIDArr {
 		iHostID, err := strconv.ParseInt(i, 10, 64)
 		if err != nil {
@@ -94,6 +93,7 @@ func (s *Service) DeleteHostBatchFromResourcePool(ctx *rest.Contexts) {
 		return
 	}
 
+	delCondsArr := make([][]map[string]interface{}, 0)
 	for _, iHostID := range iHostIDArr {
 		asstCond := map[string]interface{}{
 			common.BKDBOR: []map[string]interface{}{
@@ -416,7 +416,7 @@ func (s *Service) AddHostByExcel(ctx *rest.Contexts) {
 func (s *Service) AddHostToResourcePool(ctx *rest.Contexts) {
 
 	hostList := new(meta.AddHostToResourcePoolHostList)
-	body, err := ioutil.ReadAll(ctx.Request.Request.Body)
+	body, err := io.ReadAll(ctx.Request.Request.Body)
 	if err != nil {
 		blog.Errorf("read request body failed, err: %v, rid: %s", err, ctx.Kit.Rid)
 		ctx.RespAutoError(ctx.Kit.CCError.CCError(common.CCErrCommHTTPReadBodyFailed))
@@ -1184,9 +1184,11 @@ func (s *Service) CloneHostProperty(ctx *rest.Contexts) {
 	if useIP {
 		if input.OrgIP == "" || input.DstIP == "" {
 			ctx.RespErrorCodeOnly(common.CCErrCommParamsIsInvalid, "need org/dst ip ")
+			return
 		}
 		if input.OrgIP == input.DstIP {
 			ctx.RespEntity(nil)
+			return
 		}
 	}
 
@@ -1471,7 +1473,7 @@ func (s *Service) countBizHostCPU(kit *rest.Kit, bizID int64) (meta.BizHostCpuCo
 				return meta.BizHostCpuCount{}, kit.CCError.CCErrorf(common.CCErrCommParamsInvalid, "bk_cpu")
 			}
 
-			if cpuCnt == 0 {
+			if cpuCount == 0 {
 				cnt.NoCpuHostCount++
 				continue
 			}

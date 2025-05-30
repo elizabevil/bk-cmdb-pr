@@ -75,60 +75,62 @@ func (m *modelAttribute) CreateTableModelAttributes(kit *rest.Kit, objID string,
 	}
 
 	for attrIdx, attr := range inputParam.Attributes {
-		redisKey := lock.GetLockKey(lock.CreateModuleAttrFormat, objID, attr.PropertyID)
+		//defer in the loop
+		func(attrIdx int, attr metadata.Attribute) {
+			redisKey := lock.GetLockKey(lock.CreateModuleAttrFormat, objID, attr.PropertyID)
+			locker := lock.NewLocker(redis.Client())
+			locked, err := locker.Lock(redisKey, time.Second*35)
+			defer locker.Unlock()
+			if err != nil {
+				blog.Errorf("get create lock error, input: %+v, err: %v, rid: %s", inputParam, err, kit.Rid)
+				addExceptionFunc(int64(attrIdx), kit.CCError.CCErrorf(common.CCErrCommRedisOPErr), &attr)
+				return
+			}
 
-		locker := lock.NewLocker(redis.Client())
-		locked, err := locker.Lock(redisKey, time.Second*35)
-		defer locker.Unlock()
-		if err != nil {
-			blog.Errorf("get create lock error, input: %+v, err: %v, rid: %s", inputParam, err, kit.Rid)
-			addExceptionFunc(int64(attrIdx), kit.CCError.CCErrorf(common.CCErrCommRedisOPErr), &attr)
-			continue
-		}
+			if !locked {
+				blog.Errorf("create model have same task in progress. input: %v, rid: %s", inputParam, kit.Rid)
+				addExceptionFunc(int64(attrIdx), kit.CCError.CCErrorf(common.CCErrCommOPInProgressErr,
+					fmt.Sprintf("create table object(%s) attribute(%s)", attr.ObjectID, attr.PropertyName)), &attr)
+				return
+			}
 
-		if !locked {
-			blog.Errorf("create model have same task in progress. input: %v, rid: %s", inputParam, kit.Rid)
-			addExceptionFunc(int64(attrIdx), kit.CCError.CCErrorf(common.CCErrCommOPInProgressErr,
-				fmt.Sprintf("create table object(%s) attribute(%s)", attr.ObjectID, attr.PropertyName)), &attr)
-			continue
-		}
+			if attr.IsPre && attr.PropertyID == common.BKInstNameField {
+				lang := m.language.CreateDefaultCCLanguageIf(httpheader.GetLanguage(kit.Header))
+				attr.PropertyName = util.FirstNotEmptyString(lang.Language("common_property_"+attr.PropertyID),
+					attr.PropertyName, attr.PropertyID)
+			}
 
-		if attr.IsPre && attr.PropertyID == common.BKInstNameField {
-			lang := m.language.CreateDefaultCCLanguageIf(httpheader.GetLanguage(kit.Header))
-			attr.PropertyName = util.FirstNotEmptyString(lang.Language("common_property_"+attr.PropertyID),
-				attr.PropertyName, attr.PropertyID)
-		}
+			attr.ObjectID = objID
+			_, exists, err := m.isExists(kit, attr.ObjectID, attr.PropertyID, attr.BizID)
+			blog.V(5).Infof("table model attributes, property id: %s, bizID: %d, exists: %v, rid: %s", attr.PropertyID,
+				attr.BizID, exists, kit.Rid)
+			if err != nil {
+				blog.Errorf("create model attrs failed, property id(%s), err: %s, rid: %s", attr.PropertyID, err, kit.Rid)
+				addExceptionFunc(int64(attrIdx), err, &attr)
+				return
+			}
 
-		attr.ObjectID = objID
-		_, exists, err := m.isExists(kit, attr.ObjectID, attr.PropertyID, attr.BizID)
-		blog.V(5).Infof("table model attributes, property id: %s, bizID: %d, exists: %v, rid: %s", attr.PropertyID,
-			attr.BizID, exists, kit.Rid)
-		if err != nil {
-			blog.Errorf("create model attrs failed, property id(%s), err: %s, rid: %s", attr.PropertyID, err, kit.Rid)
-			addExceptionFunc(int64(attrIdx), err, &attr)
-			continue
-		}
+			if exists {
+				dataResult.CreateManyInfoResult.Repeated = append(dataResult.CreateManyInfoResult.Repeated,
+					metadata.RepeatedDataResult{
+						OriginIndex: int64(attrIdx),
+						Data:        mapstr.NewFromStruct(attr, "field"),
+					})
+				return
+			}
 
-		if exists {
-			dataResult.CreateManyInfoResult.Repeated = append(dataResult.CreateManyInfoResult.Repeated,
-				metadata.RepeatedDataResult{
+			id, err := m.saveTableAttr(kit, attr)
+			if err != nil {
+				blog.Errorf("failed to save the table attribute(%#v), err: %v, rid: %s", attr, err, kit.Rid)
+				addExceptionFunc(int64(attrIdx), err, &attr)
+				return
+			}
+			dataResult.CreateManyInfoResult.Created = append(dataResult.CreateManyInfoResult.Created,
+				metadata.CreatedDataResult{
 					OriginIndex: int64(attrIdx),
-					Data:        mapstr.NewFromStruct(attr, "field"),
+					ID:          id,
 				})
-			continue
-		}
-
-		id, err := m.saveTableAttr(kit, attr)
-		if err != nil {
-			blog.Errorf("failed to save the table attribute(%#v), err: %v, rid: %s", attr, err, kit.Rid)
-			addExceptionFunc(int64(attrIdx), err, &attr)
-			continue
-		}
-		dataResult.CreateManyInfoResult.Created = append(dataResult.CreateManyInfoResult.Created,
-			metadata.CreatedDataResult{
-				OriginIndex: int64(attrIdx),
-				ID:          id,
-			})
+		}(attrIdx, attr)
 	}
 	return dataResult, nil
 }
@@ -166,58 +168,60 @@ func (m *modelAttribute) CreateModelAttributes(kit *rest.Kit, objID string, inpu
 	}
 
 	for attrIdx, attr := range inputParam.Attributes {
-		redisKey := lock.GetLockKey(lock.CreateModuleAttrFormat, objID, attr.PropertyID)
+		//defer in the loop
+		func() {
+			redisKey := lock.GetLockKey(lock.CreateModuleAttrFormat, objID, attr.PropertyID)
+			locker := lock.NewLocker(redis.Client())
+			locked, err := locker.Lock(redisKey, time.Second*35)
+			defer locker.Unlock()
+			if err != nil {
+				blog.Errorf("get create model look failed. err: %v, input: %+v, rid: %s", err, inputParam, kit.Rid)
+				addExceptionFunc(int64(attrIdx), kit.CCError.CCErrorf(common.CCErrCommRedisOPErr), &attr)
+				return
+			}
+			if !locked {
+				blog.Errorf("create model have same task in progress. input: %v, rid: %s", inputParam, kit.Rid)
+				msg := fmt.Sprintf("create object(%s) attribute(%s)", attr.ObjectID, attr.PropertyName)
+				addExceptionFunc(int64(attrIdx), kit.CCError.CCErrorf(common.CCErrCommOPInProgressErr, msg), &attr)
+				return
+			}
 
-		locker := lock.NewLocker(redis.Client())
-		locked, err := locker.Lock(redisKey, time.Second*35)
-		defer locker.Unlock()
-		if err != nil {
-			blog.Errorf("get create model look failed. err: %v, input: %+v, rid: %s", err, inputParam, kit.Rid)
-			addExceptionFunc(int64(attrIdx), kit.CCError.CCErrorf(common.CCErrCommRedisOPErr), &attr)
-			continue
-		}
-		if !locked {
-			blog.Errorf("create model have same task in progress. input: %v, rid: %s", inputParam, kit.Rid)
-			msg := fmt.Sprintf("create object(%s) attribute(%s)", attr.ObjectID, attr.PropertyName)
-			addExceptionFunc(int64(attrIdx), kit.CCError.CCErrorf(common.CCErrCommOPInProgressErr, msg), &attr)
-			continue
-		}
+			// in the scenario of directly creating attrs on the model, the template ID in the attrs field must be 0
+			if (!inputParam.FromTemplate && attr.TemplateID != 0) || (inputParam.FromTemplate && attr.TemplateID == 0) {
+				blog.Errorf("scene parameter invalid, attr: %+v, from template: %v rid: %s", attr,
+					inputParam.FromTemplate, kit.Rid)
+				addExceptionFunc(int64(attrIdx), err, &attr)
+			}
 
-		// in the scenario of directly creating attrs on the model, the template ID in the attrs field must be 0
-		if (!inputParam.FromTemplate && attr.TemplateID != 0) || (inputParam.FromTemplate && attr.TemplateID == 0) {
-			blog.Errorf("scene parameter invalid, attr: %+v, from template: %v rid: %s", attr,
-				inputParam.FromTemplate, kit.Rid)
-			addExceptionFunc(int64(attrIdx), err, &attr)
-		}
+			if attr.IsPre && attr.PropertyID == common.BKInstNameField {
+				lang := m.language.CreateDefaultCCLanguageIf(httpheader.GetLanguage(kit.Header))
+				attr.PropertyName = util.FirstNotEmptyString(lang.Language("common_property_"+attr.PropertyID),
+					attr.PropertyName, attr.PropertyID)
+			}
 
-		if attr.IsPre && attr.PropertyID == common.BKInstNameField {
-			lang := m.language.CreateDefaultCCLanguageIf(httpheader.GetLanguage(kit.Header))
-			attr.PropertyName = util.FirstNotEmptyString(lang.Language("common_property_"+attr.PropertyID),
-				attr.PropertyName, attr.PropertyID)
-		}
+			_, exists, err := m.isExists(kit, attr.ObjectID, attr.PropertyID, attr.BizID)
+			blog.V(5).Infof("property(id: %s, bizID: %d) exists: %v, rid: %s", attr.PropertyID, attr.BizID, exists, kit.Rid)
+			if err != nil {
+				blog.Errorf("check attribute(%s) exists failed, err: %v, rid: %s", attr.PropertyID, err, kit.Rid)
+				addExceptionFunc(int64(attrIdx), err, &attr)
+				return
+			}
 
-		_, exists, err := m.isExists(kit, attr.ObjectID, attr.PropertyID, attr.BizID)
-		blog.V(5).Infof("property(id: %s, bizID: %d) exists: %v, rid: %s", attr.PropertyID, attr.BizID, exists, kit.Rid)
-		if err != nil {
-			blog.Errorf("check attribute(%s) exists failed, err: %v, rid: %s", attr.PropertyID, err, kit.Rid)
-			addExceptionFunc(int64(attrIdx), err, &attr)
-			continue
-		}
+			if exists {
+				dataResult.CreateManyInfoResult.Repeated = append(dataResult.CreateManyInfoResult.Repeated,
+					metadata.RepeatedDataResult{OriginIndex: int64(attrIdx), Data: mapstr.NewFromStruct(attr, "field")})
+				return
+			}
+			id, err := m.save(kit, attr)
+			if err != nil {
+				blog.Errorf("failed to save the attribute(%#v), err: %s, rid: %s", attr, err, kit.Rid)
+				addExceptionFunc(int64(attrIdx), err, &attr)
+				return
+			}
+			dataResult.CreateManyInfoResult.Created = append(dataResult.CreateManyInfoResult.Created,
+				metadata.CreatedDataResult{OriginIndex: int64(attrIdx), ID: id})
 
-		if exists {
-			dataResult.CreateManyInfoResult.Repeated = append(dataResult.CreateManyInfoResult.Repeated,
-				metadata.RepeatedDataResult{OriginIndex: int64(attrIdx), Data: mapstr.NewFromStruct(attr, "field")})
-			continue
-		}
-		id, err := m.save(kit, attr)
-		if err != nil {
-			blog.Errorf("failed to save the attribute(%#v), err: %s, rid: %s", attr, err, kit.Rid)
-			addExceptionFunc(int64(attrIdx), err, &attr)
-			continue
-		}
-
-		dataResult.CreateManyInfoResult.Created = append(dataResult.CreateManyInfoResult.Created,
-			metadata.CreatedDataResult{OriginIndex: int64(attrIdx), ID: id})
+		}()
 	}
 
 	return dataResult, nil

@@ -238,9 +238,9 @@ func (s *service) dealProcessRunningTasks(kit *rest.Kit, option *metadata.FieldT
 	// 2、the possible task status scenarios are: one is executing,
 	// one is waiting or new, but there will be no more than two tasks.
 	if len(result) > metadata.APITaskFieldTemplateMaxNum {
-		blog.Errorf("task num incorrect, template ID: %d, objID: %s, rid: %s", option.ID, option.ObjectID, kit.Rid)
+		blog.Errorf("task num incorrect, template ID: %d, objID: %s, rid: %v", option.ID, option.ObjectID, kit.Rid)
 		return kit.CCError.Errorf(common.CCErrCommGetMultipleObject,
-			fmt.Sprintf("template ID: %d, objID: %s", option.ID, option.ObjectID))
+			fmt.Sprintf("template ID: %d, objID: %v", option.ID, option.ObjectID))
 	}
 
 	// 3、if there is a running task, return an error directly.
@@ -249,7 +249,7 @@ func (s *service) dealProcessRunningTasks(kit *rest.Kit, option *metadata.FieldT
 		if info.Status == metadata.APITaskStatusExecute {
 			blog.Errorf("unbinding failed, sync task(%s) is running, template ID: %d, objID: %s, rid: %d")
 			return kit.CCError.Errorf(common.CCErrTaskCreateConflict,
-				fmt.Sprintf("template ID: %d, objID: %s", option.ID, option.ObjectID))
+				fmt.Sprintf("template ID: %d, objID: %v", option.ID, option.ObjectID))
 		}
 		taskID = info.TaskID
 	}

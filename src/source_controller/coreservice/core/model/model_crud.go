@@ -187,7 +187,7 @@ func (m *modelManager) update(kit *rest.Kit, data mapstr.MapStr, cond universals
 	paused, exist := data[metadata.ModelFieldIsPaused]
 	if exist {
 		flag, ok := paused.(bool)
-		if exist && !ok {
+		if !ok {
 			blog.Errorf("attr(%v) type error, type: %v, rid: %s", metadata.ModelFieldIsPaused,
 				reflect.TypeOf(paused), kit.Rid)
 			return 0, kit.CCError.Errorf(common.CCErrCommParamsIsInvalid, metadata.ModelFieldIsPaused)

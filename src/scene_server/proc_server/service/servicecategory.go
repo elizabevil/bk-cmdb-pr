@@ -37,6 +37,7 @@ func (ps *ProcServer) ListServiceCategory(ctx *rest.Contexts) {
 		ctx.RespAutoError(err)
 		return
 	}
+	// TODO result==nil ,but not return
 	if result == nil {
 		blog.Errorf("ListServiceCategory result unexpected nil, rid: %s", ctx.Kit.Rid)
 		ctx.RespAutoError(ctx.Kit.CCError.CCError(common.CCErrProcGetServiceCategoryFailed))

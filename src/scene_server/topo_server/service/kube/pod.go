@@ -80,7 +80,7 @@ func (s *service) FindPodPath(ctx *rest.Contexts) {
 	}
 
 	paths, rawErr := s.buildPodPaths(ctx.Kit, req.BizID, resp.Info)
-	if err != nil {
+	if rawErr != nil {
 		ctx.RespAutoError(rawErr)
 		return
 	}
