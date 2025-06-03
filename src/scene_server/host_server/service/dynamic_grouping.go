@@ -688,7 +688,7 @@ func parseCond(conditions []meta.DynamicGroupInfoCondition) []meta.SearchConditi
 		}
 
 		for _, item := range cond.Condition {
-			condItem := meta.ConditionItem{Field: item.Field, Operator: item.Operator, Value: item.Value}
+			condItem := meta.ConditionItem(item)
 			conditionMap[cond.ObjID].Condition = append(conditionMap[cond.ObjID].Condition, condItem)
 		}
 

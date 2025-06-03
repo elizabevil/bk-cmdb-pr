@@ -22,7 +22,7 @@ import (
 // InitFunc TODO
 func (o *OperationServer) InitFunc() {
 	header := make(http.Header, 0)
-	if "" == httpheader.GetSupplierAccount(header) {
+	if httpheader.GetSupplierAccount(header) == "" {
 		httpheader.SetSupplierAccount(header, common.BKSuperOwnerID)
 		httpheader.SetUser(header, common.BKProcInstanceOpUser)
 	}

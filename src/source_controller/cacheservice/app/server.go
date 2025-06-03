@@ -80,7 +80,7 @@ func Run(ctx context.Context, cancel context.CancelFunc, op *options.ServerOptio
 
 	}
 
-	if false == configReady {
+	if !configReady {
 		return fmt.Errorf("configuration item not found")
 	}
 

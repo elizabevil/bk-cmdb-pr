@@ -73,10 +73,9 @@ func (s *Service) UpdateObjectGroup(ctx *rest.Contexts) {
 			blog.Errorf("search attribute group by condition failed, err: %+v, rid: %s", err, ctx.Kit.Rid)
 			return err
 		}
+		//TODO ?? NOT USE, DEL
 		attributeGroups := make([]metadata.Group, 0)
-		for _, item := range result {
-			attributeGroups = append(attributeGroups, item)
-		}
+		attributeGroups = append(attributeGroups, result...)
 		return nil
 	})
 

@@ -68,7 +68,7 @@ func Run(ctx context.Context, cancel context.CancelFunc, op *options.ServerOptio
 
 	configReady := false
 	for sleepCnt := 0; sleepCnt < common.APPConfigWaitTime; sleepCnt++ {
-		if "" == webSvr.Config.Site.DomainUrl {
+		if webSvr.Config.Site.DomainUrl == "" {
 			time.Sleep(time.Second)
 		} else {
 			configReady = true
@@ -208,7 +208,7 @@ func (w *WebServer) onServerConfigUpdate(previous, current cc.ProcessConfig) {
 	w.Config.Session.MultipleOwner, _ = cc.String("webServer.session.multipleOwner")
 	w.Config.Session.DefaultLanguage, _ = cc.String("webServer.session.defaultlanguage")
 	w.Config.LoginVersion, _ = cc.String("webServer.login.version")
-	if "" == w.Config.Session.DefaultLanguage {
+	if w.Config.Session.DefaultLanguage == "" {
 		w.Config.Session.DefaultLanguage = "zh-cn"
 	}
 

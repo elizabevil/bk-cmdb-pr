@@ -97,8 +97,12 @@ func (ps *ProcServer) CreateProcessInstances(ctx *rest.Contexts) {
 	ctx.RespEntity(processIDs)
 }
 
-func (ps *ProcServer) createProcessInstances(ctx *rest.Contexts, input *metadata.CreateRawProcessInstanceInput) ([]int64, errors.CCErrorCoder) {
-	serviceInstance, err := ps.CoreAPI.CoreService().Process().GetServiceInstance(ctx.Kit.Ctx, ctx.Kit.Header, input.ServiceInstanceID)
+func (ps *ProcServer) createProcessInstances(
+	ctx *rest.Contexts,
+	input *metadata.CreateRawProcessInstanceInput,
+) ([]int64, errors.CCErrorCoder) {
+	serviceInstance, err := ps.CoreAPI.CoreService().
+		Process().GetServiceInstance(ctx.Kit.Ctx, ctx.Kit.Header, input.ServiceInstanceID)
 	if err != nil {
 		blog.Errorf("create process instance failed, get service instance by id failed, serviceInstanceID: %d, err: %v, rid: %s", input.ServiceInstanceID, err, ctx.Kit.Rid)
 		return nil, err
@@ -112,7 +116,6 @@ func (ps *ProcServer) createProcessInstances(ctx *rest.Contexts, input *metadata
 		return nil, ctx.Kit.CCError.CCError(common.CCErrProcEditProcessInstanceCreateByTemplateForbidden)
 	}
 
-	processIDs := make([]int64, 0)
 	processDatas := make([]map[string]interface{}, len(input.Processes))
 	for idx, item := range input.Processes {
 		now := time.Now()
@@ -126,7 +129,7 @@ func (ps *ProcServer) createProcessInstances(ctx *rest.Contexts, input *metadata
 		processDatas[idx] = item.ProcessData
 	}
 
-	processIDs, err = ps.Logic.CreateProcessInstances(ctx.Kit, processDatas)
+	processIDs, err := ps.Logic.CreateProcessInstances(ctx.Kit, processDatas)
 	if err != nil {
 		blog.Errorf("create process instance failed, create process failed, serviceInstanceID: %d, processDatas: %+v, err: %v, rid: %s", input.ServiceInstanceID, processDatas, err, ctx.Kit.Rid)
 		return nil, err
@@ -839,7 +842,6 @@ func (ps *ProcServer) ListProcessInstancesNameIDsInModule(ctx *rest.Contexts) {
 // listProcessRelatedInfo list process related info according to process info
 func (ps *ProcServer) listProcessRelatedInfo(ctx *rest.Contexts, bizID int64, processIDs []int64,
 	processDetailMap map[int64]interface{}, totalCnt int64) {
-
 	// get ID of serviceInstance, host, processTemplate and their process relation map
 	op := &metadata.ListProcessInstanceRelationOption{
 		BusinessID: bizID, ProcessIDs: processIDs,
@@ -850,11 +852,9 @@ func (ps *ProcServer) listProcessRelatedInfo(ctx *rest.Contexts, bizID int64, pr
 		ctx.RespWithError(ccErr, ccErr.GetCode(), "option: %+v, err: %v", op, ccErr)
 		return
 	}
-
 	srvInstArr, hostArr := make([]int64, 0), make([]int64, 0)
 	procSrvInstMap, procTemplateMap := make(map[int64]int64), make(map[int64]int64)
 	procHostMap := make(map[int64]int64)
-
 	for _, relation := range relations.Info {
 		srvInstArr = append(srvInstArr, relation.ServiceInstanceID)
 		hostArr = append(hostArr, relation.HostID)
@@ -863,9 +863,7 @@ func (ps *ProcServer) listProcessRelatedInfo(ctx *rest.Contexts, bizID int64, pr
 		procHostMap[relation.ProcessID] = relation.HostID
 		procTemplateMap[relation.ProcessID] = relation.ProcessTemplateID
 	}
-
 	srvInstArr = util.IntArrayUnique(srvInstArr)
-
 	// service instance detail
 	instOpt := &metadata.ListServiceInstanceOption{BusinessID: bizID, ServiceInstanceIDs: srvInstArr}
 	instances, ccErr := ps.CoreAPI.CoreService().Process().ListServiceInstance(ctx.Kit.Ctx, ctx.Kit.Header, instOpt)
@@ -873,10 +871,8 @@ func (ps *ProcServer) listProcessRelatedInfo(ctx *rest.Contexts, bizID int64, pr
 		ctx.RespWithError(ccErr, ccErr.GetCode(), "ListServiceInstance failed, instOpt:%#v, err: %v", instOpt, ccErr)
 		return
 	}
-
 	srvInstDetailMap, moduleArr := make(map[int64]metadata.ServiceInstanceDetailOfP), make([]int64, 0)
 	srvInstModuleMap := make(map[int64]int64)
-
 	for _, inst := range instances.Info {
 		srvInstDetailMap[inst.ID] = metadata.ServiceInstanceDetailOfP{
 			ID:   inst.ID,
@@ -885,19 +881,16 @@ func (ps *ProcServer) listProcessRelatedInfo(ctx *rest.Contexts, bizID int64, pr
 		srvInstModuleMap[inst.ID] = inst.ModuleID
 		moduleArr = append(moduleArr, inst.ModuleID)
 	}
-
 	hostInfo := hostSimpleInfo{
 		bizID:     bizID,
 		moduleArr: moduleArr,
 		hostArr:   hostArr,
 	}
-
 	hostDetailMap, moduleDetailMap, moduleSetMap, setArr, err := ps.getHostAndModuleInfo(ctx.Kit, hostInfo)
 	if err != nil {
 		ctx.RespAutoError(err)
 		return
 	}
-
 	setDetailMap, err := ps.getSetInfo(ctx.Kit, bizID, setArr)
 	if err != nil {
 		ctx.RespAutoError(err)
@@ -905,9 +898,7 @@ func (ps *ProcServer) listProcessRelatedInfo(ctx *rest.Contexts, bizID int64, pr
 	}
 	// construct the final result
 	ret := make([]metadata.ListProcessRelatedInfoResult, len(processIDs))
-
 	for idx, processID := range processIDs {
-
 		srvInstID := procSrvInstMap[processID]
 		moduleID := srvInstModuleMap[srvInstID]
 		setID := moduleSetMap[moduleID]
@@ -916,7 +907,6 @@ func (ps *ProcServer) listProcessRelatedInfo(ctx *rest.Contexts, bizID int64, pr
 		srvInstDetail := srvInstDetailMap[srvInstID]
 		moduleDetail := moduleDetailMap[moduleID]
 		setDetail := setDetailMap[setID]
-
 		info := metadata.ListProcessRelatedInfoResult{
 			Set:             setDetail,
 			Module:          moduleDetail,
@@ -927,7 +917,6 @@ func (ps *ProcServer) listProcessRelatedInfo(ctx *rest.Contexts, bizID int64, pr
 		}
 		ret[idx] = info
 	}
-
 	ctx.RespEntityWithCount(totalCnt, ret)
 }
 

@@ -225,10 +225,8 @@ func ValidFieldTypeList(kit *rest.Kit, option, defaultVal interface{}) error {
 		return kit.CCError.Errorf(common.CCErrCommValExceedMaxFailed, "option", common.AttributeOptionArrayMaxLength)
 	}
 
-	isDefaultValid := false
-	if defaultVal == nil {
-		isDefaultValid = true
-	}
+	isDefaultValid := defaultVal == nil
+
 	listDefaultVal := util.GetStrByInterface(defaultVal)
 
 	for _, value := range listOption {

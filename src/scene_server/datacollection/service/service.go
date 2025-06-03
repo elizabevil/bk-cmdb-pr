@@ -177,7 +177,7 @@ func (s *Service) Healthz(req *restful.Request, resp *restful.Response) {
 	}
 
 	for _, item := range meta.Items {
-		if item.IsHealthy == false {
+		if !item.IsHealthy {
 			meta.IsHealthy = false
 			meta.Message = "datacolection server is unhealthy"
 			break

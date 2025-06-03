@@ -1289,9 +1289,10 @@ func (c *commonInst) hasHost(kit *rest.Kit, instances []mapstr.MapStr, objID str
 	objInstMap := map[string][]mapstr.MapStr{objID: instances}
 
 	var moduleIDs []int64
-	if objID == common.BKInnerObjIDModule {
+	switch objID {
+	case common.BKInnerObjIDModule:
 		moduleIDs = instIDs
-	} else if objID == common.BKInnerObjIDSet {
+	case common.BKInnerObjIDSet:
 		query := &metadata.QueryCondition{
 			Condition: map[string]interface{}{common.BKSetIDField: map[string]interface{}{common.BKDBIN: instIDs}},
 			Fields:    []string{common.BKModuleIDField},
@@ -1318,7 +1319,7 @@ func (c *commonInst) hasHost(kit *rest.Kit, instances []mapstr.MapStr, objID str
 			}
 			moduleIDs[index] = moduleID
 		}
-	} else {
+	default:
 		var err error
 		moduleIDs, err = c.mainlineHasHost(kit, objID, objInstMap, instIDs)
 		if err != nil {

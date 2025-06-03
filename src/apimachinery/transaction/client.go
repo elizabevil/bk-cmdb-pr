@@ -82,7 +82,7 @@ func (t *txn) AutoRunTxn(ctx context.Context, h http.Header, run func() error, o
 	appCode := httpheader.GetAppCode(h)
 	for retryCount := 1; retryCount <= 3; retryCount++ {
 		// if the previous operation time exceeds half of the http timeout(25s), do not retry to avoid timeout
-		if time.Now().Sub(startTime).Seconds() > 10 {
+		if time.Since(startTime).Seconds() > 10 {
 			return ccErr.New(common.CCErrCommCommitTransactionFailed, "retry conflict transaction timeout")
 		}
 

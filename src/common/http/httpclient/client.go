@@ -118,7 +118,7 @@ func (client *HttpClient) SetHeader(key, value string) {
 
 // GetHeader TODO
 func (client *HttpClient) GetHeader(key string) string {
-	val, _ := client.header[key]
+	val := client.header[key]
 	return val
 }
 
@@ -241,6 +241,7 @@ func (client *HttpClient) RequestEx(url, method string, header http.Header, data
 
 // DoWithTimeout TODO
 func (client *HttpClient) DoWithTimeout(timeout time.Duration, req *http.Request) (*http.Response, error) {
+	//TODO ?? CONTEXT LEAK
 	ctx, _ := context.WithTimeout(req.Context(), timeout)
 	req = req.WithContext(ctx)
 	return client.httpCli.Do(req)

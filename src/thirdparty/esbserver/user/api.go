@@ -86,7 +86,7 @@ func (p *user) ListUsers(ctx context.Context, h http.Header,
 	if params == nil {
 		params = make(map[string]string)
 	}
-	if _, ok := params["fields"]; ok == false {
+	if _, ok := params["fields"]; !ok {
 		params["fields"] = "username,id,display_name"
 	}
 	params["no_page"] = "true"

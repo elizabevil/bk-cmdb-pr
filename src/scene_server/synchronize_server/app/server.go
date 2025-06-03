@@ -60,7 +60,7 @@ func Run(ctx context.Context, cancel context.CancelFunc, op *options.ServerOptio
 			break
 		}
 	}
-	if false == configReady {
+	if !configReady {
 		return fmt.Errorf("Configuration item not found")
 	}
 	service.Engine = engine

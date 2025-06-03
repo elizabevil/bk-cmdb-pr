@@ -24,7 +24,7 @@ import (
 
 // CurrentPlugin get current login plugin
 func CurrentPlugin(version string) metadata.LoginUserPluginInerface {
-	if "" == version {
+	if version == "" {
 		version = common.BKBluekingLoginPluginVersion
 	}
 

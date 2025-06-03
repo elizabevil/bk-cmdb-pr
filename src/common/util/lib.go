@@ -28,7 +28,7 @@ import (
 	"github.com/rs/xid"
 )
 
-// InStrArr TODO
+// InStrArr TODO strings.Contains()
 func InStrArr(arr []string, key string) bool {
 	for _, a := range arr {
 		if key == a {
@@ -101,7 +101,7 @@ func ExtractRequestUserFromContext(ctx context.Context) string {
 // AtomicBool TODO
 type AtomicBool int32
 
-// NewBool TODO
+// NewBool TODO atomic.Int32
 func NewBool(yes bool) *AtomicBool {
 	var n = AtomicBool(0)
 	if yes {
@@ -139,41 +139,8 @@ func (b *AtomicBool) SetTo(yes bool) {
 	}
 }
 
-// IntSlice TODO
-type IntSlice []int
-
-// Len 用于排序
-func (p IntSlice) Len() int { return len(p) }
-
-// Less 用于排序
-func (p IntSlice) Less(i, j int) bool { return p[i] < p[j] }
-
-// Swap 用于排序
-func (p IntSlice) Swap(i, j int) { p[i], p[j] = p[j], p[i] }
-
-// Int64Slice TODO
-type Int64Slice []int64
-
-// Len 用于排序
-func (p Int64Slice) Len() int { return len(p) }
-
-// Less 用于排序
-func (p Int64Slice) Less(i, j int) bool { return p[i] < p[j] }
-
-// Swap 用于排序
-func (p Int64Slice) Swap(i, j int) { p[i], p[j] = p[j], p[i] }
-
-// Uint64Slice uint64 slice
-type Uint64Slice []uint64
-
-// Len 用于排序
-func (p Uint64Slice) Len() int { return len(p) }
-
-// Less 用于排序
-func (p Uint64Slice) Less(i, j int) bool { return p[i] < p[j] }
-
-// Swap 用于排序
-func (p Uint64Slice) Swap(i, j int) { p[i], p[j] = p[j], p[i] }
+//  sort.Sort
+//  slices.Sort
 
 // GenerateRID TODO
 func GenerateRID() string {

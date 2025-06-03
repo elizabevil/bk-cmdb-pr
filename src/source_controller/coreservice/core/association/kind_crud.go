@@ -37,7 +37,7 @@ func (m *associationKind) isExists(kit *rest.Kit, associationKindID string) (ori
 
 func (m *associationKind) hasModel(kit *rest.Kit, cond mapstr.MapStr) (cnt uint64, exists bool, err error) {
 	cnt, err = mongodb.Client().Table(common.BKTableNameObjDes).Find(cond).Count(kit.Ctx)
-	exists = 0 != cnt
+	exists = cnt != 0
 	return cnt, exists, err
 }
 
@@ -58,14 +58,14 @@ func (m *associationKind) isPreAssociationKind(kit *rest.Kit, cond metadata.Dele
 	}
 	condition[common.BKIsPre] = true
 	innerCnt, err := mongodb.Client().Table(common.BKTableNameAsstDes).Find(condition).Count(kit.Ctx)
-	exists = 0 != innerCnt
+	exists = innerCnt != 0
 	return exists, err
 }
 
 func (m *associationKind) isApplyToObject(kit *rest.Kit, cond metadata.DeleteOption) (cnt uint64, exists bool, err error) {
 
 	innerCnt, err := mongodb.Client().Table(common.BKTableNameAsstDes).Find(cond).Count(kit.Ctx)
-	exists = 0 != innerCnt
+	exists = innerCnt != 0
 	return innerCnt, exists, err
 }
 
@@ -85,10 +85,14 @@ func (m *associationKind) save(kit *rest.Kit, associationKind metadata.Associati
 	return id, err
 }
 
-func (m *associationKind) searchAssociationKind(kit *rest.Kit, inputParam metadata.QueryCondition) (results []metadata.AssociationKind, err error) {
+func (m *associationKind) searchAssociationKind(
+	kit *rest.Kit, inputParam metadata.QueryCondition,
+) (results []metadata.AssociationKind, err error) {
 	results = []metadata.AssociationKind{}
-	instHandler := mongodb.Client().Table(common.BKTableNameAsstDes).Find(inputParam.Condition).Fields(inputParam.Fields...)
-	err = instHandler.Start(uint64(inputParam.Page.Start)).Limit(uint64(inputParam.Page.Limit)).Sort(inputParam.Page.Sort).All(kit.Ctx, &results)
+	instHandler := mongodb.Client().Table(common.BKTableNameAsstDes).
+		Find(inputParam.Condition).Fields(inputParam.Fields...)
+	err = instHandler.Start(uint64(inputParam.Page.Start)).
+		Limit(uint64(inputParam.Page.Limit)).Sort(inputParam.Page.Sort).All(kit.Ctx, &results)
 
 	return results, err
 }

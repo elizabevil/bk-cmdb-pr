@@ -214,7 +214,7 @@ func (s *coreService) ListHostFavourites(ctx *rest.Contexts) {
 	// read fields and page
 	fieldArr := []string{"id", "info", "query_params", "name", "is_default", common.CreateTimeField, "count",
 		common.HostFavoriteType}
-	if "" != dat.Fields {
+	if dat.Fields != "" {
 		fieldArr = strings.Split(dat.Fields, ",")
 	}
 	skip, limit, sort := dat.Start, dat.Limit, dat.Sort
@@ -252,7 +252,7 @@ func (s *coreService) ListHostFavourites(ctx *rest.Contexts) {
 func (s *coreService) GetHostFavouriteByID(ctx *rest.Contexts) {
 	ID := ctx.Request.PathParameter("id")
 	user := ctx.Request.PathParameter("user")
-	if "" == ID || "0" == ID {
+	if ID == "" || ID == "0" {
 		blog.Errorf("get host favourite, but id is emtpy, rid: %s", ctx.Kit.Rid)
 		ctx.RespAutoError(ctx.Kit.CCError.CCError(common.CCErrCommParamsNeedSet))
 		return

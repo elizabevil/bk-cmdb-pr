@@ -26,7 +26,7 @@ type Config struct {
 
 // Check check kafka config
 func (c *Config) Check() error {
-	if c.Brokers == nil || len(c.Brokers) == 0 {
+	if len(c.Brokers) == 0 {
 		return errors.New("can not find kafka brokers config")
 	}
 

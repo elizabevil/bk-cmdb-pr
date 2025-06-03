@@ -70,7 +70,7 @@ func parseConditionFromMapStr(inputCond *mongoCondition, inputKey string,
 				reflect.Float32, reflect.Float64,
 				reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Bool, reflect.Slice, reflect.Struct:
 				// Compatible with older versions of mongodb equal syntax
-				if 0 != len(inputKey) && 0 != len(operatorKey) {
+				if len(inputKey) != 0 && len(operatorKey) != 0 {
 					outputCond.Element(&Eq{Key: inputKey, Val: (&Eq{Key: operatorKey, Val: val}).ToMapStr()})
 				} else {
 					outputCond.Element(&Eq{Key: operatorKey, Val: val})
@@ -106,7 +106,7 @@ func parseConditionFromMapStr(inputCond *mongoCondition, inputKey string,
 				if nil != err {
 					return err
 				}
-				if 0 != len(inputKey) {
+				if len(inputKey) != 0 {
 					// ATTENTION: check embed condition, maybe is not a good way
 					tmp, ok := outputCond.embed[inputKey]
 					if !ok {
@@ -169,7 +169,7 @@ func parseAnd(targetCond *mongoCondition, embedName string, vals []mapstr.MapStr
 		if nil != err {
 			return outputCond, err
 		}
-		if 0 == len(embedName) {
+		if len(embedName) == 0 {
 			// ATTENTION: maybe it is not a good way , to check embed condition
 			for key, val := range andCond.embed {
 				andCond.Element(&Eq{Key: key, Val: val.ToMapStr()})
@@ -201,7 +201,7 @@ func parseOr(targetCond *mongoCondition, embedName string, vals []mapstr.MapStr)
 			return outputCond, err
 		}
 
-		if 0 == len(embedName) {
+		if len(embedName) == 0 {
 			// ATTENTION: maybe it is not a good way , to check embed condition
 			for key, val := range orCond.embed {
 				orCond.Element(&Eq{Key: key, Val: val.ToMapStr()})

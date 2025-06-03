@@ -42,7 +42,7 @@ func (s *system) GetUserConfig(ctx context.Context, h http.Header) (*metadata.Re
 		blog.Errorf("AddLabel failed, http request failed, err: %+v, rid: %s", httpDoErr, rid)
 		return nil, errors.CCHttpError
 	}
-	if resp.Result == false || resp.Code != 0 {
+	if !resp.Result || resp.Code != 0 {
 		return nil, errors.New(resp.Code, resp.ErrMsg)
 	}
 

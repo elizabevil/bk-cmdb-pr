@@ -195,7 +195,7 @@ func (s *Service) SearchAccount(ctx *rest.Contexts) {
 	}
 
 	// if fuzzy search, change the string query to regexp
-	if option.IsFuzzy == true {
+	if option.IsFuzzy {
 		for k, v := range option.Condition {
 			field, ok := v.(string)
 			if ok {

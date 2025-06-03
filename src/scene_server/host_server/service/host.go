@@ -16,7 +16,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"strconv"
 	"strings"
 	"sync"
@@ -138,9 +138,7 @@ func (s *Service) DeleteHostBatchFromResourcePool(ctx *rest.Contexts) {
 		}
 		delConds := make([]map[string]interface{}, 0)
 		for objID, instIDs := range asstInstMap {
-			if len(instIDs) < 0 {
-				continue
-			}
+
 			instIDField := common.GetInstIDField(objID)
 			instCond := map[string]interface{}{
 				instIDField: map[string]interface{}{
@@ -419,7 +417,7 @@ func (s *Service) AddHostByExcel(ctx *rest.Contexts) {
 func (s *Service) AddHostToResourcePool(ctx *rest.Contexts) {
 
 	hostList := new(meta.AddHostToResourcePoolHostList)
-	body, err := ioutil.ReadAll(ctx.Request.Request.Body)
+	body, err := io.ReadAll(ctx.Request.Request.Body)
 	if err != nil {
 		blog.Errorf("read request body failed, err: %v, rid: %s", err, ctx.Kit.Rid)
 		ctx.RespAutoError(ctx.Kit.CCError.CCError(common.CCErrCommHTTPReadBodyFailed))
@@ -466,7 +464,7 @@ func (s *Service) AddHostFromAgent(ctx *rest.Contexts) {
 		ctx.RespAutoError(err)
 		return
 	}
-	if 0 == appID {
+	if appID == 0 {
 		blog.Errorf("add host from agent, but got invalid default appID, err: %v,ownerID:%s,input:%#v,rid:%s", err,
 			ctx.Kit.SupplierAccount, agents, ctx.Kit.Rid)
 		ctx.RespAutoError(ctx.Kit.CCError.CCErrorf(common.CCErrAddHostToModule, "business not found"))
@@ -632,12 +630,12 @@ func (s *Service) UpdateHostBatch(ctx *rest.Contexts) {
 	// delete this, when the frontend use the rigListHostInstanceht request field. not the number.
 	id := data[common.BKHostIDField]
 	hostIDStr := ""
-	switch id.(type) {
+	switch id := id.(type) {
 	case float64:
-		floatID := id.(float64)
+		floatID := id
 		hostIDStr = strconv.FormatInt(int64(floatID), 10)
 	case string:
-		hostIDStr = id.(string)
+		hostIDStr = id
 	default:
 		blog.Errorf("update host batch failed, got invalid host id(%v) data type,rid:%s", id, ctx.Kit.Rid)
 		ctx.RespAutoError(ctx.Kit.CCError.CCErrorf(common.CCErrCommParamsIsInvalid, "bk_host_id"))
@@ -810,7 +808,7 @@ func (s *Service) NewHostSyncAppTopo(ctx *rest.Contexts) {
 		ctx.RespAutoError(ctx.Kit.CCError.CCErrorf(common.CCErrCommParamsNeedSet, "host_info"))
 		return
 	}
-	if 0 == len(hostList.ModuleID) {
+	if len(hostList.ModuleID) == 0 {
 		blog.Errorf("host sync app  parameters required moduleID,input:%+v,rid:%s", hostList, ctx.Kit.Rid)
 		ctx.RespAutoError(ctx.Kit.CCError.CCErrorf(common.CCErrCommParamsNeedSet, common.BKModuleIDField))
 		return
@@ -915,14 +913,14 @@ func (s *Service) MoveSetHost2IdleModule(ctx *rest.Contexts) {
 		return
 	}
 
-	if 0 == data.ApplicationID {
+	if data.ApplicationID == 0 {
 		blog.Errorf("MoveSetHost2IdleModule bk_biz_id cannot be empty at the same time,input:%#v,rid:%s", data,
 			httpheader.GetRid(header))
 		ctx.RespAutoError(ctx.Kit.CCError.CCError(common.CCErrCommParamsNeedSet))
 		return
 	}
 
-	if 0 == data.SetID && 0 == data.ModuleID {
+	if data.SetID == 0 && data.ModuleID == 0 {
 		blog.Errorf("MoveSetHost2IdleModule bk_set_id and bk_module_id cannot be empty at the same time,input:%#v, "+
 			"rid:%s", data, httpheader.GetRid(header))
 		ctx.RespAutoError(ctx.Kit.CCError.CCError(common.CCErrCommParamsNeedSet))
@@ -932,10 +930,10 @@ func (s *Service) MoveSetHost2IdleModule(ctx *rest.Contexts) {
 	// get host in set
 	condition := &meta.DistinctHostIDByTopoRelationRequest{}
 
-	if 0 != data.SetID {
+	if data.SetID != 0 {
 		condition.SetIDArr = []int64{data.SetID}
 	}
-	if 0 != data.ModuleID {
+	if data.ModuleID != 0 {
 		condition.ModuleIDArr = []int64{data.ModuleID}
 	}
 
@@ -947,7 +945,7 @@ func (s *Service) MoveSetHost2IdleModule(ctx *rest.Contexts) {
 		return
 	}
 
-	if 0 == len(hostIDArr) {
+	if len(hostIDArr) == 0 {
 		blog.Warnf("no host in set,rid:%s", ctx.Kit.Rid)
 		ctx.RespEntity(nil)
 		return
@@ -1013,10 +1011,10 @@ func (s *Service) MoveSetHost2IdleModule(ctx *rest.Contexts) {
 			toEmptyModule := true
 			var newModuleIDArr []int64
 			for _, item := range hostMHArr {
-				if 0 != data.ModuleID && item.ModuleID == data.ModuleID {
+				if data.ModuleID != 0 && item.ModuleID == data.ModuleID {
 					continue
 				}
-				if 0 != data.SetID && 0 == data.ModuleID && item.SetID == data.SetID {
+				if data.SetID != 0 && data.ModuleID == 0 && item.SetID == data.SetID {
 					continue
 				}
 

@@ -26,7 +26,7 @@ func (s *service) Healthz(req *restful.Request, resp *restful.Response) {
 	meta := s.checkComponentHealthz()
 
 	for _, item := range meta.Items {
-		if item.IsHealthy == false {
+		if !item.IsHealthy {
 			meta.IsHealthy = false
 			meta.Message = "api server is unhealthy"
 			break

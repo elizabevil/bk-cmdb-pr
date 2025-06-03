@@ -16,7 +16,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"sort"
 	"strings"
@@ -89,9 +88,9 @@ func (f *Exception) Write(ctx context.Context, exceptions []metadata.ExceptionRe
 func (f *Exception) Destruct() {
 	f.file.Close()
 	go func() {
-		files, err := ioutil.ReadDir(f.directory)
+		files, err := os.ReadDir(f.directory)
 		if err != nil {
-			blog.Errorf("Destruct remove log,excel ioutil.ReadDir error, error:%s,taskID:%s", err.Error(), f.taskID)
+			blog.Errorf("Destruct remove log,excel os.ReadDir error, error:%s,taskID:%s", err.Error(), f.taskID)
 			return
 		}
 		var fileNames []string
@@ -102,7 +101,7 @@ func (f *Exception) Destruct() {
 			}
 		}
 
-		sort.Sort(sort.StringSlice(fileNames))
+		sort.Strings(fileNames)
 		lenFileNames := len(fileNames)
 		if lenFileNames > f.fileCount {
 

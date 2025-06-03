@@ -31,9 +31,7 @@ func NewArray() []MapStr {
 // NewArrayFromMapStr create a new array from mapstr array
 func NewArrayFromMapStr(datas []MapStr) []MapStr {
 	results := []MapStr{}
-	for _, item := range datas {
-		results = append(results, item)
-	}
+	results = append(results, datas...)
 	return results
 }
 
@@ -53,14 +51,14 @@ func NewFromInterface(data interface{}) (MapStr, error) {
 		return tmp, nil
 	case []byte:
 		result := New()
-		if 0 == len(tmp) {
+		if len(tmp) == 0 {
 			return result, nil
 		}
 		err := json.Unmarshal(tmp, &result)
 		return result, err
 	case string:
 		result := New()
-		if 0 == len(tmp) {
+		if len(tmp) == 0 {
 			return result, nil
 		}
 		err := json.Unmarshal([]byte(tmp), &result)
@@ -85,13 +83,12 @@ func NewFromMap(data map[string]interface{}) MapStr {
 
 // NewFromStruct convert the  struct into MapStr , the struct must be taged with 'tagName' .
 //
-//  eg:
-//  type targetStruct struct{
-//       Name string `field:"testName"`
-//  }
-//  will be converted the follow map
-//  {"testName":""}
-//
+//	eg:
+//	type targetStruct struct{
+//	     Name string `field:"testName"`
+//	}
+//	will be converted the follow map
+//	{"testName":""}
 func NewFromStruct(targetStruct interface{}, tagName string) MapStr {
 	return SetValueToMapStrByTagsWithTagName(targetStruct, tagName)
 }

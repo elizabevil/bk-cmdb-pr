@@ -56,7 +56,7 @@ func (m *publicUser) LoginUser(c *gin.Context) bool {
 		blog.Infof("login user with plugin failed, rid: %s", rid)
 		return false
 	}
-	if true == isMultiOwner || true == userInfo.MultiSupplier {
+	if isMultiOwner || userInfo.MultiSupplier {
 		ownerM := NewOwnerManager(userInfo.UserName, userInfo.OnwerUin, userInfo.Language)
 		ownerM.CacheCli = m.cacheCli
 		ownerM.Engine = m.engine
@@ -68,7 +68,7 @@ func (m *publicUser) LoginUser(c *gin.Context) bool {
 		}
 	}
 	strOwnerUinList := []byte("")
-	if 0 != len(userInfo.OwnerUinArr) {
+	if len(userInfo.OwnerUinArr) != 0 {
 		strOwnerUinList, _ = json.Marshal(userInfo.OwnerUinArr)
 	}
 

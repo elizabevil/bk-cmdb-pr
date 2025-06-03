@@ -951,7 +951,7 @@ func (p *SocketBindType) String() string {
 func (p SocketBindType) Validate() error {
 	validValues := []SocketBindType{BindLocalHost, BindAll, BindInnerIP, BindOuterIP, BindLocalHostV6, BindAllV6,
 		BindInnerIPv6, BindOuterIPv6}
-	if util.InArray(p, validValues) == false {
+	if !util.InArray(p, validValues) {
 		return fmt.Errorf("invalid socket bind type, value: %s, available values: %+v", p, validValues)
 	}
 	return nil
@@ -997,7 +997,7 @@ func (p *ProtocolType) Validate() error {
 	}
 
 	validValues := []ProtocolType{ProtocolTypeTCP, ProtocolTypeUDP, ProtocolTypeTCP6, ProtocolTypeUDP6}
-	if util.InArray(*p, validValues) == false {
+	if !util.InArray(*p, validValues) {
 		return fmt.Errorf("invalid protocol type, value: %s, available values: %+v", p, validValues)
 	}
 	return nil
@@ -1340,16 +1340,23 @@ func GetAllProcessPropertyFields() []string {
 	return fields
 }
 
-func processTemplateProperty[T comparable](templateValue, instanceValue *T, process map[string]interface{}, key string) bool {
+func processTemplateProperty[T comparable](
+	templateValue, instanceValue *T,
+	process map[string]interface{},
+	key string,
+) bool {
 	if templateValue == nil && instanceValue != nil {
 		process[key] = nil
 		return true
-	} else if templateValue != nil && instanceValue == nil || (instanceValue != nil && (*templateValue != *instanceValue)) {
+	} else if templateValue != nil && instanceValue == nil ||
+		(instanceValue != nil && (*templateValue != *instanceValue)) {
 		process[key] = *templateValue
 		return true
 	}
 	return false
 }
+
+// ExtractChangeInfo get changes that will be applied to process instance
 func (pt *ProcessTemplate) ExtractChangeInfo(i *Process, host map[string]interface{}) (mapstr.MapStr, bool, error) {
 	t := pt.Property
 	var changed bool
@@ -1414,7 +1421,8 @@ func (pt *ProcessTemplate) ExtractChangeInfo(i *Process, host map[string]interfa
 	}
 
 	if IsAsDefaultValue(t.StartParamRegex.AsDefaultValue) {
-		changed = processTemplateProperty(t.StartParamRegex.Value, i.StartParamRegex, process, "bk_start_param_regex") || changed
+		changed = processTemplateProperty(t.StartParamRegex.Value, i.StartParamRegex, process,
+			"bk_start_param_regex") || changed
 	}
 
 	if IsAsDefaultValue(t.PidFile.AsDefaultValue) {
@@ -1425,7 +1433,7 @@ func (pt *ProcessTemplate) ExtractChangeInfo(i *Process, host map[string]interfa
 		changed = processTemplateProperty(t.Priority.Value, i.Priority, process, "priority") || changed
 	}
 
-	bindInfo, bindInfoChanged, bindInfoIsNamePortChanged, err := t.BindInfo.ExtractChangeInfoBindInfo(i, host)
+	bindInfo, bindInfoChanged, _, err := t.BindInfo.ExtractChangeInfoBindInfo(i, host)
 	if err != nil {
 		return nil, false, err
 	}
@@ -1433,9 +1441,6 @@ func (pt *ProcessTemplate) ExtractChangeInfo(i *Process, host map[string]interfa
 	process[common.BKProcBindInfo] = bindInfo
 	if bindInfoChanged {
 		changed = true
-	}
-	if bindInfoIsNamePortChanged {
-		bindInfoIsNamePortChanged = true
 	}
 
 	return process, changed, nil
@@ -1714,7 +1719,7 @@ func (pt *ProcessProperty) Update(input ProcessProperty, rawProperty map[string]
 		}
 		fieldTag := selfType.Field(fieldIdx).Tag.Get("json")
 		// 如果rawProperty不存在的字段，表示没有传递该字段，表示的型行为是不修改改字段
-		if _, ok := rawProperty[fieldTag]; ok == false {
+		if _, ok := rawProperty[fieldTag]; !ok {
 			continue
 		}
 		// bind info 是特有方法更新
@@ -1851,7 +1856,7 @@ func (ti *PropertyPortValue) Validate() error {
 		return errors.New("port is not set or is empty")
 	}
 
-	if matched := ProcessPortFormat.MatchString(string(*ti)); matched == false {
+	if matched := ProcessPortFormat.MatchString(string(*ti)); !matched {
 		return fmt.Errorf("port format invalid")
 	}
 	var tmpPortArr []propertyPortItem
@@ -1876,7 +1881,7 @@ func (ti *PropertyPortValue) Validate() error {
 			return fmt.Errorf("port format invalid, start > end")
 		}
 		for _, tmpItem := range tmpPortArr {
-			if !(end < tmpItem.start || start > tmpItem.end) {
+			if end >= tmpItem.start && start <= tmpItem.end {
 				return fmt.Errorf("port format invalid,  port duplicate:" + strPortItem)
 			}
 		}

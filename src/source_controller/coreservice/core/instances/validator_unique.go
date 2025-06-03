@@ -123,7 +123,7 @@ func (valid *validator) validUpdateUniqFieldInMulti(kit *rest.Kit, updateData ma
 	}
 
 	hasUniqueField, uniqueFields := valid.hasUniqueFields(updateData, uniqueOpts)
-	if hasUniqueField == false {
+	if !hasUniqueField {
 		return nil
 	}
 

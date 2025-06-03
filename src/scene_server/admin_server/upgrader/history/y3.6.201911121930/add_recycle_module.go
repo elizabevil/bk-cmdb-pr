@@ -45,7 +45,8 @@ func AddRecycleModule(ctx context.Context, db dal.RDB, conf *upgrader.Config) er
 	start := uint64(0)
 	limit := uint64(50)
 	for {
-		if err := db.Table(common.BKTableNameBaseApp).Find(bizFilter).Start(start).Limit(limit).All(ctx, &businessList); err != nil {
+		if err := db.Table(common.BKTableNameBaseApp).Find(bizFilter).
+			Start(start).Limit(limit).All(ctx, &businessList); err != nil {
 			blog.ErrorJSON("AddRecycleModule failed, find businesses failed, filter: %s, err: %s", bizFilter, err)
 			return fmt.Errorf("find businesses failed, err: %s", err.Error())
 		}

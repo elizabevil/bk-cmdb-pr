@@ -124,6 +124,7 @@ func (am *AuthManager) MakeResourcesByHosts(ctx context.Context, header http.Hea
 	for _, host := range hosts {
 		businessIDs = append(businessIDs, host.BKAppIDField)
 	}
+	// TODO ??  never used businessIDs
 	businessIDs = util.IntArrayUnique(businessIDs)
 	resPoolBizID, err := am.getResourcePoolBusinessID(ctx, header)
 	if err != nil {

@@ -108,7 +108,7 @@ func dealStruct(kind reflect.Type, value reflect.Value, tagName string) (MapStr,
 				mapResult.Set(fieldType.Name, subMapResult)
 				continue
 			}
-			if 0 == len(tag) || strings.Contains(tag, "ignoretomap") {
+			if len(tag) == 0 || strings.Contains(tag, "ignoretomap") {
 				continue
 			}
 

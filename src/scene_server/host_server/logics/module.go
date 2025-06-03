@@ -197,7 +197,7 @@ func (lgc *Logics) MoveHostToResourcePool(kit *rest.Kit, conf *metadata.DefaultM
 		blog.Errorf("move host to resource pool, but get default appid failed, err: %v, input:%+v,rid:%s", err, conf, kit.Rid)
 		return nil, err
 	}
-	if 0 == conf.ApplicationID {
+	if conf.ApplicationID == 0 {
 		return nil, kit.CCError.Error(common.CCErrHostNotResourceFail)
 	}
 	if ownerAppID == conf.ApplicationID {
@@ -322,7 +322,7 @@ func (lgc *Logics) AssignHostToApp(kit *rest.Kit, conf *metadata.DefaultModuleHo
 		blog.Errorf("assign host to app failed, err: %v,input:%+v,rid:%s", err, conf, kit.Rid)
 		return nil, err
 	}
-	if 0 == len(appInfo) {
+	if len(appInfo) == 0 {
 		blog.Errorf("assign host to app error, not foud app appID: %d,input:%+v,rid:%s", conf.ApplicationID, conf, kit.Rid)
 		return nil, kit.CCError.Error(common.CCErrCommNotFound)
 	}
@@ -332,7 +332,7 @@ func (lgc *Logics) AssignHostToApp(kit *rest.Kit, conf *metadata.DefaultModuleHo
 		blog.Errorf("assign host to app, but get default appid failed, err: %v,input:%+v,rid:%s", err, conf, kit.Rid)
 		return nil, err
 	}
-	if 0 == conf.ApplicationID {
+	if conf.ApplicationID == 0 {
 		return nil, kit.CCError.Errorf(common.CCErrHostGetResourceFail, "not found")
 	}
 	if ownerAppID == conf.ApplicationID {

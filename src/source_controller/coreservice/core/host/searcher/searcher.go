@@ -81,7 +81,7 @@ func (s *Searcher) ListHosts(kit *rest.Kit, option metadata.ListHosts) (*metadat
 
 	if needHostIDFilter && len(filters) == 1 && option.BizID != 0 {
 		sort := strings.TrimLeft(option.Page.Sort, "+-")
-		if len(option.Page.Sort) == 0 || sort == common.BKHostIDField || strings.Contains(sort, ",") == false &&
+		if len(option.Page.Sort) == 0 || sort == common.BKHostIDField || !strings.Contains(sort, ",") &&
 			strings.HasPrefix(sort, common.BKHostIDField+":") {
 			searchResult, err := s.listAllBizHostsPage(kit.Ctx, option.Fields, option.Page, hostIDs, kit.Rid)
 			if err != nil {
@@ -96,13 +96,13 @@ func (s *Searcher) ListHosts(kit *rest.Kit, option metadata.ListHosts) (*metadat
 		// return info use cache
 		// fix: has question when multi-supplier
 		sort := strings.TrimLeft(option.Page.Sort, "+-")
-		if len(option.Page.Sort) == 0 || sort == common.BKHostIDField || strings.Contains(sort, ",") == false &&
+		if len(option.Page.Sort) == 0 || sort == common.BKHostIDField || !strings.Contains(sort, ",") &&
 			strings.HasPrefix(sort, common.BKHostIDField+":") {
 			searchResult, skip, err := s.ListHostsWithCache(kit, option.Fields, option.Page)
 			if err != nil {
 				return nil, err
 			}
-			if skip == false {
+			if !skip {
 				return searchResult, nil
 			}
 		}

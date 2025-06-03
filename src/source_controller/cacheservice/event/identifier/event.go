@@ -128,7 +128,7 @@ func (f *hostIdentity) parseEvent(e *types.Event, id uint64, rid string) (*watch
 }
 
 func genHostIdentifyCursor(coll string, e *types.Event, rid string) (string, error) {
-	curType := watch.UnknownType
+	var curType watch.CursorType
 	switch coll {
 	case common.BKTableNameBaseHost:
 		curType = watch.Host

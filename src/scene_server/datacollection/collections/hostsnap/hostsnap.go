@@ -616,7 +616,7 @@ func getHostInfoFromMsgV10(val *gjson.Result, host *hostInfo) *hostDiscoverMsg {
 	case common.HostOSTypeName[common.HostOSTypeEnumWindows]:
 		hostMsg.version = strings.Replace(hostMsg.version, "Microsoft ", "", 1)
 		hostMsg.platform = strings.Replace(hostMsg.platform, "Microsoft ", "", 1)
-		hostMsg.osname = fmt.Sprintf("%s", hostMsg.platform)
+		hostMsg.osname = hostMsg.platform
 		hostMsg.ostype = common.HostOSTypeEnumWindows
 	case common.HostOSTypeName[common.HostOSTypeEnumAIX]:
 		hostMsg.osname = hostMsg.platform
@@ -637,7 +637,7 @@ func getHostInfoFromMsgV10(val *gjson.Result, host *hostInfo) *hostDiscoverMsg {
 		hostMsg.osname = hostMsg.platform
 		hostMsg.ostype = common.HostOSTypeEnumMacOS
 	default:
-		hostMsg.osname = fmt.Sprintf("%s", hostMsg.platform)
+		hostMsg.osname = hostMsg.platform
 	}
 
 	hostMsg.version = strings.TrimSpace(hostMsg.version)
@@ -782,7 +782,7 @@ func getOsInfoFromMsg(val *gjson.Result, innerIP, outerIP string) *hostDiscoverM
 	case common.HostOSTypeName[common.HostOSTypeEnumWindows]:
 		hostMsg.version = strings.Replace(hostMsg.version, "Microsoft ", "", 1)
 		hostMsg.platform = strings.Replace(hostMsg.platform, "Microsoft ", "", 1)
-		hostMsg.osname = fmt.Sprintf("%s", hostMsg.platform)
+		hostMsg.osname = hostMsg.platform
 		hostMsg.ostype = common.HostOSTypeEnumWindows
 	case common.HostOSTypeName[common.HostOSTypeEnumAIX]:
 		hostMsg.osname = hostMsg.platform
@@ -803,7 +803,7 @@ func getOsInfoFromMsg(val *gjson.Result, innerIP, outerIP string) *hostDiscoverM
 		hostMsg.osname = hostMsg.platform
 		hostMsg.ostype = common.HostOSTypeEnumMacOS
 	default:
-		hostMsg.osname = fmt.Sprintf("%s", hostMsg.platform)
+		hostMsg.osname = hostMsg.platform
 	}
 
 	hostMsg.version = strings.TrimSpace(hostMsg.version)

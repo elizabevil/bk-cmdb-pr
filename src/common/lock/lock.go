@@ -158,9 +158,7 @@ func (l *mlock) MLock(rid string, retry int, expire time.Duration, keys ...StrFo
 			err := l.cache.Del(context.Background(), pipeRes[true]...).Err()
 			if err != nil {
 				// if del fail, need to del it when unlock
-				for _, v := range pipeRes[true] {
-					delKeys = append(delKeys, v)
-				}
+				delKeys = append(delKeys, pipeRes[true]...)
 				blog.Errorf("delete key fail. the key: %v,rid: %s", pipeRes[true], rid)
 			}
 		} else {

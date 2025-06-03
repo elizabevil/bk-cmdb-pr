@@ -344,7 +344,7 @@ func (h *HostIdentifier) collectFailHost(rid string) ([]*HostInfo, []StatusReq, 
 	uniqueMap := make(map[int64]struct{})
 
 	// 从redis的保存失败的主机的list中拿出一定数量主机，并进行去重
-	for time.Now().Sub(start) < time.Minute {
+	for time.Since(start) < time.Minute {
 		if len(hostInfoArray) >= makeNewTaskFromFailHostCount {
 			break
 		}

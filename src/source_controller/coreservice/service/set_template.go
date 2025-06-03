@@ -172,7 +172,7 @@ func (s *coreService) CountSetTplInstances(ctx *rest.Contexts) {
 	}
 	result := make([]metadata.CountSetTplInstItem, 0)
 	if err := mongodb.Client().Table(common.BKTableNameBaseSet).AggregateAll(ctx.Kit.Ctx, pipeline, &result); err != nil {
-		if mongodb.Client().IsNotFoundError(err) == true {
+		if mongodb.Client().IsNotFoundError(err) {
 			result = make([]metadata.CountSetTplInstItem, 0)
 		} else {
 			blog.Errorf("CountSetTplInstances failed, bizID: %d, option: %+v, err: %+v, rid: %s", bizID, option, err, ctx.Kit.Rid)

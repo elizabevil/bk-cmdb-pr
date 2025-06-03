@@ -140,7 +140,7 @@ func (s *Service) Healthz(req *restful.Request, resp *restful.Response) {
 		metric.NewHealthItem(types.CCFunctionalityRedis, s.cache.Ping(context.Background()).Err()))
 
 	for _, item := range meta.Items {
-		if item.IsHealthy == false {
+		if !item.IsHealthy {
 			meta.IsHealthy = false
 			meta.Message = "event server is unhealthy"
 			break

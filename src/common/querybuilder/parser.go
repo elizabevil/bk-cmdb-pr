@@ -145,7 +145,7 @@ func MapToQueryFilterHookFunc() mapstructure.DecodeHookFunc {
 			return data, nil
 		}
 		dataMap, ok := data.(map[string]interface{})
-		if ok == false {
+		if !ok {
 			return data, nil
 		}
 		rule, errKey, err := ParseRule(dataMap)

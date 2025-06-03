@@ -66,7 +66,7 @@ func Run(ctx context.Context, cancel context.CancelFunc, op *options.ServerOptio
 		blog.Infof("waiting for config ready ...")
 		time.Sleep(time.Second)
 	}
-	if false == configReady {
+	if !configReady {
 		blog.Infof("waiting config timeout.")
 		return errors.New("configuration item not found")
 	}

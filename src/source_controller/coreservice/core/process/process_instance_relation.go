@@ -129,7 +129,7 @@ func (p *processOperation) ListProcessInstanceRelation(kit *rest.Kit, option met
 	}
 
 	// filter with matching any sub category
-	if option.ServiceInstanceIDs != nil && len(option.ServiceInstanceIDs) > 0 {
+	if len(option.ServiceInstanceIDs) > 0 {
 		filter[common.BKServiceInstanceIDField] = map[string]interface{}{
 			common.BKDBIN: option.ServiceInstanceIDs,
 		}
@@ -143,7 +143,7 @@ func (p *processOperation) ListProcessInstanceRelation(kit *rest.Kit, option met
 		filter[common.BKHostIDField] = option.HostID
 	}
 
-	if option.ProcessIDs != nil && len(option.ProcessIDs) > 0 {
+	if len(option.ProcessIDs) > 0 {
 		processIDFilter := map[string]interface{}{
 			common.BKDBIN: option.ProcessIDs,
 		}

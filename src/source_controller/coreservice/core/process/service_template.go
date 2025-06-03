@@ -308,7 +308,7 @@ func (p *processOperation) ListServiceTemplates(kit *rest.Kit, option metadata.L
 	*metadata.MultipleServiceTemplate, errors.CCErrorCoder) {
 
 	filter := map[string]interface{}{}
-	
+
 	if option.BusinessID != 0 {
 		filter[common.BKAppIDField] = option.BusinessID
 	}
@@ -342,7 +342,7 @@ func (p *processOperation) ListServiceTemplates(kit *rest.Kit, option metadata.L
 		}
 	}
 
-	if option.ServiceTemplateIDs != nil && len(option.ServiceTemplateIDs) != 0 {
+	if len(option.ServiceTemplateIDs) != 0 {
 		filter[common.BKFieldID] = map[string][]int64{
 			common.BKDBIN: option.ServiceTemplateIDs,
 		}

@@ -68,7 +68,7 @@ func ParseConfigFromKV(prefix string, configMap map[string]string) (AuthConfig, 
 		return cfg, errors.New(`missing "address" configuration for auth center`)
 	}
 
-	cfg.Address = strings.Split(strings.Replace(address, " ", "", -1), ",")
+	cfg.Address = strings.Split(strings.ReplaceAll(address, " ", ""), ",")
 	if len(cfg.Address) == 0 {
 		return cfg, errors.New(`invalid "address" configuration for auth center`)
 	}

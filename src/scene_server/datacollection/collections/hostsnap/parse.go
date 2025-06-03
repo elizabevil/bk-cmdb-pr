@@ -54,7 +54,7 @@ func ParseHostSnap(snapData *gjson.Result) (*string, error) {
 		// unit is GB
 		diskTotal = diskTotal >> 10 >> 10 >> 10
 		diskUsed = diskUsed >> 10 >> 10 >> 10
-		if 0 != diskTotal {
+		if diskTotal != 0 {
 			// get the percentage with two bits reserved.
 			diskUsage = 10000 * diskUsed / diskTotal
 		} else {

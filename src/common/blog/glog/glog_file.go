@@ -23,7 +23,6 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/user"
 	"path/filepath"
@@ -131,7 +130,7 @@ func (lk *logKeeper) removeFile(name string) error {
 }
 
 func (lk *logKeeper) load() {
-	_dir, err := ioutil.ReadDir(lk.dir)
+	_dir, err := os.ReadDir(lk.dir)
 	if err != nil {
 		return
 	}
@@ -224,7 +223,7 @@ func init() {
 	}
 
 	// Sanitize userName since it may contain filepath separators on Windows.
-	userName = strings.Replace(userName, `\`, "_", -1)
+	userName = strings.ReplaceAll(userName, `\`, "_")
 }
 
 // shortHostname returns its argument, truncating at the first period.

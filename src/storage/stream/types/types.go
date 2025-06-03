@@ -519,9 +519,9 @@ func (lo *LoopBatchOptions) Validate() error {
 		}
 	}
 
-	if lo.LoopOptions.StopNotifier == nil {
+	if lo.StopNotifier == nil {
 		// if not set, then set never stop loop as default
-		lo.LoopOptions.StopNotifier = make(<-chan struct{})
+		lo.StopNotifier = make(<-chan struct{})
 	}
 
 	return nil

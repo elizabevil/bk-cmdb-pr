@@ -116,7 +116,7 @@ func createAPIRspStr(errcode int, info string) (string, error) {
 
 	var rsp metadata.Response
 
-	if 0 != errcode {
+	if errcode != 0 {
 		rsp.Result = false
 		rsp.Code = errcode
 		rsp.ErrMsg = info

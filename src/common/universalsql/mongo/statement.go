@@ -49,8 +49,6 @@ func (d *statementResult) ToMapStr() mapstr.MapStr {
 func (d *statement) Conditions(conds ...universalsql.Condition) universalsql.Result {
 
 	result := &statementResult{}
-	for _, cond := range conds {
-		result.conds = append(result.conds, cond)
-	}
+	result.conds = append(result.conds, conds...)
 	return result
 }

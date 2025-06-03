@@ -186,8 +186,7 @@ func ParseHostIPParams(ipv4Cond metadata.IPInfo, ipv6Cond metadata.IPInfo, outpu
 		output[common.BKDBOR] = exactOr
 	} else {
 		// not exact search
-		orCond := make([]map[string]interface{}, 0)
-		orCond, err = addFuzzyCondition(splitIPResult, fieldAndCond, output, flag)
+		orCond, err := addFuzzyCondition(splitIPResult, fieldAndCond, output, flag)
 		if err != nil {
 			return nil, err
 		}

@@ -74,7 +74,7 @@ func (t *Time) UnmarshalJSON(data []byte) error {
 		return nil
 	}
 
-	timestamp, err := strconv.ParseInt(fmt.Sprintf("%s", data), 10, 64)
+	timestamp, err := strconv.ParseInt(string(data), 10, 64)
 	if err == nil {
 		*t = Time{time.Unix(timestamp, 0)}
 	}

@@ -31,9 +31,9 @@ const INVALIDID uint64 = 0
 // by checking if bk_obj_id and bk_obj_name function parameter are valid net device object or not
 // one of bk_obj_id and bk_obj_name can be empty and will return both bk_obj_id if no error
 func (lgc *Logics) checkNetObject(pheader http.Header, objID string, objName string) (string, string, error) {
-	defErr := lgc.Engine.CCErr.CreateDefaultCCErrorIf(httpheader.GetLanguage(pheader))
+	defErr := lgc.CCErr.CreateDefaultCCErrorIf(httpheader.GetLanguage(pheader))
 
-	if "" == objName && "" == objID {
+	if objName == "" && objID == "" {
 		blog.Errorf("[NetCollect] check net device object, empty bk_obj_id and bk_obj_name")
 		return "", "", defErr.Errorf(common.CCErrCommParamsNeedSet, common.BKObjIDField)
 	}
@@ -42,10 +42,10 @@ func (lgc *Logics) checkNetObject(pheader http.Header, objID string, objName str
 		common.BKClassificationIDField: common.BKNetwork,
 	}
 
-	if "" != objName {
+	if objName != "" {
 		objCond[common.BKObjNameField] = objName
 	}
-	if "" != objID {
+	if objID != "" {
 		objCond[common.BKObjIDField] = objID
 	}
 
@@ -57,7 +57,7 @@ func (lgc *Logics) checkNetObject(pheader http.Header, objID string, objName str
 		return "", "", defErr.Errorf(common.CCErrObjectSelectInstFailed)
 	}
 
-	if 0 == len(objResult.Info) {
+	if len(objResult.Info) == 0 {
 		blog.Errorf("[NetCollect] check net device object, device object is not exist, condition [%#v]", objCond)
 		return "", "", defErr.Errorf(common.CCErrCollectObjIDNotNetDevice)
 	}
@@ -70,14 +70,14 @@ func (lgc *Logics) checkNetObject(pheader http.Header, objID string, objName str
 // one of bk_property_id and bk_property_name can be empty and will return bk_property_id value if no error
 func (lgc *Logics) checkNetObjectProperty(pheader http.Header, netDeviceObjID, propertyID, propertyName string) (string,
 	error) {
-	defErr := lgc.Engine.CCErr.CreateDefaultCCErrorIf(httpheader.GetLanguage(pheader))
+	defErr := lgc.CCErr.CreateDefaultCCErrorIf(httpheader.GetLanguage(pheader))
 
-	if "" == netDeviceObjID {
+	if netDeviceObjID == "" {
 		blog.Errorf("[NetCollect] check net device object, empty bk_obj_id")
 		return "", defErr.Errorf(common.CCErrCommParamsNeedSet, common.BKObjIDField)
 	}
 
-	if "" == propertyName && "" == propertyID {
+	if propertyName == "" && propertyID == "" {
 		blog.Errorf("[NetCollect] check net device object, empty bk_property_id and bk_property_name")
 		return "", defErr.Errorf(common.CCErrCommParamsNeedSet, common.BKPropertyIDField)
 	}
@@ -85,10 +85,10 @@ func (lgc *Logics) checkNetObjectProperty(pheader http.Header, netDeviceObjID, p
 	propertyCond := map[string]interface{}{
 		common.BKObjIDField: netDeviceObjID}
 
-	if "" != propertyName {
+	if propertyName != "" {
 		propertyCond[common.BKPropertyNameField] = propertyName
 	}
-	if "" != propertyID {
+	if propertyID != "" {
 		propertyCond[common.BKPropertyIDField] = propertyID
 	}
 
@@ -99,7 +99,7 @@ func (lgc *Logics) checkNetObjectProperty(pheader http.Header, netDeviceObjID, p
 		return "", defErr.Errorf(common.CCErrTopoObjectAttributeSelectFailed)
 	}
 
-	if 0 == len(attrResult.Info) {
+	if len(attrResult.Info) == 0 {
 		blog.Errorf("[NetCollect] check net device object property, property is not exist, condition [%#v]",
 			propertyCond)
 		return "", defErr.Errorf(common.CCErrCollectNetDeviceObjPropertyNotExist)
@@ -114,19 +114,19 @@ func (lgc *Logics) checkNetObjectProperty(pheader http.Header, netDeviceObjID, p
 // bk_obj_id is used to check property
 func (lgc *Logics) checkNetDeviceExist(pheader http.Header, deviceID uint64, deviceName string) (uint64, string,
 	error) {
-	defErr := lgc.Engine.CCErr.CreateDefaultCCErrorIf(httpheader.GetLanguage(pheader))
+	defErr := lgc.CCErr.CreateDefaultCCErrorIf(httpheader.GetLanguage(pheader))
 
-	if "" == deviceName && 0 == deviceID {
+	if deviceName == "" && deviceID == 0 {
 		blog.Errorf("[NetCollect] check net device exist fail, empty device_id and device_name")
 		return 0, "", defErr.Errorf(common.CCErrCommParamsNeedSet, common.BKDeviceIDField)
 	}
 
 	deviceCond := map[string]interface{}{common.BKOwnerIDField: httpheader.GetSupplierAccount(pheader)}
 
-	if "" != deviceName {
+	if deviceName != "" {
 		deviceCond[common.BKDeviceNameField] = deviceName
 	}
-	if 0 != deviceID {
+	if deviceID != 0 {
 		deviceCond[common.BKDeviceIDField] = deviceID
 	}
 
@@ -171,7 +171,7 @@ func (lgc *Logics) getNetPropertyID(propertyID string, deviceID uint64, ownerID 
 
 // ConvertStringToID check param ID is a num string and convert to num
 func (lgc *Logics) ConvertStringToID(stringID string) (int64, error) {
-	if "" == stringID || "0" == stringID {
+	if stringID == "" || stringID == "0" {
 		return 0, fmt.Errorf("invalid stringID")
 	}
 

@@ -199,7 +199,8 @@ func (ps *ProcServer) GetProcessTemplate(ctx *rest.Contexts) {
 
 	templateID, err := strconv.ParseInt(ctx.Request.PathParameter("processTemplateID"), 10, 64)
 	if err != nil {
-		ctx.RespErrorCodeOnly(common.CCErrCommHTTPInputInvalid, "get process template, but get process template id failed, err: %v", err)
+		ctx.RespErrorCodeOnly(common.CCErrCommHTTPInputInvalid,
+			"get process template, but get process template id failed, err: %v", err)
 		return
 	}
 

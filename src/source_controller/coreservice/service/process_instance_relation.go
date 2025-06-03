@@ -164,7 +164,7 @@ func (s *coreService) CreateProcessInstance(kit *rest.Kit, process *metadata.Pro
 		return nil, kit.CCError.CCError(common.CCErrCommJsonEncode)
 	}
 	mData := mapstr.MapStr{}
-	if err := json.Unmarshal(processBytes, &mData); nil != err && 0 != len(processBytes) {
+	if err := json.Unmarshal(processBytes, &mData); nil != err && len(processBytes) != 0 {
 		return nil, kit.CCError.CCError(common.CCErrCommJsonDecode)
 	}
 	inputParam := metadata.CreateModelInstance{

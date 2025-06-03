@@ -14,6 +14,7 @@ package mapstr
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"reflect"
 	"strings"
@@ -42,11 +43,11 @@ func setMapStrByStruct(targetType reflect.Type, targetValue reflect.Value, value
 			continue
 		}
 
-		if (0 == len(tag) || strings.Contains(tag, "ignoretomap")) && !structField.Anonymous {
+		if (len(tag) == 0 || strings.Contains(tag, "ignoretomap")) && !structField.Anonymous {
 			continue
 		}
 		tags := strings.Split(tag, ",")
-		if 0 == len(tag) {
+		if len(tag) == 0 {
 			tags = []string{structField.Name}
 		}
 
@@ -100,7 +101,7 @@ func setStructByMapStr(targetType reflect.Type, targetValue reflect.Value, value
 			continue
 		}
 
-		if 0 == len(tag) || strings.Contains(tag, "ignoretostruct") {
+		if len(tag) == 0 || strings.Contains(tag, "ignoretostruct") {
 			continue
 		}
 
@@ -211,7 +212,7 @@ func setMapToReflectValue(structField reflect.StructField, returnVal, inputVal r
 			fmt.Println("not support data type. field name: ", structField.Name, ", err:", r)
 			switch x := r.(type) {
 			case string:
-				err = fmt.Errorf(x)
+				err = errors.New(x)
 			case error:
 				err = x
 			default:

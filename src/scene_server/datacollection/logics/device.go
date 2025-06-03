@@ -52,7 +52,7 @@ func (lgc *Logics) UpdateDevice(pHeader http.Header, netDeviceID uint64, deviceI
 	}
 
 	// check if device name is empty
-	if "" == deviceInfo.DeviceName {
+	if deviceInfo.DeviceName == "" {
 		blog.Errorf("[NetDevice] update net device fail, device name is empty string, rid: %s", rid)
 		return defErr.Errorf(common.CCErrCommParamsNeedSet, common.BKDeviceNameField)
 	}
@@ -153,14 +153,14 @@ func (lgc *Logics) SearchDevice(pHeader http.Header, params *meta.NetCollSearchP
 			deviceCond, err, rid)
 		return meta.SearchNetDevice{}, err
 	}
-	if 0 == searchResult.Count {
+	if searchResult.Count == 0 {
 		searchResult.Info = []meta.NetcollectDevice{}
 		return searchResult, nil
 	}
 
 	// field bk_obj_id must be in params.Fields
 	// to help add value of fields(bk_obj_name) from other tables into search result
-	if 0 != len(params.Fields) {
+	if len(params.Fields) != 0 {
 		params.Fields = append(params.Fields, common.BKObjIDField)
 	}
 	if err = lgc.findDevice(params.Fields, deviceCond, &searchResult.Info, params.Page.Sort, params.Page.Start,
@@ -313,15 +313,15 @@ func (lgc *Logics) checkNetDevice(pHeader http.Header, deviceInfo *meta.Netcolle
 	rid := httpheader.GetRid(pHeader)
 	defErr := lgc.Engine.CCErr.CreateDefaultCCErrorIf(httpheader.GetLanguage(pHeader))
 
-	if "" == deviceInfo.DeviceModel {
+	if deviceInfo.DeviceModel == "" {
 		return false, defErr.Errorf(common.CCErrCommParamsNeedSet, common.BKDeviceModelField)
 	}
 
-	if "" == deviceInfo.BkVendor {
+	if deviceInfo.BkVendor == "" {
 		return false, defErr.Errorf(common.CCErrCommParamsNeedSet, common.BKVendorField)
 	}
 
-	if "" == deviceInfo.DeviceName {
+	if deviceInfo.DeviceName == "" {
 		return false, defErr.Errorf(common.CCErrCommParamsNeedSet, common.BKDeviceNameField)
 	}
 
@@ -419,7 +419,7 @@ func (lgc *Logics) getObjIDMapObjNameFromNetDevice(pHeader http.Header, netDevic
 	objCond := map[string]interface{}{
 		common.BKClassificationIDField: common.BKNetwork,
 	}
-	if 0 != len(objIDs) {
+	if len(objIDs) != 0 {
 		objCond[common.BKObjIDField] = map[string]interface{}{
 			common.BKDBIN: objIDs,
 		}
@@ -477,7 +477,7 @@ func (lgc *Logics) checkIfNetDeviceNameExist(deviceName string, ownerID string) 
 		return false, err
 	}
 
-	if 0 != rowCount {
+	if rowCount != 0 {
 		blog.V(5).Infof("[NetDevice] check if net device name exist, bk_device_name is [%s] device is exist, rid: %s",
 			deviceName, rid)
 		return true, nil
@@ -545,5 +545,5 @@ func (lgc *Logics) checkDeviceHasProperty(deviceID uint64, ownerID string) (bool
 		return false, err
 	}
 
-	return 0 != rowCount, nil
+	return rowCount != 0, nil
 }

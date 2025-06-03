@@ -102,7 +102,7 @@ func (s *Service) MoveHostToResourcePool(ctx *rest.Contexts) {
 		return
 	}
 
-	if 0 == len(conf.HostIDs) {
+	if len(conf.HostIDs) == 0 {
 		ctx.RespEntity(nil)
 		return
 	}
@@ -350,17 +350,21 @@ func (s *Service) moveHostToDefaultModule(ctx *rest.Contexts, defaultModuleFlag 
 	bizID := conf.ApplicationID
 
 	moduleFilter := make(map[string]interface{})
-	if defaultModuleFlag == common.DefaultResModuleFlag {
+	switch defaultModuleFlag {
+	case common.DefaultResModuleFlag:
 		// 空闲机
 		moduleFilter[common.BKDefaultField] = common.DefaultResModuleFlag
-	} else if defaultModuleFlag == common.DefaultFaultModuleFlag {
+	case common.DefaultFaultModuleFlag:
 		// 故障机器
 		moduleFilter[common.BKDefaultField] = common.DefaultFaultModuleFlag
-	} else if defaultModuleFlag == common.DefaultRecycleModuleFlag {
+	case common.DefaultRecycleModuleFlag:
 		// 待回收
 		moduleFilter[common.BKDefaultField] = common.DefaultRecycleModuleFlag
-	} else {
-		blog.Errorf("move host to default module failed, unexpected flag, bizID: %d, defaultModuleFlag: %d, rid: %s", bizID, defaultModuleFlag, ctx.Kit.Rid)
+	default:
+		blog.Errorf("move host to default module failed, unexpected flag, bizID: %d, defaultModuleFlag: %d, rid: %s",
+			bizID,
+			defaultModuleFlag,
+			ctx.Kit.Rid)
 		ctx.RespAutoError(defErr.Errorf(common.CCErrCommResourceInitFailed, "audit server"))
 		return
 	}

@@ -21,7 +21,7 @@ type Limiter struct {
 
 // NewStreamLimiter TODO
 func NewStreamLimiter(concurrent int) *Limiter {
-	if 0 == concurrent {
+	if concurrent == 0 {
 		concurrent = 100
 	}
 	return &Limiter{
@@ -57,7 +57,6 @@ func (sl *Limiter) Execute(ch chan<- *Status, f func() error) {
 		s.Error = f()
 		s.CostDuration = time.Since(start)
 		ch <- s
-		return
 	}()
 	return
 }

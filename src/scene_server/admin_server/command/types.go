@@ -126,7 +126,7 @@ func (n *Node) walk(walkFunc func(node *Node) error) error {
 
 // getNodeKey outputs ==> `{parentKey}-{objectID}[{key1}:{value1},{key2}:{value2}]`
 func (n *Node) getNodeKey(parentKey string, keys []string) (nodeKey string) {
-	if "" != parentKey {
+	if parentKey != "" {
 		nodeKey = parentKey + "-"
 	}
 	nodeKey += n.ObjID + "["

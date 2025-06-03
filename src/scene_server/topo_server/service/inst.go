@@ -422,7 +422,7 @@ func (s *Service) SearchInsts(ctx *rest.Contexts) {
 
 	rsp, err := s.Logics.InstOperation().FindInst(ctx.Kit, objID, queryCond)
 	if err != nil {
-		blog.Errorf("failed to find the objects(%s), err: %V, rid: %s", ctx.Request.PathParameter("obj_id"), err,
+		blog.Errorf("failed to find the objects(%s), err: %v, rid: %s", ctx.Request.PathParameter("obj_id"), err,
 			ctx.Kit.Rid)
 		ctx.RespAutoError(err)
 		return

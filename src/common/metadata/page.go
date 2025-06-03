@@ -63,7 +63,7 @@ func (page BasePage) Validate(allowNoLimit bool) (string, error) {
 	}
 
 	if page.Limit > common.BKMaxPageSize {
-		if page.Limit != common.BKNoLimit || allowNoLimit != true {
+		if page.Limit != common.BKNoLimit || !allowNoLimit {
 			return "limit", fmt.Errorf("exceed max page size: %d", common.BKMaxPageSize)
 		}
 	}

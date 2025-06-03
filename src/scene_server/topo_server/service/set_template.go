@@ -535,7 +535,7 @@ func (s *Service) ListSetTemplateWeb(ctx *rest.Contexts) {
 	}
 	for _, setTemplate := range listResult.Info {
 		setInstanceCount, exist := setTplInstCount[setTemplate.ID]
-		if exist == false {
+		if !exist {
 			setInstanceCount = 0
 		}
 		result.Info = append(result.Info, metadata.SetTemplateWithStatistics{
@@ -670,7 +670,7 @@ func (s *Service) ListSetTplRelatedSetsWeb(ctx *rest.Contexts) {
 
 	set2Hosts := make(map[int64][]int64)
 	for _, relation := range relations.Info {
-		if _, ok := set2Hosts[relation.SetID]; ok == false {
+		if _, ok := set2Hosts[relation.SetID]; !ok {
 			set2Hosts[relation.SetID] = make([]int64, 0)
 		}
 		set2Hosts[relation.SetID] = append(set2Hosts[relation.SetID], relation.HostID)
@@ -859,13 +859,13 @@ func (s *Service) DiffSetTplWithInst(ctx *rest.Contexts) {
 		}
 		moduleHostsCount := make(map[int64]int64)
 		for _, item := range relationResult.Info {
-			if _, exist := moduleHostsCount[item.ModuleID]; exist == false {
+			if _, exist := moduleHostsCount[item.ModuleID]; !exist {
 				moduleHostsCount[item.ModuleID] = 0
 			}
 			moduleHostsCount[item.ModuleID] += 1
 		}
 		for _, moduleID := range moduleIDs {
-			if _, exist := moduleHostsCount[moduleID]; exist == false {
+			if _, exist := moduleHostsCount[moduleID]; !exist {
 				moduleHostsCount[moduleID] = 0
 			}
 		}

@@ -246,7 +246,7 @@ func (e *HostParam) HasInstCond() bool {
 // Validate validate parameter
 func (e *HostParam) Validate(kit *rest.Kit, lang language.DefaultCCLanguageIf) error {
 	if e.ExportCond.Page.Limit <= 0 || e.ExportCond.Page.Limit > common.BKMaxOnceExportLimit {
-		return fmt.Errorf(lang.Languagef("export_page_limit_err", common.BKMaxOnceExportLimit))
+		return errors.New(lang.Languagef("export_page_limit_err", common.BKMaxOnceExportLimit))
 	}
 
 	return nil

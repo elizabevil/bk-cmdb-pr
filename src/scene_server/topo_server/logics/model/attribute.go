@@ -15,7 +15,7 @@ package model
 import (
 	"fmt"
 	"regexp"
-	"sort"
+	"slices"
 	"unicode/utf8"
 
 	"configcenter/pkg/filter"
@@ -1674,7 +1674,7 @@ func (a *attribute) upsertObjectAttrBatch(kit *rest.Kit, objID string, attribute
 	for id := range attributes {
 		ids = append(ids, id)
 	}
-	sort.Sort(util.Int64Slice(ids))
+	slices.Sort(ids)
 
 	for _, idx := range ids {
 		attr := attributes[idx]

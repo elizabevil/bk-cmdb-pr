@@ -35,7 +35,7 @@ import (
 func getReturnStr(code int, message string, data interface{}) string {
 	ret := make(map[string]interface{})
 	ret["bk_error_code"] = code
-	if 0 == code {
+	if code == 0 {
 		ret["result"] = true
 	} else {
 		ret["result"] = false
@@ -99,7 +99,7 @@ func (s *Service) ListenIPOptions(c *gin.Context) {
 		c.JSON(http.StatusOK, result)
 		return
 	}
-	if resp.Code != 0 || resp.Result == false {
+	if resp.Code != 0 || !resp.Result {
 		blog.Errorf("got host by id failed, hostID: %d, response: %+v, rid: %s", hostID, resp, rid)
 		c.JSON(http.StatusOK, resp)
 		return

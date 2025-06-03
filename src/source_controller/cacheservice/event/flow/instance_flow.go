@@ -475,7 +475,7 @@ func (f *InstanceFlow) convertToInstEvents(es map[int]*types.Event, srcObjIDInst
 	for key := range es {
 		keys = append(keys, key)
 	}
-	sort.Sort(sort.IntSlice(keys))
+	sort.Ints(keys)
 
 	aggregationInstEvents := make([]*types.Event, 0)
 	for _, v := range keys {

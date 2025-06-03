@@ -106,7 +106,7 @@ func BoolArrayUnique(a []bool) (ret []bool) {
 		if item {
 			trueExist = true
 		}
-		if item == false {
+		if !item {
 			falseExist = true
 		}
 	}
@@ -259,9 +259,7 @@ func IntArrDeleteElements(target, sub []int64) []int64 {
 		templateMap[id] = struct{}{}
 	}
 	for _, id := range sub {
-		if _, ok := templateMap[id]; ok {
-			delete(templateMap, id)
-		}
+		delete(templateMap, id)
 	}
 	result := make([]int64, 0)
 	for id := range templateMap {

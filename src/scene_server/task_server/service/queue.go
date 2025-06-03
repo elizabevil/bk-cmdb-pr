@@ -86,8 +86,8 @@ func (tq *TaskQueue) Start() {
 	go tq.compensate(context.Background())
 
 	for _, taskInfo := range tq.task {
+		tq.Add(1)
 		go func(taskInfo TaskInfo) {
-			tq.Add(1)
 			defer tq.Done()
 			tq.execute(context.Background(), taskInfo)
 		}(taskInfo)

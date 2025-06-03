@@ -540,17 +540,18 @@ func (s *Service) fullTextMetadata(ctx *rest.Contexts, hits []*elastic.SearchHit
 			continue
 		}
 
-		if dataKind == metadata.DataKindModel {
+		switch dataKind {
+		case metadata.DataKindModel:
 			objectIDs = append(objectIDs, objectID)
 			objHits[objectID] = hit
-		} else if dataKind == metadata.DataKindInstance {
+		case metadata.DataKindInstance:
 			instMetadataConditions[objectID] = append(instMetadataConditions[objectID], metaID)
 			if insHits[objectID] == nil {
 				insHits[objectID] = make(map[int64]*elastic.SearchHit)
 			}
 			insHits[objectID][metaID] = hit
 
-		} else {
+		default:
 			blog.Errorf("fulltext handle search source, unknown data kind: %s, rid: %s", dataKind, ctx.Kit.Rid)
 		}
 	}
@@ -956,10 +957,10 @@ func (sr *SearchResult) dealHighlight(source map[string]interface{}, highlight e
 			for i := range values {
 				vLower := strings.ToLower(values[i])
 				if isObject && strings.Contains(vLower, oldHighlightObjId) && !strings.Contains(vLower, inputKey) {
-					values[i] = strings.Replace(vLower, oldHighlightObjId, bkObjId, -1)
+					values[i] = strings.ReplaceAll(vLower, oldHighlightObjId, bkObjId)
 				}
 				if strings.Contains(vLower, oldHighlightBizId) {
-					values[i] = strings.Replace(vLower, oldHighlightBizId, bkBizId, -1)
+					values[i] = strings.ReplaceAll(vLower, oldHighlightBizId, bkBizId)
 				}
 			}
 		}

@@ -56,7 +56,7 @@ func Run(ctx context.Context, cancel context.CancelFunc, op *options.ServerOptio
 		}
 		time.Sleep(time.Second)
 	}
-	if false == configReady {
+	if !configReady {
 		return fmt.Errorf("waiting for configuration timeout, maybe parse configuration failed")
 	}
 	operationSvr.Config.Mongo, err = engine.WithMongo()

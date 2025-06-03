@@ -305,7 +305,8 @@ func (lgc *Logic) DiffWithProcessTemplate(t *metadata.ProcessProperty, i *metada
 			TemplatePropertyValue: t.StopCmd,
 		})
 	}
-	if metadata.IsAsDefaultValue(t.RestartCmd.AsDefaultValue) && compareTemplateProperty(t.RestartCmd.Value, i.RestartCmd) {
+	if metadata.IsAsDefaultValue(t.RestartCmd.AsDefaultValue) &&
+		compareTemplateProperty(t.RestartCmd.Value, i.RestartCmd) {
 		if !needDetail {
 			return changes, true, nil
 		}
@@ -318,7 +319,8 @@ func (lgc *Logic) DiffWithProcessTemplate(t *metadata.ProcessProperty, i *metada
 		})
 	}
 
-	if metadata.IsAsDefaultValue(t.ForceStopCmd.AsDefaultValue) && compareTemplateProperty(t.ForceStopCmd.Value, i.ForceStopCmd) {
+	if metadata.IsAsDefaultValue(t.ForceStopCmd.AsDefaultValue) &&
+		compareTemplateProperty(t.ForceStopCmd.Value, i.ForceStopCmd) {
 		if !needDetail {
 			return changes, true, nil
 		}
@@ -331,7 +333,8 @@ func (lgc *Logic) DiffWithProcessTemplate(t *metadata.ProcessProperty, i *metada
 		})
 	}
 
-	if metadata.IsAsDefaultValue(t.FuncName.AsDefaultValue) && compareTemplateProperty(t.FuncName.Value, i.FuncName) {
+	if metadata.IsAsDefaultValue(t.FuncName.AsDefaultValue) &&
+		compareTemplateProperty(t.FuncName.Value, i.FuncName) {
 		if !needDetail {
 			return changes, true, nil
 		}
@@ -403,7 +406,8 @@ func (lgc *Logic) DiffWithProcessTemplate(t *metadata.ProcessProperty, i *metada
 		})
 	}
 
-	if metadata.IsAsDefaultValue(t.ProcessName.AsDefaultValue) && compareTemplateProperty(t.ProcessName.Value, i.ProcessName) {
+	if metadata.IsAsDefaultValue(t.ProcessName.AsDefaultValue) &&
+		compareTemplateProperty(t.ProcessName.Value, i.ProcessName) {
 		if !needDetail {
 			return changes, true, nil
 		}
@@ -416,7 +420,8 @@ func (lgc *Logic) DiffWithProcessTemplate(t *metadata.ProcessProperty, i *metada
 		})
 	}
 
-	if metadata.IsAsDefaultValue(t.PidFile.AsDefaultValue) && compareTemplateProperty(t.PidFile.Value, i.PidFile) {
+	if metadata.IsAsDefaultValue(t.PidFile.AsDefaultValue) &&
+		compareTemplateProperty(t.PidFile.Value, i.PidFile) {
 		if !needDetail {
 			return changes, true, nil
 		}
@@ -442,7 +447,8 @@ func (lgc *Logic) DiffWithProcessTemplate(t *metadata.ProcessProperty, i *metada
 		})
 	}
 
-	if metadata.IsAsDefaultValue(t.StartCheckSecs.AsDefaultValue) && compareTemplateProperty(t.StartCheckSecs.Value, i.StartCheckSecs) {
+	if metadata.IsAsDefaultValue(t.StartCheckSecs.AsDefaultValue) &&
+		compareTemplateProperty(t.StartCheckSecs.Value, i.StartCheckSecs) {
 		if !needDetail {
 			return changes, true, nil
 		}
@@ -481,7 +487,8 @@ func (lgc *Logic) DiffWithProcessTemplate(t *metadata.ProcessProperty, i *metada
 		})
 	}
 
-	if metadata.IsAsDefaultValue(t.TimeoutSeconds.AsDefaultValue) && compareTemplateProperty(t.TimeoutSeconds.Value, i.TimeoutSeconds) {
+	if metadata.IsAsDefaultValue(t.TimeoutSeconds.AsDefaultValue) &&
+		compareTemplateProperty(t.TimeoutSeconds.Value, i.TimeoutSeconds) {
 		if !needDetail {
 			return changes, true, nil
 		}
@@ -494,7 +501,8 @@ func (lgc *Logic) DiffWithProcessTemplate(t *metadata.ProcessProperty, i *metada
 		})
 	}
 
-	if metadata.IsAsDefaultValue(t.Description.AsDefaultValue) && compareTemplateProperty(t.Description.Value, i.Description) {
+	if metadata.IsAsDefaultValue(t.Description.AsDefaultValue) &&
+		compareTemplateProperty(t.Description.Value, i.Description) {
 		if !needDetail {
 			return changes, true, nil
 		}
@@ -507,7 +515,8 @@ func (lgc *Logic) DiffWithProcessTemplate(t *metadata.ProcessProperty, i *metada
 		})
 	}
 
-	if metadata.IsAsDefaultValue(t.StartParamRegex.AsDefaultValue) && compareTemplateProperty(t.StartParamRegex.Value, i.StartParamRegex) {
+	if metadata.IsAsDefaultValue(t.StartParamRegex.AsDefaultValue) &&
+		compareTemplateProperty(t.StartParamRegex.Value, i.StartParamRegex) {
 		if !needDetail {
 			return changes, true, nil
 		}

@@ -210,15 +210,16 @@ func (sh *searchHost) ParseCondition() error {
 			return err
 		}
 
-		if object.ObjectID == common.BKInnerObjIDHost {
+		switch object.ObjectID {
+		case common.BKInnerObjIDHost:
 			sh.conds.hostCond = object
-		} else if object.ObjectID == common.BKInnerObjIDSet {
+		case common.BKInnerObjIDSet:
 			sh.conds.setCond = object
 			sh.topoShowSection.set = true
-		} else if object.ObjectID == common.BKInnerObjIDModule {
+		case common.BKInnerObjIDModule:
 			sh.conds.moduleCond = object
 			sh.topoShowSection.module = true
-		} else if object.ObjectID == common.BKInnerObjIDApp {
+		case common.BKInnerObjIDApp:
 			sh.conds.appCond = object
 			// 只有关于biz的条件大于0才被视为通过业务进行查询主机，
 			// 因为不通过业务进行查询主机也需要返回主机的业务信息，
@@ -226,11 +227,11 @@ func (sh *searchHost) ParseCondition() error {
 			if len(object.Condition) > 0 {
 				sh.topoShowSection.app = true
 			}
-		} else if object.ObjectID == common.BKInnerObjIDObject {
+		case common.BKInnerObjIDObject:
 			sh.conds.mainlineCond = object
-		} else if object.ObjectID == common.BKInnerObjIDPlat {
+		case common.BKInnerObjIDPlat:
 			sh.conds.platCond = object
-		} else {
+		default:
 			sh.conds.objectCondMap[object.ObjectID] = object.Condition
 		}
 	}
@@ -703,7 +704,7 @@ func (sh *searchHost) fillHostSetInfo(appInfoLevelInst map[int64]*appLevelInfo,
 	for _, appLevelInfo := range appInfoLevelInst {
 		for setID, setLevelInfo := range appLevelInfo.setInfoMap {
 			setInfo, isOk := sh.cacheInfoMap.setInfoMap[setID]
-			if false == isOk {
+			if !isOk {
 				continue
 			}
 
@@ -733,7 +734,7 @@ func (sh *searchHost) fillHostModuleInfo(appInfoLevelInst map[int64]*appLevelInf
 		for _, setLevelInfo := range appLevelInfo.setInfoMap {
 			for mdouleID := range setLevelInfo.moduleInfoMap {
 				moduleInfo, ok := sh.cacheInfoMap.moduleInfoMap[mdouleID]
-				if false == ok {
+				if !ok {
 					blog.V(5).Infof("hostSearch not found module id, moduleID:%d, hostModuleMap:%v, rid:%s", mdouleID,
 						sh.cacheInfoMap.moduleInfoMap, sh.ccRid)
 					continue
@@ -782,7 +783,7 @@ func (sh *searchHost) fetchTopoSetCacheInfo(setIDArr []int64) (map[int64]mapstr.
 
 	if nil != sh.conds.setCond.Fields {
 		exist := util.InArray(common.BKSetIDField, sh.conds.setCond.Fields)
-		if !exist && 0 != len(sh.conds.setCond.Fields) {
+		if !exist && len(sh.conds.setCond.Fields) != 0 {
 			sh.conds.setCond.Fields = append(sh.conds.setCond.Fields, common.BKSetIDField)
 		}
 		cond := mapstr.New()
@@ -798,7 +799,7 @@ func (sh *searchHost) fetchTopoSetCacheInfo(setIDArr []int64) (map[int64]mapstr.
 func (sh *searchHost) fetchTopoModuleCacheInfo(moduleIDArr []int64) (map[int64]mapstr.MapStr, errors.CCError) {
 	if nil != sh.conds.moduleCond.Fields {
 		exist := util.InArray(common.BKModuleIDField, sh.conds.moduleCond.Fields)
-		if !exist && 0 != len(sh.conds.moduleCond.Fields) {
+		if !exist && len(sh.conds.moduleCond.Fields) != 0 {
 			sh.conds.moduleCond.Fields = append(sh.conds.moduleCond.Fields, common.BKModuleIDField)
 		}
 		cond := mapstr.New()
@@ -991,7 +992,7 @@ func (sh *searchHost) searchByHostConds() errors.CCError {
 		return nil
 	}
 
-	if 0 != len(sh.conds.hostCond.Fields) {
+	if len(sh.conds.hostCond.Fields) != 0 {
 		sh.conds.hostCond.Fields = append(sh.conds.hostCond.Fields, common.BKHostIDField, common.BKCloudIDField)
 	}
 
@@ -1124,11 +1125,9 @@ func (sh *searchHost) appendHostTopoConds() errors.CCError {
 
 	sh.totalHostCnt = len(respHostIDs)
 	// 当有根据主机实例内容查询的时候的时候，无法在程序中完成分页
-	hasHostCond := false
-	if len(sh.hostSearchParam.Ipv4Ip.Data) > 0 || len(sh.hostSearchParam.Ipv6Ip.Data) > 0 ||
-		len(sh.conds.hostCond.Condition) > 0 || sh.conds.hostCond.TimeCondition != nil {
-		hasHostCond = true
-	}
+	hasHostCond := len(sh.hostSearchParam.Ipv4Ip.Data) > 0 || len(sh.hostSearchParam.Ipv6Ip.Data) > 0 ||
+		len(sh.conds.hostCond.Condition) > 0 || sh.conds.hostCond.TimeCondition != nil
+
 	if !hasHostCond && sh.hostSearchParam.Page.Limit > 0 {
 		start := sh.hostSearchParam.Page.Start
 		limit := start + sh.hostSearchParam.Page.Limit
@@ -1246,7 +1245,7 @@ func MergeHostIDToCond(kit *rest.Kit, conds []metadata.ConditionItem, hostIDs []
 		} else {
 			// intersection of two array
 			value, ok := cond.Value.([]interface{})
-			if ok == false {
+			if !ok {
 				blog.Errorf("invalid query condition with $in operator, value must be []int64, but got: %+v, rid: %s",
 					cond.Value, kit.Rid)
 				return nil, kit.CCError.New(common.CCErrCommParamsIsInvalid, common.BKHostIDField)

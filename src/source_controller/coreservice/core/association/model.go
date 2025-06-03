@@ -72,7 +72,7 @@ func (m *associationModel) createModelAssociation(kit *rest.Kit, inputParam meta
 	}
 
 	asstKindID := inputParam.Spec.AsstKindID
-	if enableMainlineAssociationType == false {
+	if !enableMainlineAssociationType {
 		// AsstKindID shouldn't be use bk_mainline
 		if asstKindID == common.AssociationKindMainline {
 			blog.Errorf("use inner association type: %v is forbidden, rid: %s", common.AssociationKindMainline, kit.Rid)
@@ -123,7 +123,7 @@ func (m *associationModel) UpdateModelAssociation(kit *rest.Kit, inputParam meta
 	validData := map[string]interface{}{}
 	filterOutFields := []string{}
 	for key, val := range inputParam.Data {
-		if isValidField := util.Contains(validFields, key); isValidField == false {
+		if isValidField := util.Contains(validFields, key); !isValidField {
 			filterOutFields = append(filterOutFields, key)
 			continue
 		}

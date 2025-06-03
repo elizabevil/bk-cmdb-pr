@@ -50,7 +50,7 @@ func CmdbReloadSession(sess mongo.Session, info *SessionInfo) error {
 	idDoc = bsoncore.AppendBinaryElement(idDoc, "id", session.UUIDSubtype, sessionIDBytes[:])
 	idDoc, _ = bsoncore.AppendDocumentEnd(idDoc, idx)
 
-	clientSession.Server.SessionID = idDoc
+	clientSession.SessionID = idDoc
 	clientSession.SessionID = idDoc
 	// i.didCommitAfterStart=false
 	if info.TxnNubmer > 1 {

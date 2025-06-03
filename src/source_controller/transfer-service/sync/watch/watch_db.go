@@ -150,11 +150,7 @@ func (w *Watcher) handleDBEvents(resType synctypes.ResType, coll string, es []*t
 
 	// push incremental sync data to transfer medium
 	err := w.pushSyncData(kit, eventInfos)
-	if err != nil {
-		return true
-	}
-
-	return false
+	return err != nil
 }
 
 type delArchiveInfo struct {

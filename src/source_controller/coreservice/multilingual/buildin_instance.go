@@ -50,8 +50,8 @@ func TranslateInstanceName(defLang language.DefaultCCLanguageIf, objectID string
 		for idx, inst := range instances {
 			// 如果用户将默认的内置模块名或者内置"空闲机池"名修改了，就不需要国际化，直接跳过
 			if v, ok := inst[common.BKModuleNameField]; ok &&
-				!(v == common.DefaultResModuleName || v == common.DefaultFaultModuleName ||
-					v == common.DefaultRecycleModuleName) {
+				(v != common.DefaultResModuleName && v != common.DefaultFaultModuleName &&
+					v != common.DefaultRecycleModuleName) {
 				continue
 			}
 			if v, ok := inst[common.BKSetNameField]; ok && v != common.DefaultResSetName {

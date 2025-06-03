@@ -37,7 +37,7 @@ func (s *coreService) AddUserCustom(ctx *rest.Contexts) {
 	if strings.Contains(ctx.Kit.User, ".") {
 		transformedData := make(map[string]interface{}, len(data))
 		for key, value := range data {
-			transformedData[strings.Replace(key, ".", "\u002e", -1)] = value
+			transformedData[strings.ReplaceAll(key, ".", "\u002e")] = value
 		}
 		data = transformedData
 	}
@@ -65,7 +65,7 @@ func (s *coreService) UpdateUserCustomByID(ctx *rest.Contexts) {
 	if strings.Contains(ctx.Request.PathParameter("bk_user"), ".") {
 		transformedData := make(map[string]interface{}, len(data))
 		for key, value := range data {
-			transformedData[strings.Replace(key, ".", "\u002e", -1)] = value
+			transformedData[strings.ReplaceAll(key, ".", "\u002e")] = value
 		}
 		data = transformedData
 	}
@@ -96,7 +96,7 @@ func (s *coreService) GetUserCustomByUser(ctx *rest.Contexts) {
 	if strings.Contains(ctx.Request.PathParameter("bk_user"), ".") {
 		transformedData := make(map[string]interface{}, len(result))
 		for key, value := range result {
-			transformedData[strings.Replace(key, "\u002e", ".", -1)] = value
+			transformedData[strings.ReplaceAll(key, "\u002e", ".")] = value
 		}
 		result = transformedData
 	}

@@ -13,7 +13,6 @@
 package esbserver
 
 import (
-	"fmt"
 	"sync"
 
 	"configcenter/src/apimachinery/flowctrl"
@@ -51,10 +50,9 @@ type esbsrv struct {
 }
 
 // NewEsb new a esb client
-//
 func NewEsb(apiMachineryConfig *util.APIMachineryConfig, cfgChan chan esbutil.EsbConfig, defaultCfg *esbutil.EsbConfig,
 	reg prometheus.Registerer) (EsbClientInterface, error) {
-	base := fmt.Sprintf("/api/c/compapi")
+	base := "/api/c/compapi"
 
 	client, err := util.NewClient(apiMachineryConfig.TLSConfig)
 	if nil != err {

@@ -197,10 +197,8 @@ func runDelDbDataCmd(conf *dbOperationConf) error {
 			delMongoIDs[index] = data.MongoID
 		}
 
-		for {
-			if start >= len(delMongoIDs) {
-				break
-			}
+		for start < len(delMongoIDs) {
+
 			if start+maxDeleteBatchNum > len(delMongoIDs) {
 				delCond = map[string]interface{}{
 					"_id": map[string]interface{}{common.BKDBIN: delMongoIDs[start:]},

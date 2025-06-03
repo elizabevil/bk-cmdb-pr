@@ -106,9 +106,7 @@ func (ps *parseStream) getModelAttribute(bizID int64, cond mapstr.MapStr) ([]met
 	}
 
 	attrs := make([]metadata.Attribute, 0)
-	for _, info := range attr.Info {
-		attrs = append(attrs, info)
-	}
+	attrs = append(attrs, attr.Info...)
 	return attrs, nil
 }
 

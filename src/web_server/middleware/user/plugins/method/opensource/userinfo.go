@@ -48,7 +48,7 @@ func (m *user) LoginUser(c *gin.Context, config map[string]string, isMultiOwner 
 	session := sessions.Default(c)
 
 	cookieOwnerID, err := c.Cookie(common.HTTPCookieSupplierAccount)
-	if "" == cookieOwnerID || err != nil {
+	if cookieOwnerID == "" || err != nil {
 		c.SetCookie(common.HTTPCookieSupplierAccount, common.BKDefaultOwnerID, 0, "/", "", false, false)
 		session.Set(common.WEBSessionOwnerUinKey, cookieOwnerID)
 	} else if cookieOwnerID != session.Get(common.WEBSessionOwnerUinKey) {
@@ -59,7 +59,7 @@ func (m *user) LoginUser(c *gin.Context, config map[string]string, isMultiOwner 
 	}
 
 	cookieUser, err := c.Cookie(common.BKUser)
-	if "" == cookieUser || nil != err {
+	if cookieUser == "" || nil != err {
 		blog.Errorf("login user not found, rid: %s", rid)
 		return nil, false
 	}

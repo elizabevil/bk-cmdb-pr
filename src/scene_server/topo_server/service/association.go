@@ -132,10 +132,7 @@ func (s *Service) SearchBusinessTopoWithStatistics(ctx *rest.Contexts) {
 		ctx.RespAutoError(err)
 	}
 
-	withDefault := false
-	if len(ctx.Request.QueryParameter("with_default")) > 0 {
-		withDefault = true
-	}
+	withDefault := len(ctx.Request.QueryParameter("with_default")) > 0
 
 	resp, err := s.searchBusinessTopo(ctx.Kit, bizID, true, withDefault, true)
 	if nil != err {
@@ -153,15 +150,9 @@ func (s *Service) SearchBusinessTopo(ctx *rest.Contexts) {
 		ctx.RespAutoError(err)
 	}
 
-	withDefault := false
-	if len(ctx.Request.QueryParameter("with_default")) > 0 {
-		withDefault = true
-	}
+	withDefault := len(ctx.Request.QueryParameter("with_default")) > 0
 
-	needSort := false
-	if ctx.Request.QueryParameter("need_sort") == "true" {
-		needSort = true
-	}
+	needSort := ctx.Request.QueryParameter("need_sort") == "true"
 
 	resp, err := s.searchBusinessTopo(ctx.Kit, bizID, false, withDefault, needSort)
 	if nil != err {

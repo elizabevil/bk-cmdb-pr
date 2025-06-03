@@ -44,7 +44,7 @@ func (hm *hostManager) LockHost(kit *rest.Kit, input *metadata.HostLockRequest) 
 	}
 
 	diffID := diffHostLockID(input.IDS, hostInfos, kit.Rid)
-	if 0 != len(diffID) {
+	if len(diffID) != 0 {
 		blog.Errorf("lock host, not found, id: %+v, rid: %s", diffID, kit.Rid)
 		return kit.CCError.Errorf(common.CCErrCommParamsIsInvalid, fmt.Sprintf(" id_list %v", diffID))
 	}
@@ -62,7 +62,7 @@ func (hm *hostManager) LockHost(kit *rest.Kit, input *metadata.HostLockRequest) 
 			blog.Errorf("lock host, query host lock from db failed, err:%+v, rid:%s", err, kit.Rid)
 			return kit.CCError.Errorf(common.CCErrCommDBSelectFailed)
 		}
-		if 0 == cnt {
+		if cnt == 0 {
 			insertDataArr = append(insertDataArr, metadata.HostLockData{
 				User:       user,
 				ID:         id,

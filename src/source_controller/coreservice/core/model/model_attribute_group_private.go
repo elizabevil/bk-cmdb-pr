@@ -34,7 +34,7 @@ func (g *modelAttributeGroup) groupIDIsExists(kit *rest.Kit, objID, groupID stri
 		return oneResult, isExists, err
 	}
 
-	if 0 != len(groups) {
+	if len(groups) != 0 {
 		return groups[0], true, nil
 	}
 
@@ -80,5 +80,5 @@ func (g *modelAttributeGroup) hasAttributes(kit *rest.Kit, objID string, groupID
 		return false, err
 	}
 
-	return 0 != attrs.Count, nil
+	return attrs.Count != 0, nil
 }

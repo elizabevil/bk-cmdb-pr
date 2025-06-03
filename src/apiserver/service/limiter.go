@@ -167,7 +167,7 @@ func (l *Limiter) GetMatchedRule(req *restful.Request) *metadata.LimiterRule {
 					break
 				}
 			}
-			if hit == false {
+			if !hit {
 				continue
 			}
 		}

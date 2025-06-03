@@ -532,7 +532,7 @@ func (m *instanceManager) changeStringToTime(valData mapstr.MapStr, properties [
 			continue
 		}
 		val, ok := valData[field.PropertyID]
-		if ok == false || val == nil {
+		if !ok || val == nil {
 			continue
 		}
 
@@ -542,7 +542,7 @@ func (m *instanceManager) changeStringToTime(valData mapstr.MapStr, properties [
 		}
 
 		valStr, ok := val.(string)
-		if ok == false {
+		if !ok {
 			return stderr.New("it is not a string of time type")
 		}
 		if timeType, isTime := util.IsTime(valStr); isTime {

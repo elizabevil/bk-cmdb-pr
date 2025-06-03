@@ -372,7 +372,6 @@ func (p *processOperation) ListServiceInstance(kit *rest.Kit,
 			common.BKTableNameServiceInstance, filter, err, kit.Rid)
 		return nil, kit.CCError.CCErrorf(common.CCErrCommDBSelectFailed)
 	}
-	result := new(metadata.MultipleServiceInstance)
 
 	instances := make([]metadata.ServiceInstance, 0)
 	if err := mongodb.Client().Table(common.BKTableNameServiceInstance).Find(filter).Fields(option.Fields...).Sort(
@@ -382,8 +381,7 @@ func (p *processOperation) ListServiceInstance(kit *rest.Kit,
 			common.BKTableNameServiceInstance, filter, err, kit.Rid)
 		return nil, kit.CCError.CCErrorf(common.CCErrCommDBSelectFailed)
 	}
-
-	result = &metadata.MultipleServiceInstance{
+	result := &metadata.MultipleServiceInstance{
 		Count: total,
 		Info:  instances,
 	}

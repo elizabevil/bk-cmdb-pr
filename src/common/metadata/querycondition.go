@@ -39,7 +39,7 @@ type ObjQueryInput struct {
 // ConvTime 将查询条件中字段包含cc_type key ，子节点变为time.Time
 func (o *ObjQueryInput) ConvTime() error {
 	conds, ok := o.Condition.(map[string]interface{})
-	if true != ok && nil != conds {
+	if !ok && nil != conds {
 		return nil
 	}
 	for key, item := range conds {
@@ -60,14 +60,14 @@ func (o *ObjQueryInput) convTimeItem(item interface{}) (interface{}, error) {
 	case map[string]interface{}:
 
 		arrItem, ok := item.(map[string]interface{})
-		if true == ok {
+		if ok {
 			_, timeTypeOk := arrItem[common.BKTimeTypeParseFlag]
 			if timeTypeOk {
 				delete(arrItem, common.BKTimeTypeParseFlag)
 			}
 
 			for key, value := range arrItem {
-				switch value.(type) {
+				switch value := value.(type) {
 
 				case []interface{}:
 					var err error
@@ -76,7 +76,7 @@ func (o *ObjQueryInput) convTimeItem(item interface{}) (interface{}, error) {
 						return nil, err
 					}
 				case map[string]interface{}:
-					arrItemVal, ok := value.(map[string]interface{})
+					arrItemVal := value
 					if ok {
 						for key, value := range arrItemVal {
 							var err error
@@ -104,7 +104,7 @@ func (o *ObjQueryInput) convTimeItem(item interface{}) (interface{}, error) {
 	case []interface{}:
 		// 如果是数据，递归转换所有子项
 		arrItem, ok := item.([]interface{})
-		if true == ok {
+		if ok {
 			for index, value := range arrItem {
 				newValue, err := o.convTimeItem(value)
 				if nil != err {
@@ -123,9 +123,9 @@ func (o *ObjQueryInput) convTimeItem(item interface{}) (interface{}, error) {
 }
 
 func (O *ObjQueryInput) convInterfaceToTime(val interface{}) (interface{}, error) {
-	switch val.(type) {
+	switch val := val.(type) {
 	case string:
-		ts, err := timeparser.TimeParser(val.(string))
+		ts, err := timeparser.TimeParser(val)
 		if nil != err {
 			return nil, err
 		}

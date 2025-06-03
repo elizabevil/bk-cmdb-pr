@@ -14,7 +14,7 @@ package util
 
 import (
 	"bytes"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -37,11 +37,11 @@ func GetDailAddress(addr string) (string, error) {
 // PeekRequest TODO
 func PeekRequest(req *http.Request) ([]byte, error) {
 	if req.Body != nil {
-		byt, err := ioutil.ReadAll(req.Body)
+		byt, err := io.ReadAll(req.Body)
 		if err != nil {
 			return nil, err
 		}
-		req.Body = ioutil.NopCloser(bytes.NewBuffer(byt))
+		req.Body = io.NopCloser(bytes.NewBuffer(byt))
 		return byt, nil
 	}
 	return make([]byte, 0), nil

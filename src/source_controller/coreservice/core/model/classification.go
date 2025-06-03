@@ -33,7 +33,7 @@ type modelClassification struct {
 // CreateOneModelClassification TODO
 func (m *modelClassification) CreateOneModelClassification(kit *rest.Kit, inputParam metadata.CreateOneModelClassification) (*metadata.CreateOneDataResult, error) {
 
-	if 0 == len(inputParam.Data.ClassificationID) {
+	if len(inputParam.Data.ClassificationID) == 0 {
 		blog.Errorf("request(%s): it is failed to create the model classification, because of the classificationID (%#v) is not set", kit.Rid, inputParam.Data)
 		return &metadata.CreateOneDataResult{}, kit.CCError.Errorf(common.CCErrCommParamsNeedSet, metadata.ClassFieldClassificationID)
 	}
@@ -72,7 +72,7 @@ func (m *modelClassification) CreateManyModelClassification(kit *rest.Kit, input
 	}
 
 	addExceptionFunc := func(idx int64, err errors.CCErrorCoder, classification *metadata.Classification) {
-		dataResult.CreateManyInfoResult.Exceptions = append(dataResult.CreateManyInfoResult.Exceptions, metadata.ExceptionResult{
+		dataResult.Exceptions = append(dataResult.Exceptions, metadata.ExceptionResult{
 			OriginIndex: idx,
 			Message:     err.Error(),
 			Code:        int64(err.GetCode()),
@@ -82,7 +82,7 @@ func (m *modelClassification) CreateManyModelClassification(kit *rest.Kit, input
 
 	for itemIdx, item := range inputParam.Data {
 
-		if 0 == len(item.ClassificationID) {
+		if len(item.ClassificationID) == 0 {
 			blog.Errorf("request(%s): it is failed to create the model classification, because of the classificationID (%#v) is not set", kit.Rid, item.ClassificationID)
 			addExceptionFunc(int64(itemIdx), kit.CCError.Errorf(common.CCErrCommParamsNeedSet, metadata.ClassFieldClassificationID).(errors.CCErrorCoder), &item)
 			continue
@@ -137,7 +137,7 @@ func (m *modelClassification) SetManyModelClassification(kit *rest.Kit, inputPar
 
 	for itemIdx, item := range inputParam.Data {
 
-		if 0 == len(item.ClassificationID) {
+		if len(item.ClassificationID) == 0 {
 			blog.Errorf("request(%s): it is failed to create the model classification, because of the classificationID (%#v) is not set", kit.Rid, item.ClassificationID)
 			addExceptionFunc(int64(itemIdx), kit.CCError.Errorf(common.CCErrCommParamsNeedSet, metadata.ClassFieldClassificationID).(errors.CCErrorCoder), &item)
 			continue
@@ -196,7 +196,7 @@ func (m *modelClassification) SetOneModelClassification(kit *rest.Kit, inputPara
 		Exceptions: []metadata.ExceptionResult{},
 	}
 
-	if 0 == len(inputParam.Data.ClassificationID) {
+	if len(inputParam.Data.ClassificationID) == 0 {
 		blog.Errorf("request(%s): it is failed to set the model classification, because of the classificationID (%#v) is not set", kit.Rid, inputParam.Data)
 		return dataResult, kit.CCError.Errorf(common.CCErrCommParamsNeedSet, metadata.ClassFieldClassificationID)
 	}

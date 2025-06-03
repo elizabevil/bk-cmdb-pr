@@ -92,7 +92,7 @@ func loadCa(caFile string) (*x509.CertPool, error) {
 	}
 
 	caPool := x509.NewCertPool()
-	if ok := caPool.AppendCertsFromPEM(ca); ok != true {
+	if ok := caPool.AppendCertsFromPEM(ca); !ok {
 		return nil, fmt.Errorf("append ca cert failed")
 	}
 
@@ -106,7 +106,7 @@ func loadCertificates(certFile, keyFile, passwd string) (*tls.Certificate, error
 		return nil, err
 	}
 
-	if "" != passwd {
+	if passwd != "" {
 		priPem, _ := pem.Decode(priKey)
 		if priPem == nil {
 			return nil, fmt.Errorf("decode private key failed")

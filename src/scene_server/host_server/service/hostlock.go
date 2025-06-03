@@ -31,7 +31,7 @@ func (s *Service) LockHost(ctx *rest.Contexts) {
 		return
 	}
 
-	if 0 == len(input.IDS) {
+	if len(input.IDS) == 0 {
 		blog.Errorf("lock host, id_list is empty,input:%+v, rid:%s", input, ctx.Kit.Rid)
 		ctx.RespAutoError(ctx.Kit.CCError.Errorf(common.CCErrCommParamsNeedSet, "id_list"))
 		return
@@ -77,7 +77,7 @@ func (s *Service) UnlockHost(ctx *rest.Contexts) {
 		ctx.RespAutoError(err)
 		return
 	}
-	if 0 == len(input.IDS) {
+	if len(input.IDS) == 0 {
 		blog.Errorf("unlock host, id_list is empty, input:%+v,rid:%s", input, ctx.Kit.Rid)
 		ctx.RespAutoError(ctx.Kit.CCError.Errorf(common.CCErrCommParamsNeedSet, "id_list"))
 		return
@@ -125,7 +125,7 @@ func (s *Service) QueryHostLock(ctx *rest.Contexts) {
 		return
 	}
 
-	if 0 == len(input.IDS) {
+	if len(input.IDS) == 0 {
 		blog.Errorf("query lock host, id_list is empty, input:%+v,rid:%s", input, ctx.Kit.Rid)
 		ctx.RespAutoError(ctx.Kit.CCError.Errorf(common.CCErrCommParamsNeedSet, "id_list"))
 		return

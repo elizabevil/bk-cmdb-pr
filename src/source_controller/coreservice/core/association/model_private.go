@@ -23,22 +23,22 @@ import (
 
 func (m *associationModel) isValid(kit *rest.Kit, inputParam metadata.CreateModelAssociation) error {
 
-	if 0 == len(inputParam.Spec.AssociationName) {
+	if len(inputParam.Spec.AssociationName) == 0 {
 		blog.Errorf("%s is not set, rid: %s", metadata.AssociationFieldAsstID, kit.Rid)
 		return kit.CCError.Errorf(common.CCErrCommParamsNeedSet, metadata.AssociationFieldAsstID)
 	}
 
-	if 0 == len(inputParam.Spec.ObjectID) {
+	if len(inputParam.Spec.ObjectID) == 0 {
 		blog.Errorf("%s is not set, rid: %s", metadata.AssociationFieldObjectID, kit.Rid)
 		return kit.CCError.Errorf(common.CCErrCommParamsNeedSet, metadata.AssociationFieldObjectID)
 	}
 
-	if 0 == len(inputParam.Spec.AsstObjID) {
+	if len(inputParam.Spec.AsstObjID) == 0 {
 		blog.Errorf("%s is not set, rid: %s", metadata.AssociationFieldAssociationObjectID, kit.Rid)
 		return kit.CCError.Errorf(common.CCErrCommParamsNeedSet, metadata.AssociationFieldAssociationObjectID)
 	}
 
-	if 0 == len(inputParam.Spec.AsstKindID) {
+	if len(inputParam.Spec.AsstKindID) == 0 {
 		blog.Errorf("%s is not set", metadata.AssociationFieldAssociationKind, kit.Rid)
 		return kit.CCError.Errorf(common.CCErrCommParamsNeedSet, metadata.AssociationFieldAssociationObjectID)
 	}
@@ -70,7 +70,7 @@ func (m *associationModel) isExistsAssociationID(kit *rest.Kit, associationID st
 		blog.Errorf("request(%s): it is to failed to check whether the associationID (%s) is exists, error info is %s", kit.Rid, associationID, err.Error())
 		return false, err
 	}
-	return 0 != cnt, err
+	return cnt != 0, err
 }
 
 func (m *associationModel) isExistsAssociationObjectWithAnotherObject(kit *rest.Kit, targetObjectID, anotherObjectID string, AssociationKind string) (bool, error) {
@@ -86,7 +86,7 @@ func (m *associationModel) isExistsAssociationObjectWithAnotherObject(kit *rest.
 		blog.Errorf("request(%s): it is to failed to check whether the association (%s=>%s) is exists by the condition (%#v), error info is %s", kit.Rid, targetObjectID, anotherObjectID, existsCheckCond.ToMapStr(), err.Error())
 		return false, err
 	}
-	return 0 != cnt, err
+	return cnt != 0, err
 }
 
 func (m *associationModel) usedInSomeInstanceAssociation(kit *rest.Kit, associationIDS []string) (bool, error) {

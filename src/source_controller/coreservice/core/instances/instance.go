@@ -54,7 +54,7 @@ func (m *instanceManager) instCnt(kit *rest.Kit, objID string, cond mapstr.MapSt
 	err error) {
 	tableName := common.GetInstTableName(objID, kit.SupplierAccount)
 	cnt, err = mongodb.Client().Table(tableName).Find(cond).Count(kit.Ctx)
-	exists = 0 != cnt
+	exists = cnt != 0
 	return cnt, exists, err
 }
 

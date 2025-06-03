@@ -177,7 +177,7 @@ func checkNetPropertyIDPathParam(defErr errors.DefaultCCErrorIf, ID string) (uin
 		blog.Errorf("[NetProperty] update net property with id[%s] to parse the net property id, error: %v", ID, err)
 		return 0, defErr.Errorf(common.CCErrCommParamsNeedInt, common.BKNetcollectPropertyIDField)
 	}
-	if 0 == netPropertyID {
+	if netPropertyID == 0 {
 		blog.Errorf("[NetProperty] update net property with id[%d] should not be 0", netPropertyID)
 		return 0, defErr.Error(common.CCErrCommHTTPInputInvalid)
 	}

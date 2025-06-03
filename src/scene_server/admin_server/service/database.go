@@ -78,7 +78,8 @@ func (s *Service) getMinObjIDAndMinDay(baseDay int64, rid string) (primitive.Obj
 
 // DeleteAuditLog delete user specified audit logs.
 // 删除策略: 1、首先找到最早一天的审计日志，从前向后一天一天的删除审计日志。
-//          2、每次批量删除200条日志。为了防止删除导致的cpu和磁盘io过高，每删除10000条日志需要sleep 5秒钟。
+//
+//	2、每次批量删除200条日志。为了防止删除导致的cpu和磁盘io过高，每删除10000条日志需要sleep 5秒钟。
 func (s *Service) DeleteAuditLog(req *restful.Request, resp *restful.Response) {
 
 	rHeader := req.Request.Header
@@ -105,11 +106,9 @@ func (s *Service) DeleteAuditLog(req *restful.Request, resp *restful.Response) {
 	}
 	var cnt, total int
 
-	for {
+	for minDay <= baseDay {
 		// delete the data before the time point specified by the user.
-		if minDay > baseDay {
-			break
-		}
+
 		cond := map[string]interface{}{
 			"_id": map[string]interface{}{
 				common.BKDBLT: objId,

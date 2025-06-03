@@ -65,7 +65,7 @@ func (c *cloudOperation) SearchAccount(kit *rest.Kit, option *metadata.SearchClo
 		return nil, kit.CCError.CCError(common.CCErrCommDBSelectFailed)
 	}
 	// 不返回bk_secret_key的值
-	for i, _ := range accounts {
+	for i := range accounts {
 		accounts[i].SecretKey = ""
 	}
 
@@ -84,7 +84,7 @@ func (c *cloudOperation) SearchAccount(kit *rest.Kit, option *metadata.SearchClo
 	}
 
 	results := make([]metadata.CloudAccountWithExtraInfo, 0)
-	for i, _ := range accounts {
+	for i := range accounts {
 		canDeleteAccount := false
 		// 账户下没有同步任务，则可以删除
 		if accountTaskcntMap[accounts[i].AccountID] == 0 {

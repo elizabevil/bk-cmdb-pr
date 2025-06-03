@@ -94,7 +94,6 @@ func FireLoadTest(f func() error) Metrics {
 			}
 		}
 
-		return
 	}()
 
 exitFor:

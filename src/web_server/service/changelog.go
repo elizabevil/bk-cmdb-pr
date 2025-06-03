@@ -223,10 +223,11 @@ func getVersionFilePath(changelogPath string, version string) (string, error) {
 
 // getCurrentVersion Get the current version
 // eg: returns the version according to the existing tag
-//     release-v3.10.22-alpha1, return "v3.10.22"
-//     release-v3.10.18_alpha1, return "v3.10.18"
-//     release-v3.10.16, return "v3.10.16"
-//     release-v3.10.x_feature-agent-id_alpha, return ""
+//
+//	release-v3.10.22-alpha1, return "v3.10.22"
+//	release-v3.10.18_alpha1, return "v3.10.18"
+//	release-v3.10.16, return "v3.10.16"
+//	release-v3.10.x_feature-agent-id_alpha, return ""
 func getCurrentVersion() string {
 	currentVersion := version.CCVersion
 	currentVersionRegex := "v\\d+\\.\\d+\\.\\d+(-|_|$)"
@@ -242,7 +243,7 @@ func getCurrentVersion() string {
 	// 去后缀操作：
 	// 用于在产品进行功能验证时保证当前版本号（带后缀）与不带后缀的版本号的版本日志能匹配得上。
 	// 例如：当前版本号为v3.10.23-rc，与之对应的版本日志的版本号为v3.10.23
-	if strings.Index(currentVersion, "-") != -1 || strings.Index(currentVersion, "_") != -1 {
+	if strings.Contains(currentVersion, "-") || strings.Contains(currentVersion, "_") {
 		return currentVersion[:len(currentVersion)-1]
 	}
 	return currentVersion
@@ -250,9 +251,10 @@ func getCurrentVersion() string {
 
 // getFileVersion get version and updateTime in filename
 // eg: test.md, _test.md, test_test.txt; return "", ""
-//     vaa.bb.cc_2006-01-02.md, v3.10.22_2022-02-29.md; return "", ""
-//     v3.10.23-rc_2006-01-02.md, v3.10.22-alpha_2006-01-02.md; return "", ""
-//     v3.10.22_2022-03-18.md; return v3.10.22, 2022-03-18
+//
+//	vaa.bb.cc_2006-01-02.md, v3.10.22_2022-02-29.md; return "", ""
+//	v3.10.23-rc_2006-01-02.md, v3.10.22-alpha_2006-01-02.md; return "", ""
+//	v3.10.22_2022-03-18.md; return v3.10.22, 2022-03-18
 func getFileVersion(filename string) (string, string) {
 	matched, err := regexp.MatchString("^.+_.+\\.md$", filename)
 	if err != nil {

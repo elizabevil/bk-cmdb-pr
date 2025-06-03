@@ -33,7 +33,7 @@ func (lng Labels) Validate() (string, error) {
 	// https://www.replex.io/blog/9-best-practices-and-examples-for-working-with-kubernetes-labels
 	for key, value := range lng {
 		// validate key
-		if LabelNGKeyRule.MatchString(key) == false {
+		if !LabelNGKeyRule.MatchString(key) {
 			return key, fmt.Errorf("key: %s format error", key)
 		}
 		if len(key) >= 64 {
@@ -42,7 +42,7 @@ func (lng Labels) Validate() (string, error) {
 
 		// validate value
 		field := fmt.Sprintf("%s:%s", key, value)
-		if LabelNGValueRule.MatchString(value) == false {
+		if !LabelNGValueRule.MatchString(value) {
 			return field, fmt.Errorf("value: %s format error", field)
 		}
 		if len(value) >= 64 {

@@ -12,7 +12,11 @@
 
 package common
 
-import "testing"
+import (
+	"fmt"
+	"log"
+	"testing"
+)
 
 func TestGetInstNameField(t *testing.T) {
 	type args struct {
@@ -71,5 +75,17 @@ func TestGetObjByType(t *testing.T) {
 				t.Errorf("GetObjByType() = %v, want %v", got, tt.want)
 			}
 		})
+	}
+}
+
+func TestConvertIPv6ToStandardFormat2(t *testing.T) {
+	strings := []string{"::", "::127.0.0.1", "0000:0000:0000:0000:0000:0000:127.0.0.1"}
+	for _, s := range strings {
+		format2, err := ConvertIPv6ToStandardFormat2(s)
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+		fmt.Println(format2)
 	}
 }

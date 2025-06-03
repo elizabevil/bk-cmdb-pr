@@ -57,7 +57,7 @@ func (config *AuthConfig) Match(request *RequestContext) bool {
 // MatchAndGenerateIAMResource TODO
 func MatchAndGenerateIAMResource(authConfigs []AuthConfig, request *RequestContext) ([]meta.ResourceAttribute, error) {
 	for _, item := range authConfigs {
-		if item.Match(request) == false {
+		if !item.Match(request) {
 			continue
 		}
 		blog.V(4).Infof("match method:%s, pattern:%s, regex:%s", item.HTTPMethod, item.Pattern, item.Regex)
@@ -141,6 +141,6 @@ func ParseStreamWithFramework(ps *parseStream, authConfigs []AuthConfig) *parseS
 	if resources != nil {
 		ps.Attribute.Resources = resources
 	}
-	blog.V(7).Infof("ParseStreamWithFramework result: %s", resources)
+	blog.V(7).Infof("ParseStreamWithFramework result: %v", resources)
 	return ps
 }

@@ -168,13 +168,13 @@ func isAuthed(c *gin.Context, config options.Config, apiCli apiserver.ApiServerC
 
 	// check username
 	userName, ok := session.Get(common.WEBSessionUinKey).(string)
-	if !ok || "" == userName {
+	if !ok || userName == "" {
 		return user.LoginUser(c)
 	}
 
 	// check owner_uin
 	ownerID, ok := session.Get(common.WEBSessionOwnerUinKey).(string)
-	if !ok || "" == ownerID {
+	if !ok || ownerID == "" {
 		return user.LoginUser(c)
 	}
 

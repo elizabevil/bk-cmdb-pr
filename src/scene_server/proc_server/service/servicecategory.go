@@ -50,7 +50,10 @@ func (ps *ProcServer) ListServiceCategory(ctx *rest.Contexts) {
 	ctx.RespEntity(data)
 }
 
-func (ps *ProcServer) listServiceCategory(ctx *rest.Contexts, withStatistics bool) (*metadata.MultipleServiceCategoryWithStatistics, errors.CCErrorCoder) {
+func (ps *ProcServer) listServiceCategory(
+	ctx *rest.Contexts,
+	withStatistics bool,
+) (*metadata.MultipleServiceCategoryWithStatistics, errors.CCErrorCoder) {
 	rid := ctx.Kit.Rid
 	biz := new(metadata.ListServiceCategoryOption)
 	if err := ctx.DecodeInto(biz); err != nil {

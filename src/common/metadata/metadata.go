@@ -75,7 +75,7 @@ func BizIDFromMetadata(meta Metadata) (int64, error) {
 	var businessID int64
 	var err error
 	exist, bizID := meta.Label.Get(LabelBusinessID)
-	if false == exist {
+	if !exist {
 		return 0, nil
 	}
 	businessID, err = strconv.ParseInt(bizID, 10, 64)
@@ -90,7 +90,7 @@ func PublicAndBizCondition(meta Metadata) mapstr.MapStr {
 	var businessID int64
 	var err error
 	exist, bizID := meta.Label.Get(LabelBusinessID)
-	if false == exist {
+	if !exist {
 		return NewPublicOrBizConditionByBizID(0)
 	}
 
@@ -169,7 +169,7 @@ func GetBusinessIDFromMeta(data interface{}) string {
 // {"label": {"bk_biz_id": "a"}} ==> 0, error
 func ParseBizIDFromData(rawData mapstr.MapStr) (int64, error) {
 	rawMetadata, exist := rawData.Get(BKMetadata)
-	if exist == false {
+	if !exist {
 		return 0, fmt.Errorf("invalid input, metadata field not exist")
 	}
 	js, _ := json.Marshal(rawMetadata)

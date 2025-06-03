@@ -86,7 +86,7 @@ func sortColProp(colProps []ColProp, groups []metadata.AttributeGroup) ([]ColPro
 	props = append(props, requiredProps...)
 
 	// 第三步，根据字段分组，用必填字段使用的index，继续对非必填字段进行排序
-	noRequiredProps, index, err := setColPropIndexAndLen(groups, noRequiredPropMap, index)
+	noRequiredProps, _, err := setColPropIndexAndLen(groups, noRequiredPropMap, index)
 	if err != nil {
 		return nil, err
 	}

@@ -53,8 +53,9 @@ func (fi *FetchInst) Pretreatment() errors.CCError {
 
 	// 是否开启实例数据根据同步身份过滤
 	if fi.syncConfig.EnableInstFilter {
-		conds.Field(util.BuildMongoSyncItemField(common.MetaDataSynchronizeIdentifierField)).In([]string{fi.syncConfig.SynchronizeFlag,
-			common.MetaDataSynchronIdentifierFlagSyncAllValue})
+		conds.Field(util.BuildMongoSyncItemField(common.MetaDataSynchronizeIdentifierField)).
+			In([]string{fi.syncConfig.SynchronizeFlag,
+				common.MetaDataSynchronIdentifierFlagSyncAllValue})
 	}
 
 	if fi.baseConds == nil {

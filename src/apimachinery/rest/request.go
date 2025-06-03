@@ -501,7 +501,7 @@ func (r *Result) Into(obj interface{}) error {
 		return r.Err
 	}
 
-	if 0 != len(r.Body) {
+	if len(r.Body) != 0 {
 		err := json.Unmarshal(r.Body, obj)
 		if err != nil {
 			if r.StatusCode >= 300 {
@@ -522,7 +522,7 @@ func (r *Result) IntoJsonString() (*metadata.JsonStringResp, error) {
 		return nil, r.Err
 	}
 
-	if 0 == len(r.Body) {
+	if len(r.Body) == 0 {
 		return nil, fmt.Errorf("http request failed: %s", r.Status)
 	}
 	elements := gjson.GetManyBytes(r.Body, "result", "bk_error_code", "bk_error_msg", "permission", "data")
@@ -578,7 +578,7 @@ func (r *Result) IntoJsonCntInfoString() (*metadata.JsonCntInfoResp, error) {
 		return nil, r.Err
 	}
 
-	if 0 == len(r.Body) {
+	if len(r.Body) == 0 {
 		return nil, fmt.Errorf("http request failed: %s", r.Status)
 	}
 	elements := gjson.GetManyBytes(r.Body, "result", "bk_error_code", "bk_error_msg", "permission", "data")

@@ -353,7 +353,7 @@ func (s *Service) SearchResourceDirectory(ctx *rest.Contexts) {
 	}
 	moduleHostsCount := make(map[int64]int64)
 	for _, item := range hostModuleRelations.Info {
-		if _, exist := moduleHostsCount[item.ModuleID]; exist == false {
+		if _, exist := moduleHostsCount[item.ModuleID]; !exist {
 			moduleHostsCount[item.ModuleID] = 0
 		}
 		moduleHostsCount[item.ModuleID] += 1
@@ -500,7 +500,7 @@ func (s *Service) hasHost(ctx *rest.Contexts, bizID int64, setIDs, moduleIDS []i
 		return false, ctx.Kit.CCError.Error(common.CCErrCommHTTPDoRequestFailed)
 	}
 
-	return 0 != len(rsp.Info), nil
+	return len(rsp.Info) != 0, nil
 }
 
 // GetResourceDirsInCloudSync 获取云同步任务有关联的所有资源池目录

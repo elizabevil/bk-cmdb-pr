@@ -75,7 +75,7 @@ func (s *coreService) UpdateTopoGraphics(ctx *rest.Contexts) {
 			ctx.RespAutoError(ctx.Kit.CCError.CCError(common.CCErrCommDBSelectFailed))
 			return
 		}
-		if 0 == cnt {
+		if cnt == 0 {
 			err = mongodb.Client().Table(common.BKTableNameTopoGraphics).Insert(ctx.Kit.Ctx, inputBody.Data[index])
 			if nil != err {
 				blog.Errorf("update topo graphics, but insert data failed, err:%s, rid: %s", err.Error(), ctx.Kit.Rid)

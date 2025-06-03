@@ -13,6 +13,7 @@
 package util
 
 import (
+	"slices"
 	"sort"
 )
 
@@ -33,7 +34,7 @@ func SortedMapIntKeys(data map[int]map[string]interface{}) []int {
 	for k := range data {
 		keys = append(keys, k)
 	}
-	sort.Sort(IntSlice(keys))
+	sort.Ints(keys)
 	return keys
 }
 
@@ -43,6 +44,6 @@ func SortedMapInt64Keys(data map[int64]map[string]interface{}) []int64 {
 	for k := range data {
 		keys = append(keys, k)
 	}
-	sort.Sort(Int64Slice(keys))
+	slices.Sort(keys)
 	return keys
 }

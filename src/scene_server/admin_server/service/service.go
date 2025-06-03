@@ -152,7 +152,7 @@ func (s *Service) Healthz(req *restful.Request, resp *restful.Response) {
 	meta.Items = append(meta.Items, redisItem)
 
 	for _, item := range meta.Items {
-		if item.IsHealthy == false {
+		if !item.IsHealthy {
 			meta.IsHealthy = false
 			meta.Message = "admin server is unhealthy"
 			break
@@ -183,7 +183,7 @@ func (s *Service) MonitorHealth(req *restful.Request, resp *restful.Response) {
 	alam := &meta.Alarm{
 		RequestID: rid,
 		Type:      meta.EventTestInfo,
-		Detail:    fmt.Sprintf("test event link connectivity"),
+		Detail:    "test event link connectivity",
 		Module:    types.CC_MODULE_MIGRATE,
 	}
 	monitor.Collect(alam)

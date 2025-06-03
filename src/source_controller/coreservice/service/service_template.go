@@ -173,7 +173,7 @@ func (s *coreService) ListServiceTemplateDetail(ctx *rest.Contexts) {
 	}
 	serviceProcessTemplateMap := make(map[int64][]metadata.ProcessTemplate)
 	for _, item := range listProcResult.Info {
-		if _, exist := serviceProcessTemplateMap[item.ServiceTemplateID]; exist == false {
+		if _, exist := serviceProcessTemplateMap[item.ServiceTemplateID]; !exist {
 			serviceProcessTemplateMap[item.ServiceTemplateID] = make([]metadata.ProcessTemplate, 0)
 		}
 		serviceProcessTemplateMap[item.ServiceTemplateID] = append(serviceProcessTemplateMap[item.ServiceTemplateID], item)

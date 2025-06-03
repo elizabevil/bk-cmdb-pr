@@ -69,7 +69,7 @@ func (p *project) SetProxy(inst InstOperationInterface) {
 func (p *project) CreateProject(kit *rest.Kit, data []mapstr.MapStr) ([]int64, error) {
 	for idx, val := range data {
 		if val[common.BKProjectIDField] == nil {
-			data[idx][common.BKProjectIDField] = strings.Replace(uuid.New().String(), "-", "", -1)
+			data[idx][common.BKProjectIDField] = strings.ReplaceAll(uuid.New().String(), "-", "")
 		}
 	}
 

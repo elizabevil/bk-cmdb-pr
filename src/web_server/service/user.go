@@ -141,7 +141,7 @@ func (s *Service) UpdateSupplier(c *gin.Context) {
 	session := sessions.Default(c)
 
 	strOwnerUinList, ok := session.Get(common.WEBSessionOwnerUinListeKey).(string)
-	if "" == strOwnerUinList {
+	if strOwnerUinList == "" {
 		blog.ErrorJSON("session not owner info, rid:%s", rid)
 		c.JSON(http.StatusBadRequest, metadata.BaseResp{
 			Result: false,

@@ -74,7 +74,7 @@ func (s *HttpServer) RegisterWebServer(rootPath string, filter restful.FilterFun
 // NewWebService TODO
 func (s *HttpServer) NewWebService(rootPath string, filter restful.FilterFunction) *restful.WebService {
 	ws := new(restful.WebService)
-	if "" != rootPath {
+	if rootPath != "" {
 		ws.Path(rootPath)
 	}
 
@@ -140,7 +140,7 @@ func (s *HttpServer) ListenAndServe() error {
 		addrport := net.JoinHostPort(s.addr, strconv.FormatUint(uint64(s.port), 10))
 		httpserver := &http.Server{Addr: addrport, Handler: s.webContainer}
 		if s.isSSL {
-			tlsConf, err := ssl.ServerTslConf(s.caFile, s.certFile, s.keyFile, s.certPasswd)
+			tlsConf, err := ssl.ClientTLSConfVerity(s.caFile, s.certFile, s.keyFile, s.certPasswd)
 			if err != nil {
 				blog.Errorf("fail to load certfile, err:%s", err.Error())
 				chError <- fmt.Errorf("fail to load certfile")

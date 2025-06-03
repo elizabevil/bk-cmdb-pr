@@ -112,7 +112,7 @@ func (assoc *association) checkMaxBizTopoLevel(kit *rest.Kit) error {
 		blog.Errorf("get business topo level max failed, err: %v, rid: %s", err, kit.Rid)
 		return kit.CCError.Errorf(common.CCErrCommParamsNeedSet, common.CCErrTopoObjectSelectFailed)
 	}
-	if res.Result == false {
+	if !res.Result {
 		blog.Errorf("get business topo level max failed, search config admin err: %s, rid: %s", res.ErrMsg, kit.Rid)
 		return kit.CCError.Errorf(common.CCErrCommParamsNeedSet, common.CCErrTopoObjectSelectFailed)
 	}

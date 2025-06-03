@@ -242,7 +242,7 @@ func (s *service) dealProcessRunningTasks(kit *rest.Kit, option *metadata.FieldT
 	if len(result) > metadata.APITaskFieldTemplateMaxNum {
 		blog.Errorf("task num incorrect, template ID: %d, objID: %s, rid: %s", option.ID, option.ObjectID, kit.Rid)
 		return kit.CCError.Errorf(common.CCErrCommGetMultipleObject,
-			fmt.Sprintf("template ID: %d, objID: %s", option.ID, option.ObjectID))
+			fmt.Sprintf("template ID: %d, objID: %v", option.ID, option.ObjectID))
 	}
 
 	// 3、if there is a running task, return an error directly.

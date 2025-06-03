@@ -53,7 +53,7 @@ func (lgc *Logics) SearchObjectAttributes(kit *rest.Kit, bizID int64, objectID s
 
 // GetTopoIDByName TODO
 func (lgc *Logics) GetTopoIDByName(kit *rest.Kit, c *meta.HostToAppModule) (int64, int64, int64, errors.CCError) {
-	if "" == c.AppName || "" == c.SetName || "" == c.ModuleName {
+	if c.AppName == "" || c.SetName == "" || c.ModuleName == "" {
 		return 0, 0, 0, nil
 	}
 
@@ -84,7 +84,7 @@ func (lgc *Logics) GetTopoIDByName(kit *rest.Kit, c *meta.HostToAppModule) (int6
 	if nil != setErr {
 		return 0, 0, 0, setErr
 	}
-	if 0 == len(setIDs) || 0 >= setIDs[0] {
+	if len(setIDs) == 0 || 0 >= setIDs[0] {
 		blog.V(5).Infof("getTopoIDByName get set info not found; applicationName: %s, setName: %s, rid:%s", c.AppName, c.SetName, kit.Rid)
 		return 0, 0, 0, nil
 	}
@@ -107,7 +107,7 @@ func (lgc *Logics) GetTopoIDByName(kit *rest.Kit, c *meta.HostToAppModule) (int6
 	if nil != moduleErr {
 		return 0, 0, 0, err
 	}
-	if 0 == len(moduleIDs) || 0 >= moduleIDs[0] {
+	if len(moduleIDs) == 0 || 0 >= moduleIDs[0] {
 		blog.V(5).Infof("getTopoIDByName get module info not found; applicationName: %s, setName: %s, moduleName: %s,rid:%s", c.AppName, c.SetName, c.ModuleName, kit.Rid)
 		return 0, 0, 0, nil
 	}

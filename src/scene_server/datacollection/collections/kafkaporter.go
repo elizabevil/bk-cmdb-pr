@@ -176,7 +176,7 @@ func (c *consumerGroupHandler) readMessage(claim sarama.ConsumerGroupClaim) ([]s
 
 	startTime := time.Now()
 	// 如果 没有消息 或者 在2秒内读取的消息没超过100条，那么这两种情况会进行消息的读取操作
-	for len(msgMap) == 0 || (len(msgMap) <= msgCount && time.Now().Sub(startTime) < 2*time.Second) {
+	for len(msgMap) == 0 || (len(msgMap) <= msgCount && time.Since(startTime) < 2*time.Second) {
 		var message *sarama.ConsumerMessage
 		select {
 		case message = <-claim.Messages():

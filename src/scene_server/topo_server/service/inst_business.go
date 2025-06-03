@@ -16,7 +16,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"reflect"
-	"sort"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -445,7 +445,7 @@ func (s *Service) SearchReducedBusinessList(ctx *rest.Contexts) {
 				return
 			}
 			// sort for prepare to find business with page.
-			sort.Sort(util.Int64Slice(appList))
+			slices.Sort(appList)
 			// user can only find business that is already authorized.
 			query.Condition[common.BKAppIDField] = mapstr.MapStr{common.BKDBIN: appList}
 		}
@@ -534,7 +534,7 @@ func handleSpecialBusinessFieldSearchCond(input map[string]interface{}, userFiel
 			if util.InStrArr(userFieldArr, i) {
 				for _, user := range strings.Split(strings.Trim(targetStr, ","), ",") {
 					// search with exactly the user's name with regexpF
-					like := strings.Replace(exactUserRegexp, "USER_PLACEHOLDER", gparams.SpecialCharChange(user), -1)
+					like := strings.ReplaceAll(exactUserRegexp, "USER_PLACEHOLDER", gparams.SpecialCharChange(user))
 					exactAnd = append(exactAnd, mapstr.MapStr{i: mapstr.MapStr{common.BKDBLIKE: like}})
 				}
 			} else {
@@ -725,7 +725,7 @@ func (s *Service) SearchBusiness(ctx *rest.Contexts) {
 				}
 
 				// sort for prepare to find business with page.
-				sort.Sort(util.Int64Slice(appList))
+				slices.Sort(appList)
 				// user can only find business that is already authorized.
 				searchCond.Condition[common.BKAppIDField] = mapstr.MapStr{common.BKDBIN: appList}
 			}

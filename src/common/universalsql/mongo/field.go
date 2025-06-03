@@ -32,7 +32,7 @@ func (k *FieldItem) ToSQL() (string, error) {
 }
 
 func (k *FieldItem) legal() bool {
-	if 0 == len(k.Key) {
+	if len(k.Key) == 0 {
 		return false
 	}
 	// TODO:any other illegal case

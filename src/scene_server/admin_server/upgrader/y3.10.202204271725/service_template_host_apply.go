@@ -132,15 +132,8 @@ func addHostApplyRuleTableColumn(ctx context.Context, db dal.RDB, conf *upgrader
 	}
 
 	for _, index := range indexes {
-		exist := false
 		if _, ok := idArrMap[index.Name]; ok {
-			exist = true
 			break
-		}
-
-		// index already exist, skip create
-		if exist {
-			continue
 		}
 
 		if err := db.Table(common.BKTableNameHostApplyRule).CreateIndex(ctx, index); err != nil &&

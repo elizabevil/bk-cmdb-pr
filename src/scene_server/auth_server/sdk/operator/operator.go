@@ -215,7 +215,7 @@ func (e *InOper) Match(match interface{}, with interface{}) (bool, error) {
 	}
 
 	wKind := reflect.TypeOf(with).Kind()
-	if !(wKind == reflect.Slice || wKind == reflect.Array) {
+	if wKind != reflect.Slice && wKind != reflect.Array {
 		return false, errors.New("invalid type, should be array or slice")
 	}
 

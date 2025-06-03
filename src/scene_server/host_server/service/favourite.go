@@ -131,7 +131,7 @@ func (s *Service) UpdateHostFavouriteByID(ctx *rest.Contexts) {
 
 	ID := ctx.Request.PathParameter("id")
 
-	if "" == ID || "0" == ID {
+	if ID == "" || ID == "0" {
 		blog.Errorf("update host favourite failed, with id  %d,rid:%s", ID, ctx.Kit.Rid)
 		ctx.RespAutoError(ctx.Kit.CCError.CCError(common.CCErrCommHTTPInputInvalid))
 		return
@@ -199,7 +199,7 @@ func (s *Service) DeleteHostFavouriteByID(ctx *rest.Contexts) {
 
 	ID := ctx.Request.PathParameter("id")
 
-	if "" == ID || "0" == ID {
+	if ID == "" || ID == "0" {
 		blog.Errorf("delete host favourite failed, with id  %d,rid:%s", ID, ctx.Kit.Rid)
 		ctx.RespAutoError(ctx.Kit.CCError.CCError(common.CCErrCommHTTPInputInvalid))
 		return
@@ -229,7 +229,7 @@ func (s *Service) DeleteHostFavouriteByID(ctx *rest.Contexts) {
 func (s *Service) IncrHostFavouritesCount(ctx *rest.Contexts) {
 
 	ID := ctx.Request.PathParameter("id")
-	if "" == ID || "0" == ID {
+	if ID == "" || ID == "0" {
 		blog.Errorf("delete host favourite failed, with id  %s, rid:%s", ID, ctx.Kit.Rid)
 		ctx.RespAutoError(ctx.Kit.CCError.CCError(common.CCErrCommHTTPInputInvalid))
 		return

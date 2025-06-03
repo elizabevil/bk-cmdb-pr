@@ -703,9 +703,7 @@ func (s *Service) generateHostApplyPlans(kit *rest.Kit, bizID int64, plans []met
 			HostID:    item.HostID,
 			ModuleIDs: make([]int64, 0),
 		}
-		for _, moduleID := range item.ToAddToModules {
-			host2Module.ModuleIDs = append(host2Module.ModuleIDs, moduleID)
-		}
+		host2Module.ModuleIDs = append(host2Module.ModuleIDs, item.ToAddToModules...)
 		hostModules = append(hostModules, host2Module)
 	}
 

@@ -274,7 +274,7 @@ func (b *bizSetRelation) getBizIDArrStrByCond(cond map[string]interface{}, rid s
 }
 
 func genBizSetRelationCursor(coll string, e *types.Event, rid string) (string, error) {
-	curType := watch.UnknownType
+	var curType watch.CursorType
 	switch coll {
 	case common.BKTableNameBaseBizSet:
 		curType = watch.BizSet

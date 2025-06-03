@@ -3,7 +3,6 @@ package reporter
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"strings"
 	"text/template"
@@ -223,7 +222,7 @@ func (reporter *HtmlReporter) generateSummaryHtml() {
 	}
 	sum = sum[:index] + buf.String() + sum[index:]
 
-	err = ioutil.WriteFile(dir+"/summary.html", []byte(sum), 0666)
+	err = os.WriteFile(dir+"/summary.html", []byte(sum), 0666)
 	if err != nil {
 		fmt.Printf("Failed to write summary Html report file\n\t%s", err.Error())
 		return

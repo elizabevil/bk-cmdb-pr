@@ -29,7 +29,7 @@ func (m *modelClassification) isValid(kit *rest.Kit, classificationID string) (b
 	cond := mongo.NewCondition()
 	cond.Element(&mongo.Eq{Key: metadata.ClassFieldClassificationID, Val: classificationID})
 	cnt, err := m.count(kit, cond.ToMapStr())
-	return 0 != cnt, err
+	return cnt != 0, err
 }
 
 func (m *modelClassification) isExists(kit *rest.Kit, classificationID string) (origin *metadata.Classification, exists bool, err error) {
@@ -64,6 +64,6 @@ func (m *modelClassification) hasModel(kit *rest.Kit, cond universalsql.Conditio
 		blog.Errorf("request(%s): it is failed to execute database count operation on the table(%s) by the condition(%#v), error info is %s", kit.Rid, common.BKTableNameObjDes, filter, err.Error())
 		return 0, false, err
 	}
-	exists = 0 != cnt
+	exists = cnt != 0
 	return cnt, exists, err
 }

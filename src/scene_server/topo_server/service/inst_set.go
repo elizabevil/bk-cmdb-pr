@@ -187,7 +187,7 @@ func (s *Service) DeleteSets(ctx *rest.Contexts) {
 
 // DeleteSet delete the set
 func (s *Service) DeleteSet(ctx *rest.Contexts) {
-	if "batch" == ctx.Request.PathParameter("set_id") {
+	if ctx.Request.PathParameter("set_id") == "batch" {
 		s.DeleteSets(ctx)
 		return
 	}

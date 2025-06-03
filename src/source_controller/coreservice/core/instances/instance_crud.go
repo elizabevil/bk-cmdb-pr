@@ -13,7 +13,7 @@
 package instances
 
 import (
-	"sort"
+	"slices"
 	"time"
 
 	"configcenter/src/common"
@@ -164,7 +164,7 @@ func getSequences(kit *rest.Kit, table string, count int) ([]uint64, error) {
 		return ids, nil
 	}
 
-	sort.Sort(util.Uint64Slice(ids))
+	slices.Sort(ids)
 
 	if ids[0] > common.ReservedCloudAreaEndID {
 		return ids, nil

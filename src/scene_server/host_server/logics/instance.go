@@ -53,34 +53,34 @@ func buildCondToFindInst(objID string, ids []int, cond mapstr.MapStr) (string, s
 	case common.BKInnerObjIDHost:
 		instName = common.BKHostInnerIPField
 		instID = common.BKHostIDField
-		if 0 != len(ids) {
+		if len(ids) != 0 {
 			cond[common.BKHostIDField] = map[string]interface{}{"$in": ids}
 		}
 	case common.BKInnerObjIDApp:
 		instName = common.BKAppNameField
 		instID = common.BKAppIDField
-		if 0 != len(ids) {
+		if len(ids) != 0 {
 			cond[common.BKAppIDField] = map[string]interface{}{"$in": ids}
 		}
 	case common.BKInnerObjIDSet:
 		instID = common.BKSetIDField
 		instName = common.BKSetNameField
 		sort = common.BKSetIDField
-		if 0 != len(ids) {
+		if len(ids) != 0 {
 			cond[common.BKSetIDField] = map[string]interface{}{"$in": ids}
 		}
 	case common.BKInnerObjIDModule:
 		instID = common.BKModuleIDField
 		instName = common.BKModuleNameField
 		sort = common.BKModuleIDField
-		if 0 != len(ids) {
+		if len(ids) != 0 {
 			cond[common.BKModuleIDField] = map[string]interface{}{"$in": ids}
 		}
 	case common.BKInnerObjIDPlat:
 		instID = common.BKCloudIDField
 		instName = common.BKCloudNameField
 		sort = common.BKCloudIDField
-		if 0 != len(ids) {
+		if len(ids) != 0 {
 			cond[common.BKCloudIDField] = map[string]interface{}{"$in": ids}
 		}
 	default:
@@ -88,7 +88,7 @@ func buildCondToFindInst(objID string, ids []int, cond mapstr.MapStr) (string, s
 		instID = common.BKInstIDField
 		sort = common.BKInstIDField
 		cond[common.BKObjIDField] = objID
-		if 0 != len(ids) {
+		if len(ids) != 0 {
 			cond[common.BKInstIDField] = map[string]interface{}{"$in": ids}
 		}
 	}
@@ -99,7 +99,7 @@ func buildCondToFindInst(objID string, ids []int, cond mapstr.MapStr) (string, s
 func getIntFromStringArray(kit *rest.Kit, objID string, ids []string) ([]int, error) {
 	tmpIDs := make([]int, 0)
 	for _, ID := range ids {
-		if "" == strings.TrimSpace(ID) {
+		if strings.TrimSpace(ID) == "" {
 			continue
 		}
 		tmpID, err := strconv.Atoi(ID)
@@ -120,7 +120,7 @@ func (lgc *Logics) getRawInstAsst(kit *rest.Kit, objID string, ids []string, que
 	if err != nil {
 		return nil, 0, err
 	}
-	if 0 == len(tmpIDs) {
+	if len(tmpIDs) == 0 {
 		return make([]InstNameAsst, 0), 0, nil
 	}
 	condition := mapstr.New()
@@ -171,7 +171,7 @@ func (lgc *Logics) getRawInstAsst(kit *rest.Kit, objID string, ids []string, que
 					blog.Errorf("not found assocte object ID %s from %v, rid: %s", instID, info, kit.Rid)
 					return nil, 0, fmt.Errorf("not found assocte object ID %s from %v", instID, info)
 				}
-				if 0 != len(ids) {
+				if len(ids) != 0 {
 					for idx, key := range ids {
 						if key == strconv.FormatInt(itemInstID, 10) {
 							inst.ID = ids[idx]

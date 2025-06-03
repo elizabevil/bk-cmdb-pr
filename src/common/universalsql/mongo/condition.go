@@ -61,7 +61,7 @@ func (m *mongoCondition) ToMapStr() mapstr.MapStr {
 	// merge elements, default
 	for _, ele := range m.elements {
 		tmp := ele.ToMapStr()
-		if 0 != len(tmp) {
+		if len(tmp) != 0 {
 			result.Merge(tmp)
 		}
 	}
@@ -70,11 +70,11 @@ func (m *mongoCondition) ToMapStr() mapstr.MapStr {
 	andElements := mapstr.NewArray()
 	for _, ele := range m.and {
 		tmp := ele.ToMapStr()
-		if 0 != len(tmp) {
+		if len(tmp) != 0 {
 			andElements = append(andElements, tmp)
 		}
 	}
-	if 0 != len(andElements) {
+	if len(andElements) != 0 {
 		result.Set(universalsql.AND, andElements)
 	}
 
@@ -82,11 +82,11 @@ func (m *mongoCondition) ToMapStr() mapstr.MapStr {
 	orElements := mapstr.NewArray()
 	for _, ele := range m.or {
 		tmp := ele.ToMapStr()
-		if 0 != len(tmp) {
+		if len(tmp) != 0 {
 			orElements = append(orElements, tmp)
 		}
 	}
-	if 0 != len(orElements) {
+	if len(orElements) != 0 {
 		result.Set(universalsql.OR, orElements)
 	}
 
@@ -94,11 +94,11 @@ func (m *mongoCondition) ToMapStr() mapstr.MapStr {
 	notElements := mapstr.NewArray()
 	for _, ele := range m.not {
 		tmp := ele.ToMapStr()
-		if 0 != len(tmp) {
+		if len(tmp) != 0 {
 			notElements = append(notElements, tmp)
 		}
 	}
-	if 0 != len(notElements) {
+	if len(notElements) != 0 {
 		result.Set(universalsql.NOT, notElements)
 	}
 
@@ -106,11 +106,11 @@ func (m *mongoCondition) ToMapStr() mapstr.MapStr {
 	norElements := mapstr.NewArray()
 	for _, ele := range m.nor {
 		tmp := ele.ToMapStr()
-		if 0 != len(tmp) {
+		if len(tmp) != 0 {
 			norElements = append(norElements, tmp)
 		}
 	}
-	if 0 != len(norElements) {
+	if len(norElements) != 0 {
 		result.Set(universalsql.NOR, norElements)
 	}
 

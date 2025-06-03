@@ -201,7 +201,7 @@ func (s *Service) Healthz(c *gin.Context) {
 	}
 
 	for _, item := range meta.Items {
-		if item.IsHealthy == false {
+		if !item.IsHealthy {
 			meta.IsHealthy = false
 			meta.Message = "web server is unhealthy"
 			break

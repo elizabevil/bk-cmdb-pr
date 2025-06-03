@@ -123,6 +123,6 @@ func (s *coreService) TranslateAssociationType(defLang language.DefaultCCLanguag
 // TranslateServiceCategory TODO
 func (s *coreService) TranslateServiceCategory(defLang language.DefaultCCLanguageIf,
 	att *metadata.ServiceCategory) string {
-	return util.FirstNotEmptyString(defLang.Language("service_category_"+strings.Replace(att.Name, " ", "_", -1)),
+	return util.FirstNotEmptyString(defLang.Language("service_category_"+strings.ReplaceAll(att.Name, " ", "_")),
 		att.Name)
 }

@@ -223,7 +223,7 @@ func (i *importInstance) addHostInst(kit *rest.Kit, ccLang language.DefaultCCLan
 
 	intHostID, err := i.addHostInstance(cloudID, index, appID, moduleIDs, toInternalModule, hostInfo)
 	if err != nil {
-		return 0, nil, fmt.Errorf(ccLang.Languagef("host_import_add_fail", index, innerIP, err.Error())).Error()
+		return 0, nil, errors.New(ccLang.Languagef("host_import_add_fail", index, innerIP, err.Error())).Error()
 	}
 	hostInfo[common.BKHostIDField] = intHostID
 
@@ -764,7 +764,7 @@ func (h *importInstance) updateHostInstance(index int64, host map[string]interfa
 	if err != nil {
 		ip, _ := host[common.BKHostInnerIPField].(string)
 		blog.Errorf("updateHostInstance http do error,  err:%s,input:%+v,rid:%s", err.Error(), input, h.rid)
-		return fmt.Errorf(h.ccLang.Languagef("host_import_update_fail", index, ip, err.Error()))
+		return errors.New(h.ccLang.Languagef("host_import_update_fail", index, ip, err.Error()))
 	}
 
 	return nil
@@ -780,7 +780,7 @@ func (h *importInstance) addHostInstance(cloudID, index, appID int64, moduleIDs 
 	host map[string]interface{}) (int64, error) {
 	ip, _ := host[common.BKHostInnerIPField].(string)
 	if cloudID < 0 {
-		return 0, fmt.Errorf(h.ccLang.Languagef("host_import_add_fail", index, ip,
+		return 0, errors.New(h.ccLang.Languagef("host_import_add_fail", index, ip,
 			h.ccLang.Language("import_host_cloudID_invalid")))
 	}
 
@@ -789,11 +789,11 @@ func (h *importInstance) addHostInstance(cloudID, index, appID int64, moduleIDs 
 	if cloudID != common.BKDefaultDirSubArea {
 		isExist, err := h.lgc.IsPlatAllExist(h.kit, []int64{cloudID})
 		if nil != err {
-			return 0, fmt.Errorf(h.ccLang.Languagef("host_import_add_fail", index, ip, err.Error()))
+			return 0, errors.New(h.ccLang.Languagef("host_import_add_fail", index, ip, err.Error()))
 
 		}
 		if !isExist {
-			return 0, fmt.Errorf(h.ccLang.Languagef("host_import_add_fail", index, ip,
+			return 0, errors.New(h.ccLang.Languagef("host_import_add_fail", index, ip,
 				h.ccErr.Errorf(common.CCErrTopoCloudNotFound).Error()))
 
 		}

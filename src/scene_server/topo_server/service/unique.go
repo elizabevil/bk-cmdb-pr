@@ -46,7 +46,7 @@ func (s *Service) CreateObjectUnique(ctx *rest.Contexts) {
 		return
 	}
 	if yes {
-		if util.InStrArr(ForbiddenModifyMainlineObjectUniqueWhiteList, objectID) == false {
+		if !util.InStrArr(ForbiddenModifyMainlineObjectUniqueWhiteList, objectID) {
 			ctx.RespAutoError(ctx.Kit.CCError.Error(common.CCErrorTopoMainlineObjectCanNotBeChanged))
 			return
 		}
@@ -129,7 +129,7 @@ func (s *Service) UpdateObjectUnique(ctx *rest.Contexts) {
 		return
 	}
 	if yes {
-		if util.InStrArr(ForbiddenModifyMainlineObjectUniqueWhiteList, objectID) == false {
+		if !util.InStrArr(ForbiddenModifyMainlineObjectUniqueWhiteList, objectID) {
 			ctx.RespAutoError(ctx.Kit.CCError.Error(common.CCErrorTopoMainlineObjectCanNotBeChanged))
 			return
 		}
@@ -185,7 +185,7 @@ func (s *Service) DeleteObjectUnique(ctx *rest.Contexts) {
 		return
 	}
 	if yes {
-		if util.InStrArr(ForbiddenModifyMainlineObjectUniqueWhiteList, objectID) == false {
+		if !util.InStrArr(ForbiddenModifyMainlineObjectUniqueWhiteList, objectID) {
 			ctx.RespAutoError(ctx.Kit.CCError.Error(common.CCErrorTopoMainlineObjectCanNotBeChanged))
 			return
 		}

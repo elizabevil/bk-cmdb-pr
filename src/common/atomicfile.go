@@ -13,7 +13,6 @@
 package common
 
 import (
-	"io/ioutil"
 	"os"
 	"path/filepath"
 )
@@ -27,7 +26,7 @@ type AtomicFile struct {
 // AtomicFileNew creates a new temporary file that will replace the file at the given
 // path when Closed.
 func AtomicFileNew(path string, mode os.FileMode) (*AtomicFile, error) {
-	f, err := ioutil.TempFile(filepath.Dir(path), filepath.Base(path))
+	f, err := os.CreateTemp(filepath.Dir(path), filepath.Base(path))
 	if err != nil {
 		return nil, err
 	}

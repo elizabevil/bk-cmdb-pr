@@ -107,7 +107,7 @@ func SpecialCharChange(targetStr string) string {
 			continue
 		}
 		tmp[target] = struct{}{}
-		targetStr = strings.Replace(targetStr, target, fmt.Sprintf(`\%s`, target), -1)
+		targetStr = strings.ReplaceAll(targetStr, target, fmt.Sprintf(`\%s`, target))
 	}
 
 	return targetStr

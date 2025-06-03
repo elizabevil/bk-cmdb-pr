@@ -45,7 +45,7 @@ func (m *user) LoginUser(c *gin.Context, config map[string]string, isMultiOwner 
 	session := sessions.Default(c)
 
 	cookieOwnerID, err := c.Cookie(common.HTTPCookieSupplierAccount)
-	if "" == cookieOwnerID || nil != err {
+	if cookieOwnerID == "" || nil != err {
 		c.SetCookie(common.HTTPCookieSupplierAccount, common.BKDefaultOwnerID, 0, "/", "", false, false)
 		session.Set(common.WEBSessionOwnerUinKey, cookieOwnerID)
 	} else if cookieOwnerID != session.Get(common.WEBSessionOwnerUinKey) {

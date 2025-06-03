@@ -111,7 +111,7 @@ type Selector struct {
 
 // Validate TODO
 func (s *Selector) Validate() (string, error) {
-	if util.InArray(s.Operator, AvailableOperators) == false {
+	if !util.InArray(s.Operator, AvailableOperators) {
 		return "operator", fmt.Errorf("operator %s not available, available operators: %+v", s.Operator,
 			AvailableOperators)
 	}
@@ -128,7 +128,7 @@ func (s *Selector) Validate() (string, error) {
 		return "values", errors.New("values field length for equal operation should exactly one")
 	}
 
-	if LabelNGKeyRule.MatchString(s.Key) == false {
+	if !LabelNGKeyRule.MatchString(s.Key) {
 		return "key", fmt.Errorf("key %s invalid", s.Key)
 	}
 	return "", nil

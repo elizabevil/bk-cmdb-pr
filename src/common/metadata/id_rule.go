@@ -177,7 +177,7 @@ func ParseSubIDRules(val interface{}) ([]SubAssetRule, error) {
 
 // GetIDRuleRandomID get id rule random id
 func GetIDRuleRandomID(length int64) string {
-	rand.Seed(time.Now().UnixNano())
+	rand.New(rand.NewSource(time.Now().UnixNano()))
 	digits := []string{"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"}
 	var sb strings.Builder
 	for i := int64(0); i < length; i++ {

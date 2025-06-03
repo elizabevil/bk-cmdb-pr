@@ -377,7 +377,7 @@ func getIamPath(attr types.ResourceAttributes) ([]string, error) {
 
 		// iam path must be a string array
 		wKind := reflect.TypeOf(path).Kind()
-		if !(wKind == reflect.Slice || wKind == reflect.Array) {
+		if wKind != reflect.Slice && wKind != reflect.Array {
 			return nil, errors.New("iam path value is not array or slice type")
 		}
 

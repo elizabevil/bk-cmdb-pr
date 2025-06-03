@@ -148,7 +148,7 @@ func (lgc *Logics) SearchSyncTask(kit *rest.Kit,
 	}
 
 	// if fuzzy search, change the string query to regexp
-	if option.IsFuzzy == true {
+	if option.IsFuzzy {
 		for k, v := range option.Condition {
 			field, ok := v.(string)
 			if ok {
@@ -350,7 +350,7 @@ func (lgc *Logics) SearchSyncHistory(kit *rest.Kit,
 	}
 
 	// if fuzzy search, change the string query to regexp
-	if option.IsFuzzy == true {
+	if option.IsFuzzy {
 		for k, v := range option.Condition {
 			field, ok := v.(string)
 			if ok {

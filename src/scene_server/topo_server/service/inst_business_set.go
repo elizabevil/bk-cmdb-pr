@@ -430,7 +430,6 @@ func (s *Service) PreviewBusinessSet(ctx *rest.Contexts) {
 
 	mgoFilter[common.BKDataStatusField] = mapstr.MapStr{common.BKDBNE: common.DataStatusDisabled}
 	mgoFilter[common.BKDefaultField] = 0
-	query := new(metadata.QueryCondition)
 	bizSetResult := new(metadata.QueryBusinessSetResponse)
 	if searchCond.Page.EnableCount {
 		counts, err := s.Engine.CoreAPI.CoreService().Count().GetCountByFilter(ctx.Kit.Ctx, ctx.Kit.Header,
@@ -444,8 +443,7 @@ func (s *Service) PreviewBusinessSet(ctx *rest.Contexts) {
 		ctx.RespEntity(bizSetResult)
 		return
 	}
-
-	query = &metadata.QueryCondition{
+	query := &metadata.QueryCondition{
 		Condition: mgoFilter,
 		Fields:    []string{common.BKAppIDField, common.BKAppNameField},
 		Page: metadata.BasePage{

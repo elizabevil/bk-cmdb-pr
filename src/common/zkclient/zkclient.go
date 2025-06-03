@@ -417,7 +417,7 @@ func (z *ZkClient) CreateNode(path string, data []byte) error {
 // CheckNode TODO
 func (z *ZkClient) CheckNode(path string, data []byte) error {
 	exist, _ := z.Exist(path)
-	if exist == false {
+	if !exist {
 		err := z.Create(path, data)
 		if err != nil {
 			return err

@@ -69,7 +69,7 @@ func (fs FloatOrString) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON TODO
 func (fs *FloatOrString) UnmarshalJSON(b []byte) error {
-	f, err := strconv.ParseFloat(string(b), 10)
+	f, err := strconv.ParseFloat(string(b), 64)
 	if nil == err {
 		fs.Type = Float
 		fs.Float = f

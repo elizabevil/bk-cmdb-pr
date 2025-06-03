@@ -296,7 +296,7 @@ func (s *Service) DeletePlat(ctx *rest.Contexts) {
 		ctx.RespAutoError(ctx.Kit.CCError.CCErrorf(common.CCErrCommParamsInvalid, convErr.Error()))
 		return
 	}
-	if 0 == platID {
+	if platID == 0 {
 		blog.Errorf("DelPlat failed, can't delete default cloud area, input:%+v,rid:%s", platID, ctx.Kit.Rid)
 		// can't delete default cloud area
 		ctx.RespAutoError(ctx.Kit.CCError.CCError(common.CCErrDeleteDefaultCloudAreaFail))
@@ -561,7 +561,7 @@ func (s *Service) FindCloudAreaHostCount(ctx *rest.Contexts) {
 		ctx.RespAutoError(ctx.Kit.CCError.CCError(common.CCErrCommHTTPDoRequestFailed))
 		return
 	}
-	if false == res.Result {
+	if !res.Result {
 		blog.Errorf("FindCloudAreaHostCount http reply error.  input:%#v, err code:%d, err msg:%s, rid:%s", *input,
 			res.Code, res.ErrMsg, rid)
 		ctx.RespAutoError(res.CCError())

@@ -87,7 +87,6 @@ func NewRedisOperationCommand() *cobra.Command {
 
 func runRedisScan(conf *redisOperation) error {
 
-	var total int
 	cursor := redisDefaultCursor
 	printLen := redisDefaultResultNum
 
@@ -101,6 +100,8 @@ func runRedisScan(conf *redisOperation) error {
 	}
 	ctx := context.Background()
 	fmt.Printf("show some results as an example :\n")
+
+	var total int
 	for {
 		res := redisCli.Scan(ctx, cursor, conf.match, redisDefaultCount)
 		keys, cur := res.Val()
@@ -109,9 +110,7 @@ func runRedisScan(conf *redisOperation) error {
 			for _, v := range keys[:printLen] {
 				fmt.Printf("%v \n", v)
 			}
-			total = redisDefaultResultNum
 			break
-
 		} else if len(keys) > 0 && len(keys) < redisDefaultResultNum {
 			for _, v := range keys {
 				fmt.Printf("%v \n", v)

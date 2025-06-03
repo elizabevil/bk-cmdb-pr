@@ -108,7 +108,7 @@ func NewCollector(name string, collector CollectInter) *Collector {
 
 // CheckHealthy TODO
 func CheckHealthy(address string) error {
-	if "" == address {
+	if address == "" {
 		return errors.New("address not found")
 	}
 	out, err := httpclient.NewHttpClient().GET(address+"/healthz", nil, nil)

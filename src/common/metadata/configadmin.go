@@ -76,8 +76,8 @@ func (s GlobalModule) Validate() error {
 
 // AdminBackendCfg TODO
 type AdminBackendCfg struct {
-	MaxBizTopoLevel int64 `json:"max_biz_topo_level"`
-	SnapshotBizID   int64 `json:"snapshot_biz_id"`
+	MaxBizTopoLevel int64  `json:"max_biz_topo_level"`
+	SnapshotBizID   int64  `json:"snapshot_biz_id"`
 	SnapshotBizName string `json:"snapshot_biz_name"`
 }
 
@@ -538,7 +538,7 @@ func (b *BaseCfgItem) ValidateRegex() error {
 	}
 	reg := string(bytes)
 	// convert Chinese characters to satisfy go syntax
-	expr := strings.Replace(reg, "\\u4e00-\\u9fa5", "\u4e00-\u9fa5", -1)
+	expr := strings.ReplaceAll(reg, "\\u4e00-\\u9fa5", "\u4e00-\u9fa5")
 	if _, err := regexp.Compile(expr); err != nil {
 		return fmt.Errorf("%s is not a valid regular expression，%s", reg, err.Error())
 	}
