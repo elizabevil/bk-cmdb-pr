@@ -36,21 +36,21 @@ var deprecatedProcessTemplateIndexes = []types.Index{
 	{
 		Name: "idx_serviceTemplateID",
 		Keys: bson.D{{
-			"service_template_id", 1},
+			Key: "service_template_id", Value: 1},
 		},
 		Background: true,
 	},
 	{
 		Name: "idx_bkBizID",
 		Keys: bson.D{{
-			"bk_biz_id", 1},
+			Key: "bk_biz_id", Value: 1},
 		},
 		Background: true,
 	},
 	{
 		Name: "idx_unique_id",
 		Keys: bson.D{{
-			"id", 1},
+			Key: "id", Value: 1},
 		},
 		Unique:     true,
 		Background: true,
@@ -58,8 +58,8 @@ var deprecatedProcessTemplateIndexes = []types.Index{
 	{
 		Name: "bk_idx_service_template_id_bk_process_name",
 		Keys: bson.D{
-			{"bk_process_name", 1},
-			{"service_template_id", 1},
+			{Key: "bk_process_name", Value: 1},
+			{Key: "service_template_id", Value: 1},
 		},
 		Unique:     true,
 		Background: true,

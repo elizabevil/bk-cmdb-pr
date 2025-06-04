@@ -29,8 +29,8 @@ func addInstassProcIndex(ctx context.Context, db dal.RDB, conf *upgrader.Config)
 
 	index := types.Index{
 		Keys: bson.D{
-			{"bk_asst_obj_id", 1},
-			{"bk_asst_inst_id", 1},
+			{Key: "bk_asst_obj_id", Value: 1},
+			{Key: "bk_asst_inst_id", Value: 1},
 		},
 		Name:       "bk_idx_bk_asst_obj_id_bk_asst_inst_id",
 		Unique:     false,
@@ -45,8 +45,8 @@ func addInstassProcIndex(ctx context.Context, db dal.RDB, conf *upgrader.Config)
 
 	index = types.Index{
 		Keys: bson.D{
-			{"service_template_id", 1},
-			{"bk_process_name", 1},
+			{Key: "service_template_id", Value: 1},
+			{Key: "bk_process_name", Value: 1},
 		},
 		Name:       "bk_idx_service_template_id_bk_process_name",
 		Unique:     true,

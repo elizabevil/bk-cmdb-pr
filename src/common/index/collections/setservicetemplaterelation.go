@@ -37,9 +37,9 @@ var deprecatedSetServiceTemplateRelationIndexes = []types.Index{
 		// 这个是手动建， 拼写错误
 		Name: "idx_unque_setTemplateID_serviceTemplateID",
 		Keys: bson.D{
-			{"bk_biz_id", 1},
-			{"set_template_id", 1},
-			{"service_template_id", 1},
+			{Key: "bk_biz_id", Value: 1},
+			{Key: "set_template_id", Value: 1},
+			{Key: "service_template_id", Value: 1},
 		},
 		Unique:     true,
 		Background: true,

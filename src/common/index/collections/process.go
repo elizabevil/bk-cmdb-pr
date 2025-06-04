@@ -33,8 +33,8 @@ var commProcessIndexes = []types.Index{
 	{
 		Name: common.CCLogicUniqueIdxNamePrefix + "svcInstID_bkProcName",
 		Keys: bson.D{
-			{common.BKServiceInstanceIDField, 1},
-			{common.BKProcessNameField, 1},
+			{Key: common.BKServiceInstanceIDField, Value: 1},
+			{Key: common.BKProcessNameField, Value: 1},
 		},
 		Unique:     true,
 		Background: true,
@@ -46,9 +46,9 @@ var commProcessIndexes = []types.Index{
 	{
 		Name: common.CCLogicUniqueIdxNamePrefix + "svcInstID_bkFuncName_bkStartParamRegex",
 		Keys: bson.D{
-			{common.BKServiceInstanceIDField, 1},
-			{common.BKFuncName, 1},
-			{common.BKStartParamRegex, 1},
+			{Key: common.BKServiceInstanceIDField, Value: 1},
+			{Key: common.BKFuncName, Value: 1},
+			{Key: common.BKStartParamRegex, Value: 1},
 		},
 		Unique:     true,
 		Background: true,
@@ -65,21 +65,21 @@ var deprecatedProcessIndexes = []types.Index{
 	{
 		Name: "bk_biz_id_1",
 		Keys: bson.D{{
-			"bk_biz_id", 1},
+			Key: "bk_biz_id", Value: 1},
 		},
 		Background: true,
 	},
 	{
 		Name: "bk_supplier_account_1",
 		Keys: bson.D{{
-			"bk_supplier_account", 1},
+			Key: "bk_supplier_account", Value: 1},
 		},
 		Background: true,
 	},
 	{
 		Name: "idx_unique_procID",
 		Keys: bson.D{{
-			"bk_process_id", 1},
+			Key: "bk_process_id", Value: 1},
 		},
 		Unique:     true,
 		Background: true,

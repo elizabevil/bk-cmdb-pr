@@ -389,6 +389,7 @@ func (c *commonInst) updateInstByExcel(kit *rest.Kit, objID string, tableData *m
 
 	audit := auditlog.NewInstanceAudit(c.clientSet.CoreService())
 	auditParam := auditlog.NewGenerateAuditCommonParameter(kit, metadata.AuditUpdate).WithUpdateFields(preInst.Info[0])
+	// TODO ??  ineffectual assignment to err (
 	auditLog, err := audit.GenerateAuditLog(auditParam, objID, []mapstr.MapStr{inst})
 	if err := audit.SaveAuditLog(kit, auditLog...); err != nil {
 		blog.Errorf("save audit failed, err: %v, rid: %s", err, kit.Rid)

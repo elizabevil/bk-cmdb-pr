@@ -47,9 +47,9 @@ func addAuditLogTableIndex(ctx context.Context, db dal.RDB, conf *upgrader.Confi
 	}
 
 	createIdxArr := []types.Index{
-		{Name: "index_bk_supplier_account", Keys: bson.D{{common.BkSupplierAccount, 1}}, Background: true},
-		{Name: "index_audit_type", Keys: bson.D{{common.BKAuditTypeField, 1}}, Background: true},
-		{Name: "index_action", Keys: bson.D{{common.BKActionField, 1}}, Background: true},
+		{Name: "index_bk_supplier_account", Keys: bson.D{{Key: common.BkSupplierAccount, Value: 1}}, Background: true},
+		{Name: "index_audit_type", Keys: bson.D{{Key: common.BKAuditTypeField, Value: 1}}, Background: true},
+		{Name: "index_action", Keys: bson.D{{Key: common.BKActionField, Value: 1}}, Background: true},
 	}
 	for _, idx := range createIdxArr {
 		exist := false

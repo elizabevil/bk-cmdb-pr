@@ -36,7 +36,7 @@ var deprecatedServiceCategoryIndexes = []types.Index{
 	{
 		Name: "idx_unique_id",
 		Keys: bson.D{{
-			"id", 1},
+			Key: "id", Value: 1},
 		},
 		Unique:     true,
 		Background: true,
@@ -44,9 +44,9 @@ var deprecatedServiceCategoryIndexes = []types.Index{
 	{
 		Name: "idx_unique_Name_parentID_bizID",
 		Keys: bson.D{
-			{"bk_parent_id", 1},
-			{"bk_biz_id", 1},
-			{"name", 1},
+			{Key: "bk_parent_id", Value: 1},
+			{Key: "bk_biz_id", Value: 1},
+			{Key: "name", Value: 1},
 		},
 		Unique:     true,
 		Background: true,

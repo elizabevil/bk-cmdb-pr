@@ -88,6 +88,8 @@ func convertIPv6ToFullAddr(ipv6 string) (string, error) {
 
 	return strings.Join(part, ":"), nil
 }
+
+// ConvertIPv6ToStandardFormat2 convert ipv6 address to standard format
 func ConvertIPv6ToStandardFormat2(address string) (string, error) {
 	addr, err := netip.ParseAddr(address)
 	if err != nil {
@@ -102,7 +104,6 @@ func ConvertIPv6ToStandardFormat2(address string) (string, error) {
 // ConvertIPv6ToStandardFormat convert ipv6 address to standard format
 // :: => 0000:0000:0000:0000:0000:0000:0000:0000
 // ::127.0.0.1 => 0000:0000:0000:0000:0000:0000:127.0.0.1
-
 func ConvertIPv6ToStandardFormat(address string) (string, error) {
 	if ip := net.ParseIP(address); ip == nil {
 		return "", fmt.Errorf("address %s is invalid", address)

@@ -36,37 +36,37 @@ var deprecatedObjAsstIndexes = []types.Index{
 	{
 		Name: "bk_obj_id_1",
 		Keys: bson.D{{
-			"bk_obj_id", 1},
+			Key: "bk_obj_id", Value: 1},
 		},
 		Background: true,
 	},
 	{
 		Name: "bk_asst_obj_id_1",
 		Keys: bson.D{{
-			"bk_asst_obj_id", 1},
+			Key: "bk_asst_obj_id", Value: 1},
 		},
 		Background: true,
 	},
 	{
 		Name: "bk_supplier_account_1",
 		Keys: bson.D{{
-			"bk_supplier_account", 1},
+			Key: "bk_supplier_account", Value: 1},
 		},
 		Background: true,
 	},
 	{
 		Name: "bk_obj_id_1_bk_asst_obj_id_1_bk_asst_id_1",
 		Keys: bson.D{
-			{"bk_obj_id", 1},
-			{"bk_asst_obj_id", 1},
-			{"bk_asst_id", 1},
+			{Key: "bk_obj_id", Value: 1},
+			{Key: "bk_asst_obj_id", Value: 1},
+			{Key: "bk_asst_id", Value: 1},
 		},
 		Background: true,
 	},
 	{
 		Name: "idx_unique_id",
 		Keys: bson.D{{
-			"id", 1},
+			Key: "id", Value: 1},
 		},
 		Unique:     true,
 		Background: true,

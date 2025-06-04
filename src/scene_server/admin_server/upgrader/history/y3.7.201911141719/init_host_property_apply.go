@@ -117,26 +117,26 @@ func InitHostPropertyApplyDataModel(ctx context.Context, db dal.RDB, conf *upgra
 	// add index
 	indexes := []types.Index{
 		{
-			Keys:       bson.D{{common.BKAppIDField, 1}},
+			Keys:       bson.D{{Key: common.BKAppIDField, Value: 1}},
 			Name:       common.BKAppIDField,
 			Unique:     false,
 			Background: false,
 		},
 		{
-			Keys: bson.D{{common.BKFieldID, 1}},
+			Keys: bson.D{{Key: common.BKFieldID, Value: 1}},
 
 			Name:       common.BKFieldID,
 			Unique:     true,
 			Background: false,
 		}, {
-			Keys:       bson.D{{common.BKModuleIDField, 1}},
+			Keys:       bson.D{{Key: common.BKModuleIDField, Value: 1}},
 			Name:       common.BKModuleIDField,
 			Unique:     false,
 			Background: false,
 		}, {
 			Keys: bson.D{
-				{common.BKModuleIDField, 1},
-				{common.BKAttributeIDField, 1},
+				{Key: common.BKModuleIDField, Value: 1},
+				{Key: common.BKAttributeIDField, Value: 1},
 			},
 			Name:       "host_property_under_module",
 			Background: false,

@@ -36,7 +36,7 @@ var deprecatedSetTemplateIndexes = []types.Index{
 	{
 		Name: "idx_id",
 		Keys: bson.D{{
-			"id", 1},
+			Key: "id", Value: 1},
 		},
 		Unique:     true,
 		Background: true,
@@ -44,8 +44,8 @@ var deprecatedSetTemplateIndexes = []types.Index{
 	{
 		Name: "idx_unique_bizID_name",
 		Keys: bson.D{
-			{"bk_biz_id", 1},
-			{"name", 1},
+			{Key: "bk_biz_id", Value: 1},
+			{Key: "name", Value: 1},
 		},
 		Unique:     true,
 		Background: true,

@@ -216,7 +216,7 @@ func (lgc *Logics) GetVpcHostCnt(kit *rest.Kit, conf metadata.CloudAccountConf,
 			defer wg.Done()
 			count, err := client.GetInstancesTotalCnt(regionVpc.Region, &ccom.InstanceOpt{
 				BaseOpt: ccom.BaseOpt{
-					Filters: []*ccom.Filter{{ccom.StringPtr("vpc-id"), ccom.StringPtrs([]string{regionVpc.VpcID})}},
+					Filters: []*ccom.Filter{{Name: ccom.StringPtr("vpc-id"), Values: ccom.StringPtrs([]string{regionVpc.VpcID})}},
 					Limit:   ccom.MaxLimit,
 				},
 			})
@@ -246,7 +246,7 @@ func (lgc *Logics) getInstancesInfoByVpc(kit *rest.Kit, client cloudvendor.Vendo
 	vpc metadata.VpcSyncInfo, destroyedVpcsChan chan string) (*metadata.InstancesInfo, error) {
 	vpcInfo, err := client.GetVpcs(vpc.Region, &ccom.VpcOpt{
 		BaseOpt: ccom.BaseOpt{
-			Filters: []*ccom.Filter{{ccom.StringPtr("vpc-id"), ccom.StringPtrs([]string{vpc.VpcID})}},
+			Filters: []*ccom.Filter{{Name: ccom.StringPtr("vpc-id"), Values: ccom.StringPtrs([]string{vpc.VpcID})}},
 			Limit:   ccom.MaxLimit,
 		},
 	})
@@ -263,7 +263,7 @@ func (lgc *Logics) getInstancesInfoByVpc(kit *rest.Kit, client cloudvendor.Vendo
 
 	instancesInfo, err := client.GetInstances(vpc.Region, &ccom.InstanceOpt{
 		BaseOpt: ccom.BaseOpt{
-			Filters: []*ccom.Filter{{ccom.StringPtr("vpc-id"), ccom.StringPtrs([]string{vpc.VpcID})}},
+			Filters: []*ccom.Filter{{Name: ccom.StringPtr("vpc-id"), Values: ccom.StringPtrs([]string{vpc.VpcID})}},
 			Limit:   ccom.MaxLimit,
 		},
 	})

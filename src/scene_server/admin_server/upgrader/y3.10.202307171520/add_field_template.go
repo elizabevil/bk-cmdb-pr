@@ -80,7 +80,7 @@ func addFieldTemplateIndexes(ctx context.Context, db dal.RDB) error {
 			Name: common.CCLogicUniqueIdxNamePrefix + common.BKFieldID,
 			Keys: bson.D{
 				{
-					common.BKFieldID, 1,
+					Key: common.BKFieldID, Value: 1,
 				},
 			},
 			Background: true,
@@ -90,7 +90,7 @@ func addFieldTemplateIndexes(ctx context.Context, db dal.RDB) error {
 			Name: common.CCLogicUniqueIdxNamePrefix + common.BKFieldName,
 			Keys: bson.D{
 				{
-					common.BKFieldName, 1,
+					Key: common.BKFieldName, Value: 1,
 				},
 			},
 			Background: true,
@@ -111,7 +111,7 @@ func addObjAttDesTemplateIndexes(ctx context.Context, db dal.RDB) error {
 			Name: common.CCLogicUniqueIdxNamePrefix + common.BKFieldID,
 			Keys: bson.D{
 				{
-					common.BKFieldID, 1,
+					Key: common.BKFieldID, Value: 1,
 				},
 			},
 			Background: true,
@@ -121,10 +121,10 @@ func addObjAttDesTemplateIndexes(ctx context.Context, db dal.RDB) error {
 			Name: common.CCLogicUniqueIdxNamePrefix + "bkTemplateID_bkPropertyID",
 			Keys: bson.D{
 				{
-					common.BKTemplateID, 1,
+					Key: common.BKTemplateID, Value: 1,
 				},
 				{
-					common.BKPropertyIDField, 1,
+					Key: common.BKPropertyIDField, Value: 1,
 				},
 			},
 			Background: true,
@@ -134,10 +134,10 @@ func addObjAttDesTemplateIndexes(ctx context.Context, db dal.RDB) error {
 			Name: common.CCLogicUniqueIdxNamePrefix + "bkTemplateID_bkPropertyName",
 			Keys: bson.D{
 				{
-					common.BKTemplateID, 1,
+					Key: common.BKTemplateID, Value: 1,
 				},
 				{
-					common.BKPropertyNameField, 1,
+					Key: common.BKPropertyNameField, Value: 1,
 				},
 			},
 			Background: true,
@@ -158,7 +158,7 @@ func addObjectUniqueTemplateIndexes(ctx context.Context, db dal.RDB) error {
 			Name: common.CCLogicUniqueIdxNamePrefix + common.BKFieldID,
 			Keys: bson.D{
 				{
-					common.BKFieldID, 1,
+					Key: common.BKFieldID, Value: 1,
 				},
 			},
 			Background: true,
@@ -168,10 +168,10 @@ func addObjectUniqueTemplateIndexes(ctx context.Context, db dal.RDB) error {
 			Name: common.CCLogicIndexNamePrefix + "bkTemplateID_bkSupplierAccount",
 			Keys: bson.D{
 				{
-					common.BKTemplateID, 1,
+					Key: common.BKTemplateID, Value: 1,
 				},
 				{
-					common.BKOwnerIDField, 1,
+					Key: common.BKOwnerIDField, Value: 1,
 				},
 			},
 			Background: true,
@@ -191,10 +191,10 @@ func addObjFieldTemplateRelationIndexes(ctx context.Context, db dal.RDB) error {
 			Name: common.CCLogicUniqueIdxNamePrefix + "bkTemplateID_objectID",
 			Keys: bson.D{
 				{
-					common.BKTemplateID, 1,
+					Key: common.BKTemplateID, Value: 1,
 				},
 				{
-					common.ObjectIDField, 1,
+					Key: common.ObjectIDField, Value: 1,
 				},
 			},
 			Background: true,
@@ -204,10 +204,10 @@ func addObjFieldTemplateRelationIndexes(ctx context.Context, db dal.RDB) error {
 			Name: common.CCLogicIndexNamePrefix + "objectID_bkSupplierAccount",
 			Keys: bson.D{
 				{
-					common.ObjectIDField, 1,
+					Key: common.ObjectIDField, Value: 1,
 				},
 				{
-					common.BKOwnerIDField, 1,
+					Key: common.BKOwnerIDField, Value: 1,
 				},
 			},
 			Background: true,

@@ -176,8 +176,8 @@ func addProcUniqueIndex(ctx context.Context, db dal.RDB, conf *upgrader.Config) 
 		{
 			Name: common.CCLogicUniqueIdxNamePrefix + "svcInstID_bkProcName",
 			Keys: bson.D{
-				{common.BKServiceInstanceIDField, 1},
-				{common.BKProcessNameField, 1},
+				{Key: common.BKServiceInstanceIDField, Value: 1},
+				{Key: common.BKProcessNameField, Value: 1},
 			},
 			Unique:     true,
 			Background: true,
@@ -189,9 +189,9 @@ func addProcUniqueIndex(ctx context.Context, db dal.RDB, conf *upgrader.Config) 
 		{
 			Name: common.CCLogicUniqueIdxNamePrefix + "svcInstID_bkFuncName_bkStartParamRegex",
 			Keys: bson.D{
-				{common.BKServiceInstanceIDField, 1},
-				{common.BKFuncName, 1},
-				{common.BKStartParamRegex, 1},
+				{Key: common.BKServiceInstanceIDField, Value: 1},
+				{Key: common.BKFuncName, Value: 1},
+				{Key: common.BKStartParamRegex, Value: 1},
 			},
 			Unique:     true,
 			Background: true,

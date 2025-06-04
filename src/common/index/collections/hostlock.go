@@ -36,7 +36,7 @@ var deprecatedHostLockIndexes = []types.Index{
 	{
 		Name: "bk_host_id_1",
 		Keys: bson.D{{
-			"bk_host_id", 1},
+			Key: "bk_host_id", Value: 1},
 		},
 		Background: true,
 	},

@@ -46,10 +46,10 @@ func createTable(ctx context.Context, db dal.RDB, conf *upgrader.Config) (err er
 
 var tables = map[string][]types.Index{
 	common.BKTableNameDynamicGroup: {
-		types.Index{Name: "", Keys: bson.D{{common.BKFieldID, 1}}, Background: true, Unique: true},
-		types.Index{Name: "", Keys: bson.D{{common.BKAppIDField, 1}, {common.BKFieldID, 1}},
+		types.Index{Name: "", Keys: bson.D{{Key: common.BKFieldID, Value: 1}}, Background: true, Unique: true},
+		types.Index{Name: "", Keys: bson.D{{Key: common.BKAppIDField, Value: 1}, {Key: common.BKFieldID, Value: 1}},
 			Background: true},
-		types.Index{Name: "", Keys: bson.D{{common.BKAppIDField, 1}, {common.BKFieldName, 1}},
+		types.Index{Name: "", Keys: bson.D{{Key: common.BKAppIDField, Value: 1}, {Key: common.BKFieldName, Value: 1}},
 			Background: true, Unique: true},
 	},
 }

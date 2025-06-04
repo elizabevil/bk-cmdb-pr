@@ -57,7 +57,7 @@ func initSharedClusterIndex(ctx context.Context, db dal.RDB) error {
 		{
 			Name: common.CCLogicUniqueIdxNamePrefix + "namespace_id",
 			Keys: bson.D{
-				{kubetypes.BKNamespaceIDField, 1},
+				{Key: kubetypes.BKNamespaceIDField, Value: 1},
 			},
 			Background: true,
 			Unique:     true,
@@ -65,14 +65,14 @@ func initSharedClusterIndex(ctx context.Context, db dal.RDB) error {
 		{
 			Name: common.CCLogicIndexNamePrefix + "biz_id",
 			Keys: bson.D{
-				{kubetypes.BKBizIDField, 1},
+				{Key: kubetypes.BKBizIDField, Value: 1},
 			},
 			Background: true,
 		},
 		{
 			Name: common.CCLogicIndexNamePrefix + "asst_biz_id",
 			Keys: bson.D{
-				{kubetypes.BKAsstBizIDField, 1},
+				{Key: kubetypes.BKAsstBizIDField, Value: 1},
 			},
 			Background: true,
 		},
@@ -110,24 +110,24 @@ var (
 			{
 				Name: common.CCLogicIndexNamePrefix + "cluster_uid",
 				Keys: bson.D{
-					{kubetypes.ClusterUIDField, 1},
-					{common.BkSupplierAccount, 1},
+					{Key: kubetypes.ClusterUIDField, Value: 1},
+					{Key: common.BkSupplierAccount, Value: 1},
 				},
 				Background: true,
 			},
 			{
 				Name: common.CCLogicIndexNamePrefix + "cluster_id",
 				Keys: bson.D{
-					{kubetypes.BKClusterIDFiled, 1},
-					{common.BkSupplierAccount, 1},
+					{Key: kubetypes.BKClusterIDFiled, Value: 1},
+					{Key: common.BkSupplierAccount, Value: 1},
 				},
 				Background: true,
 			},
 			{
 				Name: common.CCLogicIndexNamePrefix + "name",
 				Keys: bson.D{
-					{common.BKFieldName, 1},
-					{common.BkSupplierAccount, 1},
+					{Key: common.BKFieldName, Value: 1},
+					{Key: common.BkSupplierAccount, Value: 1},
 				},
 				Background: true,
 			},
@@ -136,42 +136,42 @@ var (
 			{
 				Name: common.CCLogicIndexNamePrefix + "reference_name_reference_kind",
 				Keys: bson.D{
-					{kubetypes.RefNameField, 1},
-					{kubetypes.RefIDField, 1},
-					{common.BkSupplierAccount, 1},
+					{Key: kubetypes.RefNameField, Value: 1},
+					{Key: kubetypes.RefIDField, Value: 1},
+					{Key: common.BkSupplierAccount, Value: 1},
 				},
 				Background: true,
 			},
 			{
 				Name: common.CCLogicIndexNamePrefix + "cluster_id",
 				Keys: bson.D{
-					{kubetypes.BKClusterIDFiled, 1},
-					{common.BkSupplierAccount, 1},
+					{Key: kubetypes.BKClusterIDFiled, Value: 1},
+					{Key: common.BkSupplierAccount, Value: 1},
 				},
 				Background: true,
 			},
 			{
 				Name: common.CCLogicIndexNamePrefix + "cluster_uid",
 				Keys: bson.D{
-					{kubetypes.ClusterUIDField, 1},
-					{common.BkSupplierAccount, 1},
+					{Key: kubetypes.ClusterUIDField, Value: 1},
+					{Key: common.BkSupplierAccount, Value: 1},
 				},
 				Background: true,
 			},
 			{
 				Name: common.CCLogicIndexNamePrefix + "reference_id_reference_kind",
 				Keys: bson.D{
-					{kubetypes.RefIDField, 1},
-					{kubetypes.RefKindField, 1},
-					{common.BkSupplierAccount, 1},
+					{Key: kubetypes.RefIDField, Value: 1},
+					{Key: kubetypes.RefKindField, Value: 1},
+					{Key: common.BkSupplierAccount, Value: 1},
 				},
 				Background: true,
 			},
 			{
 				Name: common.CCLogicIndexNamePrefix + "name",
 				Keys: bson.D{
-					{common.BKFieldName, 1},
-					{common.BkSupplierAccount, 1},
+					{Key: common.BKFieldName, Value: 1},
+					{Key: common.BkSupplierAccount, Value: 1},
 				},
 				Background: true,
 			},
@@ -195,24 +195,24 @@ func updateBizRelatedIndex(ctx context.Context, db dal.RDB) error {
 			{
 				Name: common.CCLogicIndexNamePrefix + "cluster_uid",
 				Keys: bson.D{
-					{kubetypes.ClusterUIDField, 1},
-					{common.BkSupplierAccount, 1},
+					{Key: kubetypes.ClusterUIDField, Value: 1},
+					{Key: common.BkSupplierAccount, Value: 1},
 				},
 				Background: true,
 			},
 			{
 				Name: common.CCLogicIndexNamePrefix + "cluster_id",
 				Keys: bson.D{
-					{kubetypes.BKClusterIDFiled, 1},
-					{common.BkSupplierAccount, 1},
+					{Key: kubetypes.BKClusterIDFiled, Value: 1},
+					{Key: common.BkSupplierAccount, Value: 1},
 				},
 				Background: true,
 			},
 			{
 				Name: common.CCLogicIndexNamePrefix + "name",
 				Keys: bson.D{
-					{common.BKFieldName, 1},
-					{common.BkSupplierAccount, 1},
+					{Key: common.BKFieldName, Value: 1},
+					{Key: common.BkSupplierAccount, Value: 1},
 				},
 				Background: true,
 			},

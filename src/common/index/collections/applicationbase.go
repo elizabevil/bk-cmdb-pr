@@ -27,7 +27,7 @@ func init() {
 
 }
 
-//  新加和修改后的索引,索引名字一定要用对应的前缀，CCLogicUniqueIdxNamePrefix|common.CCLogicIndexNamePrefix
+// 新加和修改后的索引,索引名字一定要用对应的前缀，CCLogicUniqueIdxNamePrefix|common.CCLogicIndexNamePrefix
 var commApplicationBaseIndexes = []types.Index{}
 
 // deprecated 未规范化前的索引，只允许删除不允许新加和修改，
@@ -35,30 +35,30 @@ var deprecatedApplicationBaseIndexes = []types.Index{
 	{
 		Name: "default_1",
 		Keys: bson.D{{
-			"default", 1},
+			Key: "default", Value: 1},
 		},
 		Background: true,
 	},
 	{
 		Name: "bk_biz_id_1_bk_supplier_account_1",
 		Keys: bson.D{
-			{"bk_biz_id", 1},
-			{"bk_supplier_account", 1},
+			{Key: "bk_biz_id", Value: 1},
+			{Key: "bk_supplier_account", Value: 1},
 		},
 		Background: true,
 	},
 	{
 		Name: "default_1_bk_supplier_account_1",
 		Keys: bson.D{
-			{"default", 1},
-			{"bk_supplier_account", 1},
+			{Key: "default", Value: 1},
+			{Key: "bk_supplier_account", Value: 1},
 		},
 		Background: true,
 	},
 	{
 		Name: "idx_unique_bizID",
 		Keys: bson.D{
-			{"bk_biz_id", 1},
+			{Key: "bk_biz_id", Value: 1},
 		},
 		Unique:     true,
 		Background: true,

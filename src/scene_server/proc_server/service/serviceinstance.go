@@ -2432,7 +2432,7 @@ func (ps *ProcServer) updateProcessInstance(kit *rest.Kit, serviceTemplateId int
 			pipeline <- true
 			wg.Add(1)
 
-			go func(process *metadata.Process, host map[string]interface{}) {
+			go func(process *metadata.Process, serviceInstanceID int64, host map[string]interface{}) {
 				defer func() {
 					wg.Done()
 					<-pipeline
@@ -2474,7 +2474,7 @@ func (ps *ProcServer) updateProcessInstance(kit *rest.Kit, serviceTemplateId int
 					}
 					return
 				}
-			}(process, serviceInst.hostMap[serviceInst.serviceInstance2HostMap[serviceInstanceID]])
+			}(process, serviceInstanceID, serviceInst.hostMap[serviceInst.serviceInstance2HostMap[serviceInstanceID]])
 		}
 	}
 

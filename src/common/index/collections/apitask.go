@@ -28,7 +28,8 @@ func init() {
 }
 
 // TODO:
-//  新加和修改后的索引,索引名字一定要用对应的前缀，CCLogicUniqueIdxNamePrefix|common.CCLogicIndexNamePrefix
+//
+//	新加和修改后的索引,索引名字一定要用对应的前缀，CCLogicUniqueIdxNamePrefix|common.CCLogicIndexNamePrefix
 var commAPITaskIndexes = []types.Index{}
 
 // deprecated 未规范化前的索引，只允许删除不允许新加和修改，
@@ -36,7 +37,7 @@ var deprecatedAPITaskIndexes = []types.Index{
 	{
 		Name: "idx_taskID",
 		Keys: bson.D{{
-			"task_id", 1},
+			Key: "task_id", Value: 1},
 		},
 		Unique:     true,
 		Background: true,
@@ -44,26 +45,26 @@ var deprecatedAPITaskIndexes = []types.Index{
 	{
 		Name: "idx_name_status_createTime",
 		Keys: bson.D{
-			{"create_time", 1},
-			{"name", 1},
-			{"status", 1},
+			{Key: "create_time", Value: 1},
+			{Key: "name", Value: 1},
+			{Key: "status", Value: 1},
 		},
 		Background: true,
 	},
 	{
 		Name: "idx_status_lastTime",
 		Keys: bson.D{
-			{"status", 1},
-			{"last_time", 1},
+			{Key: "status", Value: 1},
+			{Key: "last_time", Value: 1},
 		},
 		Background: true,
 	},
 	{
 		Name: "idx_name_flag_createTime",
 		Keys: bson.D{
-			{"name", 1},
-			{"flag", 1},
-			{"create_time", 1},
+			{Key: "name", Value: 1},
+			{Key: "flag", Value: 1},
+			{Key: "create_time", Value: 1},
 		},
 		Background: true,
 	},

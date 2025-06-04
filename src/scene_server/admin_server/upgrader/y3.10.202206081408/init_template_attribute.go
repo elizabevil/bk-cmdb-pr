@@ -49,7 +49,7 @@ func initTemplateAttribute(ctx context.Context, db dal.RDB, tableName, templateI
 		{
 			Keys: bson.D{
 				{
-					common.BKFieldID, 1,
+					Key: common.BKFieldID, Value: 1,
 				},
 			},
 			Name:       common.CCLogicUniqueIdxNamePrefix + common.BKFieldID,
@@ -59,13 +59,13 @@ func initTemplateAttribute(ctx context.Context, db dal.RDB, tableName, templateI
 		{
 			Keys: bson.D{
 				{
-					common.BKAppIDField, 1,
+					Key: common.BKAppIDField, Value: 1,
 				},
 				{
-					templateIDField, 1,
+					Key: templateIDField, Value: 1,
 				},
 				{
-					common.BKAttributeIDField, 1,
+					Key: common.BKAttributeIDField, Value: 1,
 				},
 			},
 			Name: common.CCLogicUniqueIdxNamePrefix + common.BKAppIDField + "_" + templateIDField + "_" +

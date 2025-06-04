@@ -163,7 +163,7 @@ func (c *consumerGroupHandler) ConsumeClaim(sess sarama.ConsumerGroupSession, cl
 		sess.MarkMessage(lastMessage, "")
 		sess.Commit()
 	}
-	return nil
+
 }
 
 func (c *consumerGroupHandler) readMessage(claim sarama.ConsumerGroupClaim) ([]string, *sarama.ConsumerMessage) {
@@ -285,7 +285,7 @@ func (k *KafkaPorter) Run() error {
 			return err
 		}
 	}
-	return nil
+
 }
 
 // Mock mock analyzer

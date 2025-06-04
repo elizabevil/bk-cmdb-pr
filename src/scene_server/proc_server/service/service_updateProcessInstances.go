@@ -223,7 +223,8 @@ func (ps *ProcServer) batchUpdateProcessInstances(kit *rest.Kit, dataMap map[int
 			}()
 			err := ps.Logic.UpdateProcessInstance(kit, processID, processData)
 			if err != nil {
-				blog.Errorf("UpdateProcessInstance failed, ID: %d, data: %+v, err: %v, rid: %s", processID, processData, err, kit.Rid)
+				blog.Errorf("UpdateProcessInstance failed, ID: %d, data: %+v, err: %v, rid: %s",
+					processID, processData, err, kit.Rid)
 				firstErr.CompareAndSwap(nil, err)
 			}
 		}(pid, data)

@@ -36,38 +36,38 @@ var deprecatedAuditLogIndexes = []types.Index{
 	{
 		Name: "index_id",
 		Keys: bson.D{{
-			"id", 1},
+			Key: "id", Value: 1},
 		},
 		Background: true,
 	},
 	{
 		Name: "index_operationTime",
 		Keys: bson.D{{
-			"operation_time", 1},
+			Key: "operation_time", Value: 1},
 		},
 		Background: true,
 	},
 	{
 		Name: "index_user",
 		Keys: bson.D{{
-			"user", 1},
+			Key: "user", Value: 1},
 		},
 		Background: true,
 	},
 	{
 		Name: "index_resourceName",
 		Keys: bson.D{{
-			"resource_name", 1},
+			Key: "resource_name", Value: 1},
 		},
 		Background: true,
 	},
 	{
 		Name: "index_operationTime_auditType_resourceType_action",
 		Keys: bson.D{
-			{"audit_type", 1},
-			{"resource_type", 1},
-			{"action", 1},
-			{"operation_time", 1},
+			{Key: "audit_type", Value: 1},
+			{Key: "resource_type", Value: 1},
+			{Key: "action", Value: 1},
+			{Key: "operation_time", Value: 1},
 		},
 		Background: true,
 	},

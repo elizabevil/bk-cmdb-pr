@@ -36,7 +36,7 @@ var deprecatedChartPositionIndexes = []types.Index{
 	{
 		Name: "bk_biz_id",
 		Keys: bson.D{{
-			"bk_biz_id", 1},
+			Key: "bk_biz_id", Value: 1},
 		},
 		Background: true,
 	},

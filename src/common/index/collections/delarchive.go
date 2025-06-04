@@ -33,7 +33,7 @@ func init() {
 
 var commDelArchiveIndexes = []types.Index{{
 	Name:               common.CCLogicIndexNamePrefix + "time",
-	Keys:               bson.D{{"time", -1}},
+	Keys:               bson.D{{Key: "time", Value: -1}},
 	Background:         true,
 	ExpireAfterSeconds: 7 * 24 * 60 * 60,
 }}
@@ -43,15 +43,15 @@ var deprecatedDelArchiveIndexes = []types.Index{
 	{
 		Name: "oid_1",
 		Keys: bson.D{{
-			"oid", 1},
+			Key: "oid", Value: 1},
 		},
 		Background: true,
 	},
 	{
 		Name: "idx_oid_coll",
 		Keys: bson.D{
-			{"oid", 1},
-			{"coll", 1},
+			{Key: "oid", Value: 1},
+			{Key: "coll", Value: 1},
 		},
 		Unique:     true,
 		Background: true,
@@ -59,7 +59,7 @@ var deprecatedDelArchiveIndexes = []types.Index{
 	{
 		Name: "idx_coll",
 		Keys: bson.D{{
-			"coll", 1},
+			Key: "coll", Value: 1},
 		},
 		Background: true,
 	},
@@ -68,27 +68,27 @@ var deprecatedDelArchiveIndexes = []types.Index{
 var commKubeDelArchiveIndexes = []types.Index{
 	{
 		Name:               common.CCLogicIndexNamePrefix + "time",
-		Keys:               bson.D{{"time", -1}},
+		Keys:               bson.D{{Key: "time", Value: -1}},
 		Background:         true,
 		ExpireAfterSeconds: 2 * 24 * 60 * 60,
 	}, {
 		Name: common.CCLogicIndexNamePrefix + "coll_oid",
 		Keys: bson.D{
-			{"coll", 1},
-			{"oid", 1},
+			{Key: "coll", Value: 1},
+			{Key: "oid", Value: 1},
 		},
 		Unique:     true,
 		Background: true,
 	}, {
 		Name: common.CCLogicIndexNamePrefix + "coll",
 		Keys: bson.D{
-			{"coll", 1},
+			{Key: "coll", Value: 1},
 		},
 		Background: true,
 	}, {
 		Name: common.CCLogicIndexNamePrefix + "oid",
 		Keys: bson.D{
-			{"oid", 1},
+			{Key: "oid", Value: 1},
 		},
 		Background: true,
 	},

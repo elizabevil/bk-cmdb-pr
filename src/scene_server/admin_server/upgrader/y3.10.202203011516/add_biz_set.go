@@ -372,22 +372,22 @@ func addBizSetTableIndexes(ctx context.Context, db dal.RDB) error {
 	indexes := []types.Index{
 		{
 			Name:       common.CCLogicUniqueIdxNamePrefix + "biz_set_id",
-			Keys:       bson.D{{common.BKBizSetIDField, 1}},
+			Keys:       bson.D{{Key: common.BKBizSetIDField, Value: 1}},
 			Background: true,
 			Unique:     true,
 		},
 		{
 			Name:       common.CCLogicUniqueIdxNamePrefix + "biz_set_name",
-			Keys:       bson.D{{common.BKBizSetNameField, 1}},
+			Keys:       bson.D{{Key: common.BKBizSetNameField, Value: 1}},
 			Unique:     true,
 			Background: true,
 		},
 		{
 			Name: common.CCLogicIndexNamePrefix + "biz_set_id_biz_set_name_owner_id",
 			Keys: bson.D{
-				{common.BKBizSetIDField, 1},
-				{common.BKBizSetNameField, 1},
-				{common.BKOwnerIDField, 1},
+				{Key: common.BKBizSetIDField, Value: 1},
+				{Key: common.BKBizSetNameField, Value: 1},
+				{Key: common.BKOwnerIDField, Value: 1},
 			},
 			Background: true,
 		},

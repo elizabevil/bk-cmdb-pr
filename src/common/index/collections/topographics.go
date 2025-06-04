@@ -36,11 +36,11 @@ var deprecatedTopoGraphicsIndexes = []types.Index{
 	{
 		Name: "scope_type_1_scope_id_1_node_type_1_bk_obj_id_1_bk_inst_id_1",
 		Keys: bson.D{
-			{"scope_type", 1},
-			{"scope_id", 1},
-			{"node_type", 1},
-			{"bk_obj_id", 1},
-			{"bk_inst_id", 1},
+			{Key: "scope_type", Value: 1},
+			{Key: "scope_id", Value: 1},
+			{Key: "node_type", Value: 1},
+			{Key: "bk_obj_id", Value: 1},
+			{Key: "bk_inst_id", Value: 1},
 		},
 		Unique:     true,
 		Background: true,

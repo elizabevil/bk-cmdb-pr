@@ -42,12 +42,12 @@ type subTaskInfo struct {
 // migrateApiTask migrate api task table to common api task sync status table
 func migrateApiTask(ctx context.Context, db dal.RDB, conf *upgrader.Config) error {
 	indexes := map[string]types.Index{
-		"idx_taskID": {Name: "idx_taskID", Keys: bson.D{{"task_id", 1}}, Background: true},
-		"idx_flag_status_createTime": {Name: "idx_flag_status_createTime", Keys: bson.D{{"flag", 1},
-			{"status", 1}, {"create_time", 1}}, Background: true},
-		"idx_lastTime_status": {Name: "idx_lastTime_status", Keys: bson.D{{"last_time", 1},
-			{"status", 1}}, Background: true},
-		"idx_lastTime": {Name: "idx_lastTime", Keys: bson.D{{"last_time", 1}}},
+		"idx_taskID": {Name: "idx_taskID", Keys: bson.D{{Key: "task_id", Value: 1}}, Background: true},
+		"idx_flag_status_createTime": {Name: "idx_flag_status_createTime", Keys: bson.D{{Key: "flag", Value: 1},
+			{Key: "status", Value: 1}, {Key: "create_time", Value: 1}}, Background: true},
+		"idx_lastTime_status": {Name: "idx_lastTime_status", Keys: bson.D{{Key: "last_time", Value: 1},
+			{Key: "status", Value: 1}}, Background: true},
+		"idx_lastTime": {Name: "idx_lastTime", Keys: bson.D{{Key: "last_time", Value: 1}}},
 	}
 
 	if err := reconcileIndexes(ctx, db, "cc_APITask", indexes); err != nil {
@@ -194,9 +194,9 @@ func migrateAPITaskSyncStatus(ctx context.Context, db dal.RDB, conf *upgrader.Co
 	}
 
 	indexes := map[string]types.Index{
-		"idx_instID_flag_createTime": {Name: "idx_instID_flag_createTime", Keys: bson.D{{"bk_inst_id", 1},
-			{"flag", 1}, {"create_time", 1}}, Background: true},
-		"idx_lastTime": {Name: "idx_lastTime", Keys: bson.D{{"last_time", 1}},
+		"idx_instID_flag_createTime": {Name: "idx_instID_flag_createTime", Keys: bson.D{{Key: "bk_inst_id", Value: 1},
+			{Key: "flag", Value: 1}, {Key: "create_time", Value: 1}}, Background: true},
+		"idx_lastTime": {Name: "idx_lastTime", Keys: bson.D{{Key: "last_time", Value: 1}},
 			ExpireAfterSeconds: 3 * 30 * 24 * 60 * 60},
 	}
 

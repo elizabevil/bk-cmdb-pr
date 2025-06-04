@@ -49,8 +49,8 @@ func addHostIndex(ctx context.Context, db dal.RDB, conf *upgrader.Config) error 
 	}
 	idx := types.Index{
 		Keys: bson.D{
-			{common.BKHostInnerIPField, 1},
-			{common.BKCloudIDField, 1},
+			{Key: common.BKHostInnerIPField, Value: 1},
+			{Key: common.BKCloudIDField, Value: 1},
 		},
 		Name:       indexName,
 		Unique:     false,

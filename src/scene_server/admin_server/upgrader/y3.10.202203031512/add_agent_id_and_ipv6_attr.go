@@ -221,8 +221,8 @@ func addHostAgentIDAndIPv6Index(ctx context.Context, db dal.RDB, conf *upgrader.
 		{
 			Name: common.CCLogicUniqueIdxNamePrefix + "bkHostInnerIPv6_bkCloudID",
 			Keys: bson.D{{
-				"bk_host_innerip_v6", 1},
-				{common.BKCloudIDField, 1},
+				Key: "bk_host_innerip_v6", Value: 1},
+				{Key: common.BKCloudIDField, Value: 1},
 			},
 			Unique:     true,
 			Background: true,

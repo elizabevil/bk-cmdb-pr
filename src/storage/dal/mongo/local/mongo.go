@@ -244,7 +244,7 @@ func (c *Mongo) updateIDGenSeqID(ctx context.Context, typ idgen.IDGenType, id ui
 func checkMongodbVersion(db string, client *mongo.Client) error {
 	serverStatus, err := client.Database(db).RunCommand(
 		context.Background(),
-		bsonx.Doc{{"serverStatus", bsonx.Int32(1)}},
+		bsonx.Doc{{Key: "serverStatus", Value: bsonx.Int32(1)}},
 	).DecodeBytes()
 	if err != nil {
 		return err
@@ -400,15 +400,15 @@ func (f *Find) Sort(sort string) types.Find {
 			if len(sortItemArr) == 2 {
 				sortDescFlag := strings.TrimSpace(sortItemArr[1])
 				if sortDescFlag == "-1" {
-					f.sort = append(f.sort, bson.E{sortKey, -1})
+					f.sort = append(f.sort, bson.E{Key: sortKey, Value: -1})
 				} else {
-					f.sort = append(f.sort, bson.E{sortKey, 1})
+					f.sort = append(f.sort, bson.E{Key: sortKey, Value: 1})
 				}
 			} else {
 				if strings.HasPrefix(sortItemArr[0], "-") {
-					f.sort = append(f.sort, bson.E{sortKey, -1})
+					f.sort = append(f.sort, bson.E{Key: sortKey, Value: -1})
 				} else {
-					f.sort = append(f.sort, bson.E{sortKey, 1})
+					f.sort = append(f.sort, bson.E{Key: sortKey, Value: 1})
 				}
 			}
 		}
@@ -943,8 +943,8 @@ func (c *Mongo) CreateTable(ctx context.Context, collName string) error {
 // RenameTable 更新集合名称
 func (c *Mongo) RenameTable(ctx context.Context, prevName, currName string) error {
 	cmd := bson.D{
-		{"renameCollection", c.dbname + "." + prevName},
-		{"to", c.dbname + "." + currName},
+		{Key: "renameCollection", Value: c.dbname + "." + prevName},
+		{Key: "to", Value: c.dbname + "." + currName},
 	}
 	return c.dbc.Database("admin").RunCommand(ctx, cmd).Err()
 }

@@ -376,7 +376,10 @@ func splitIPData(ipCond metadata.IPInfo, ipType string, rid string) (SplitIPResu
 	"bk_host_innerip_v6": {"$in": ["0000:0000:0000:0000:0000:0000:0000:1234", "......其它未直接指定管控区域的IP"]}
 }
 */
-func addExactSearchCondition(splitIPResult SplitIPResult, fieldAndCond FieldAndCondition, output map[string]interface{}, flag string) ([]map[string]interface{}, error) {
+func addExactSearchCondition(
+	splitIPResult SplitIPResult, fieldAndCond FieldAndCondition,
+	output map[string]interface{}, flag string,
+) ([]map[string]interface{}, error) {
 
 	exactOr := make([]map[string]interface{}, 0)
 

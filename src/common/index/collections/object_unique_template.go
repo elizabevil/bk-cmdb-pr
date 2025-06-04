@@ -33,7 +33,7 @@ var commObjectUniqueTemplateIndexes = []types.Index{
 		Name: common.CCLogicUniqueIdxNamePrefix + common.BKFieldID,
 		Keys: bson.D{
 			{
-				common.BKFieldID, 1,
+				Key: common.BKFieldID, Value: 1,
 			},
 		},
 		Background: true,
@@ -43,10 +43,10 @@ var commObjectUniqueTemplateIndexes = []types.Index{
 		Name: common.CCLogicIndexNamePrefix + "bkTemplateID_bkSupplierAccount",
 		Keys: bson.D{
 			{
-				common.BKTemplateID, 1,
+				Key: common.BKTemplateID, Value: 1,
 			},
 			{
-				common.BKOwnerIDField, 1,
+				Key: common.BKOwnerIDField, Value: 1,
 			},
 		},
 		Background: true,

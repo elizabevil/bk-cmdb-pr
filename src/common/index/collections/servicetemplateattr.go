@@ -32,7 +32,7 @@ var commServiceTemplateAttrIndexes = []types.Index{
 	{
 		Keys: bson.D{
 			{
-				common.BKFieldID, 1,
+				Key: common.BKFieldID, Value: 1,
 			},
 		},
 		Name:       common.CCLogicUniqueIdxNamePrefix + common.BKFieldID,
@@ -42,13 +42,13 @@ var commServiceTemplateAttrIndexes = []types.Index{
 	{
 		Keys: bson.D{
 			{
-				common.BKAppIDField, 1,
+				Key: common.BKAppIDField, Value: 1,
 			},
 			{
-				common.BKServiceTemplateIDField, 1,
+				Key: common.BKServiceTemplateIDField, Value: 1,
 			},
 			{
-				common.BKAttributeIDField, 1,
+				Key: common.BKAttributeIDField, Value: 1,
 			},
 		},
 		Name: common.CCLogicUniqueIdxNamePrefix + common.BKAppIDField + "_" + common.BKServiceTemplateIDField + "_" +

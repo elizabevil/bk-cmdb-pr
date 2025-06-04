@@ -138,7 +138,7 @@ func addContainerTableIndexes(ctx context.Context, db dal.RDB) error {
 		{
 			Name: common.CCLogicUniqueIdxNamePrefix + common.BKFieldID,
 			Keys: bson.D{
-				{common.BKFieldID, 1},
+				{Key: common.BKFieldID, Value: 1},
 			},
 			Background: true,
 			Unique:     true,
@@ -146,8 +146,8 @@ func addContainerTableIndexes(ctx context.Context, db dal.RDB) error {
 		{
 			Name: common.CCLogicUniqueIdxNamePrefix + "bk_pod_id_container_uid",
 			Keys: bson.D{
-				{kubetypes.BKPodIDField, 1},
-				{kubetypes.ContainerUIDField, 1},
+				{Key: kubetypes.BKPodIDField, Value: 1},
+				{Key: kubetypes.ContainerUIDField, Value: 1},
 			},
 			Background: true,
 			Unique:     true,
@@ -155,8 +155,8 @@ func addContainerTableIndexes(ctx context.Context, db dal.RDB) error {
 		{
 			Name: common.CCLogicIndexNamePrefix + "pod_id",
 			Keys: bson.D{
-				{kubetypes.BKPodIDField, 1},
-				{common.BkSupplierAccount, 1},
+				{Key: kubetypes.BKPodIDField, Value: 1},
+				{Key: common.BkSupplierAccount, Value: 1},
 			},
 			Background: true,
 		},
@@ -174,7 +174,7 @@ func addPodTableIndexes(ctx context.Context, db dal.RDB) error {
 		{
 			Name: common.CCLogicUniqueIdxNamePrefix + common.BKFieldID,
 			Keys: bson.D{
-				{common.BKFieldID, 1},
+				{Key: common.BKFieldID, Value: 1},
 			},
 			Background: true,
 			Unique:     true,
@@ -182,9 +182,9 @@ func addPodTableIndexes(ctx context.Context, db dal.RDB) error {
 		{
 			Name: common.CCLogicUniqueIdxNamePrefix + "bk_reference_id_reference_kind_name",
 			Keys: bson.D{
-				{kubetypes.RefIDField, 1},
-				{kubetypes.RefKindField, 1},
-				{common.BKFieldName, 1},
+				{Key: kubetypes.RefIDField, Value: 1},
+				{Key: kubetypes.RefKindField, Value: 1},
+				{Key: common.BKFieldName, Value: 1},
 			},
 			Background: true,
 			Unique:     true,
@@ -192,55 +192,55 @@ func addPodTableIndexes(ctx context.Context, db dal.RDB) error {
 		{
 			Name: common.CCLogicIndexNamePrefix + "biz_id_reference_name_reference_kind",
 			Keys: bson.D{
-				{common.BKAppIDField, 1},
-				{kubetypes.RefNameField, 1},
-				{kubetypes.RefKindField, 1},
-				{common.BkSupplierAccount, 1},
+				{Key: common.BKAppIDField, Value: 1},
+				{Key: kubetypes.RefNameField, Value: 1},
+				{Key: kubetypes.RefKindField, Value: 1},
+				{Key: common.BkSupplierAccount, Value: 1},
 			},
 			Background: true,
 		},
 		{
 			Name: common.CCLogicIndexNamePrefix + "biz_id_cluster_id",
 			Keys: bson.D{
-				{common.BKAppIDField, 1},
-				{kubetypes.BKClusterIDFiled, 1},
-				{common.BkSupplierAccount, 1},
+				{Key: common.BKAppIDField, Value: 1},
+				{Key: kubetypes.BKClusterIDFiled, Value: 1},
+				{Key: common.BkSupplierAccount, Value: 1},
 			},
 			Background: true,
 		},
 		{
 			Name: common.CCLogicIndexNamePrefix + "biz_id_namespace_id",
 			Keys: bson.D{
-				{common.BKAppIDField, 1},
-				{kubetypes.BKNamespaceIDField, 1},
-				{common.BkSupplierAccount, 1},
+				{Key: common.BKAppIDField, Value: 1},
+				{Key: kubetypes.BKNamespaceIDField, Value: 1},
+				{Key: common.BkSupplierAccount, Value: 1},
 			},
 			Background: true,
 		},
 		{
 			Name: common.CCLogicIndexNamePrefix + "reference_id_reference_kind",
 			Keys: bson.D{
-				{common.BKAppIDField, 1},
-				{kubetypes.RefIDField, 1},
-				{kubetypes.RefKindField, 1},
-				{common.BkSupplierAccount, 1},
+				{Key: common.BKAppIDField, Value: 1},
+				{Key: kubetypes.RefIDField, Value: 1},
+				{Key: kubetypes.RefKindField, Value: 1},
+				{Key: common.BkSupplierAccount, Value: 1},
 			},
 			Background: true,
 		},
 		{
 			Name: common.CCLogicIndexNamePrefix + "biz_id_name",
 			Keys: bson.D{
-				{common.BKAppIDField, 1},
-				{common.BKFieldName, 1},
-				{common.BkSupplierAccount, 1},
+				{Key: common.BKAppIDField, Value: 1},
+				{Key: common.BKFieldName, Value: 1},
+				{Key: common.BkSupplierAccount, Value: 1},
 			},
 			Background: true,
 		},
 		{
 			Name: common.CCLogicIndexNamePrefix + "bk_host_id",
 			Keys: bson.D{
-				{common.BKHostIDField, 1},
-				{common.BkSupplierAccount, 1},
+				{Key: common.BKHostIDField, Value: 1},
+				{Key: common.BkSupplierAccount, Value: 1},
 			},
 			Background: true,
 		},
@@ -258,7 +258,7 @@ func addWorkLoadTableIndexes(ctx context.Context, db dal.RDB, workLoadKind strin
 		{
 			Name: common.CCLogicUniqueIdxNamePrefix + common.BKFieldID,
 			Keys: bson.D{
-				{common.BKFieldID, 1},
+				{Key: common.BKFieldID, Value: 1},
 			},
 			Background: true,
 			Unique:     true,
@@ -266,8 +266,8 @@ func addWorkLoadTableIndexes(ctx context.Context, db dal.RDB, workLoadKind strin
 		{
 			Name: common.CCLogicUniqueIdxNamePrefix + "bk_namespace_id_name",
 			Keys: bson.D{
-				{kubetypes.BKNamespaceIDField, 1},
-				{common.BKFieldName, 1},
+				{Key: kubetypes.BKNamespaceIDField, Value: 1},
+				{Key: common.BKFieldName, Value: 1},
 			},
 			Background: true,
 			Unique:     true,
@@ -275,27 +275,27 @@ func addWorkLoadTableIndexes(ctx context.Context, db dal.RDB, workLoadKind strin
 		{
 			Name: common.CCLogicIndexNamePrefix + "biz_id_cluster_uid",
 			Keys: bson.D{
-				{common.BKAppIDField, 1},
-				{kubetypes.ClusterUIDField, 1},
-				{common.BkSupplierAccount, 1},
+				{Key: common.BKAppIDField, Value: 1},
+				{Key: kubetypes.ClusterUIDField, Value: 1},
+				{Key: common.BkSupplierAccount, Value: 1},
 			},
 			Background: true,
 		},
 		{
 			Name: common.CCLogicIndexNamePrefix + "biz_id_cluster_id",
 			Keys: bson.D{
-				{common.BKAppIDField, 1},
-				{kubetypes.BKClusterIDFiled, 1},
-				{common.BkSupplierAccount, 1},
+				{Key: common.BKAppIDField, Value: 1},
+				{Key: kubetypes.BKClusterIDFiled, Value: 1},
+				{Key: common.BkSupplierAccount, Value: 1},
 			},
 			Background: true,
 		},
 		{
 			Name: common.CCLogicIndexNamePrefix + "name",
 			Keys: bson.D{
-				{common.BKAppIDField, 1},
-				{common.BKFieldName, 1},
-				{common.BkSupplierAccount, 1},
+				{Key: common.BKAppIDField, Value: 1},
+				{Key: common.BKFieldName, Value: 1},
+				{Key: common.BkSupplierAccount, Value: 1},
 			},
 			Background: true,
 		},
@@ -312,7 +312,7 @@ func addNamespaceTableIndexes(ctx context.Context, db dal.RDB) error {
 		{
 			Name: common.CCLogicUniqueIdxNamePrefix + common.BKFieldID,
 			Keys: bson.D{
-				{common.BKFieldID, 1},
+				{Key: common.BKFieldID, Value: 1},
 			},
 			Background: true,
 			Unique:     true,
@@ -320,8 +320,8 @@ func addNamespaceTableIndexes(ctx context.Context, db dal.RDB) error {
 		{
 			Name: common.CCLogicUniqueIdxNamePrefix + "bk_cluster_id_name",
 			Keys: bson.D{
-				{kubetypes.BKClusterIDFiled, 1},
-				{common.BKFieldName, 1},
+				{Key: kubetypes.BKClusterIDFiled, Value: 1},
+				{Key: common.BKFieldName, Value: 1},
 			},
 			Background: true,
 			Unique:     true,
@@ -329,27 +329,27 @@ func addNamespaceTableIndexes(ctx context.Context, db dal.RDB) error {
 		{
 			Name: common.CCLogicIndexNamePrefix + "biz_id_cluster_uid",
 			Keys: bson.D{
-				{common.BKAppIDField, 1},
-				{kubetypes.ClusterUIDField, 1},
-				{common.BkSupplierAccount, 1},
+				{Key: common.BKAppIDField, Value: 1},
+				{Key: kubetypes.ClusterUIDField, Value: 1},
+				{Key: common.BkSupplierAccount, Value: 1},
 			},
 			Background: true,
 		},
 		{
 			Name: common.CCLogicIndexNamePrefix + "biz_id_cluster_id",
 			Keys: bson.D{
-				{common.BKAppIDField, 1},
-				{kubetypes.BKClusterIDFiled, 1},
-				{common.BkSupplierAccount, 1},
+				{Key: common.BKAppIDField, Value: 1},
+				{Key: kubetypes.BKClusterIDFiled, Value: 1},
+				{Key: common.BkSupplierAccount, Value: 1},
 			},
 			Background: true,
 		},
 		{
 			Name: common.CCLogicIndexNamePrefix + "name",
 			Keys: bson.D{
-				{common.BKAppIDField, 1},
-				{common.BKFieldName, 1},
-				{common.BkSupplierAccount, 1},
+				{Key: common.BKAppIDField, Value: 1},
+				{Key: common.BKFieldName, Value: 1},
+				{Key: common.BkSupplierAccount, Value: 1},
 			},
 			Background: true,
 		},
@@ -366,14 +366,14 @@ func addClusterTableIndexes(ctx context.Context, db dal.RDB) error {
 	indexes := []types.Index{
 		{
 			Name:       common.CCLogicUniqueIdxNamePrefix + common.BKFieldID,
-			Keys:       bson.D{{common.BKFieldID, 1}},
+			Keys:       bson.D{{Key: common.BKFieldID, Value: 1}},
 			Background: true,
 			Unique:     true,
 		},
 		{
 			Name: common.CCLogicUniqueIdxNamePrefix + "uid",
 			Keys: bson.D{
-				{kubetypes.UidField, 1},
+				{Key: kubetypes.UidField, Value: 1},
 			},
 			Background: true,
 			Unique:     true,
@@ -381,25 +381,25 @@ func addClusterTableIndexes(ctx context.Context, db dal.RDB) error {
 		{
 			Name: common.CCLogicUniqueIdxNamePrefix + "bk_biz_id_name",
 			Keys: bson.D{
-				{common.BKAppIDField, 1},
-				{common.BKFieldName, 1},
-				{common.BkSupplierAccount, 1},
+				{Key: common.BKAppIDField, Value: 1},
+				{Key: common.BKFieldName, Value: 1},
+				{Key: common.BkSupplierAccount, Value: 1},
 			},
 			Background: true,
 		},
 		{
 			Name: common.CCLogicIndexNamePrefix + common.BKAppIDField,
 			Keys: bson.D{
-				{common.BKAppIDField, 1},
-				{common.BkSupplierAccount, 1},
+				{Key: common.BKAppIDField, Value: 1},
+				{Key: common.BkSupplierAccount, Value: 1},
 			},
 			Background: true,
 		},
 		{
 			Name: common.CCLogicIndexNamePrefix + "xid",
 			Keys: bson.D{
-				{kubetypes.XidField, 1},
-				{common.BkSupplierAccount, 1},
+				{Key: kubetypes.XidField, Value: 1},
+				{Key: common.BkSupplierAccount, Value: 1},
 			},
 			Background: true,
 		},
@@ -417,7 +417,7 @@ func addNodeTableIndexes(ctx context.Context, db dal.RDB) error {
 		{
 			Name: common.CCLogicUniqueIdxNamePrefix + common.BKFieldID,
 			Keys: bson.D{
-				{common.BKFieldID, 1},
+				{Key: common.BKFieldID, Value: 1},
 			},
 			Background: true,
 			Unique:     true,
@@ -425,8 +425,8 @@ func addNodeTableIndexes(ctx context.Context, db dal.RDB) error {
 		{
 			Name: common.CCLogicUniqueIdxNamePrefix + "bk_cluster_id_name",
 			Keys: bson.D{
-				{kubetypes.BKClusterIDFiled, 1},
-				{common.BKFieldName, 1},
+				{Key: kubetypes.BKClusterIDFiled, Value: 1},
+				{Key: common.BKFieldName, Value: 1},
 			},
 			Unique:     true,
 			Background: true,
@@ -434,36 +434,36 @@ func addNodeTableIndexes(ctx context.Context, db dal.RDB) error {
 		{
 			Name: common.CCLogicIndexNamePrefix + "biz_id_cluster_uid",
 			Keys: bson.D{
-				{common.BKAppIDField, 1},
-				{kubetypes.ClusterUIDField, 1},
-				{common.BkSupplierAccount, 1},
+				{Key: common.BKAppIDField, Value: 1},
+				{Key: kubetypes.ClusterUIDField, Value: 1},
+				{Key: common.BkSupplierAccount, Value: 1},
 			},
 			Background: true,
 		},
 		{
 			Name: common.CCLogicIndexNamePrefix + "biz_id_cluster_id",
 			Keys: bson.D{
-				{common.BKAppIDField, 1},
-				{kubetypes.BKClusterIDFiled, 1},
-				{common.BkSupplierAccount, 1},
+				{Key: common.BKAppIDField, Value: 1},
+				{Key: kubetypes.BKClusterIDFiled, Value: 1},
+				{Key: common.BkSupplierAccount, Value: 1},
 			},
 			Background: true,
 		},
 		{
 			Name: common.CCLogicIndexNamePrefix + "biz_id_host_id",
 			Keys: bson.D{
-				{common.BKAppIDField, 1},
-				{common.BKHostIDField, 1},
-				{common.BkSupplierAccount, 1},
+				{Key: common.BKAppIDField, Value: 1},
+				{Key: common.BKHostIDField, Value: 1},
+				{Key: common.BkSupplierAccount, Value: 1},
 			},
 			Background: true,
 		},
 		{
 			Name: common.CCLogicIndexNamePrefix + "biz_id_name",
 			Keys: bson.D{
-				{common.BKAppIDField, 1},
-				{common.BKFieldName, 1},
-				{common.BkSupplierAccount, 1},
+				{Key: common.BKAppIDField, Value: 1},
+				{Key: common.BKFieldName, Value: 1},
+				{Key: common.BkSupplierAccount, Value: 1},
 			},
 			Background: true,
 		},

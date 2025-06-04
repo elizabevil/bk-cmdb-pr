@@ -33,14 +33,14 @@ var CreateTableOptions = []struct {
 	{
 		TableName: common.BKTableNameChartConfig,
 		TableIndex: []types.Index{
-			{Keys: bson.D{{"config_id", 1}}, Name: "config_id", Unique: true, Background: true},
-			{Name: common.BKObjIDField, Keys: bson.D{{"bk_obj_id", 1}}, Background: true},
+			{Keys: bson.D{{Key: "config_id", Value: 1}}, Name: "config_id", Unique: true, Background: true},
+			{Name: common.BKObjIDField, Keys: bson.D{{Key: "bk_obj_id", Value: 1}}, Background: true},
 		},
 	},
 	{
 		TableName: common.BKTableNameChartPosition,
 		TableIndex: []types.Index{
-			{Name: "bk_biz_id", Keys: bson.D{{"bk_biz_id", 1}}, Background: true},
+			{Name: "bk_biz_id", Keys: bson.D{{Key: "bk_biz_id", Value: 1}}, Background: true},
 		},
 	},
 	{

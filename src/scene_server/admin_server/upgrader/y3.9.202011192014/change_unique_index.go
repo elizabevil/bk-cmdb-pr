@@ -27,7 +27,7 @@ import (
 var (
 	sortFlag      = 1
 	idUniqueIndex = types.Index{
-		Keys:       bson.D{{common.BKFieldID, sortFlag}},
+		Keys:       bson.D{{Key: common.BKFieldID, Value: sortFlag}},
 		Unique:     true,
 		Background: true,
 		Name:       "idx_unique_id",
@@ -36,8 +36,8 @@ var (
 
 func changeUniqueIndex(ctx context.Context, db dal.RDB, conf *upgrader.Config) (err error) {
 	idxUniqueObjIDGroupName := types.Index{
-		Keys: bson.D{{common.BKObjIDField, sortFlag}, {common.BKAppIDField, sortFlag},
-			{common.BKPropertyGroupNameField, sortFlag}},
+		Keys: bson.D{{Key: common.BKObjIDField, Value: sortFlag}, {Key: common.BKAppIDField, Value: sortFlag},
+			{Key: common.BKPropertyGroupNameField, Value: sortFlag}},
 		Unique:     true,
 		Background: true,
 		Name:       "idx_unique_objID_groupName",

@@ -163,7 +163,7 @@ func (m *modelAttribute) save(kit *rest.Kit, attribute metadata.Attribute) (id u
 	if attribute.PropertyType == common.FieldTypeIDRule {
 		idx := types.Index{
 			Name:       common.CCLogicIndexNamePrefix + attribute.PropertyID,
-			Keys:       bson.D{{attribute.PropertyID, 1}},
+			Keys:       bson.D{{Key: attribute.PropertyID, Value: 1}},
 			Background: true,
 			Unique:     true,
 			PartialFilterExpression: map[string]interface{}{

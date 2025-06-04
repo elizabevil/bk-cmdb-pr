@@ -34,10 +34,10 @@ func addTemplateIDColumnAndIndex(ctx context.Context, db dal.RDB) error {
 		Name: common.CCLogicIndexNamePrefix + "bkTemplateID_bkSupplierAccount",
 		Keys: bson.D{
 			{
-				common.BKTemplateID, 1,
+				Key: common.BKTemplateID, Value: 1,
 			},
 			{
-				common.BKOwnerIDField, 1,
+				Key: common.BKOwnerIDField, Value: 1,
 			},
 		},
 		Background: true,

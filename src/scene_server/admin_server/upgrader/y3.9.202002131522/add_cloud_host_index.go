@@ -28,7 +28,7 @@ import (
 func addCloudHostIndex(ctx context.Context, db dal.RDB, conf *upgrader.Config) error {
 	tableName := common.BKTableNameBaseHost
 	index := types.Index{
-		Keys:       bson.D{{"bk_cloud_inst_id", 1}},
+		Keys:       bson.D{{Key: "bk_cloud_inst_id", Value: 1}},
 		Name:       "cloudInstID",
 		Unique:     false,
 		Background: true,

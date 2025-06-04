@@ -34,10 +34,10 @@ var commObjectUniqueIndexes = []types.Index{
 		Name: common.CCLogicIndexNamePrefix + "bkTemplateID_bkSupplierAccount",
 		Keys: bson.D{
 			{
-				common.BKTemplateID, 1,
+				Key: common.BKTemplateID, Value: 1,
 			},
 			{
-				common.BKOwnerIDField, 1,
+				Key: common.BKOwnerIDField, Value: 1,
 			},
 		},
 		Background: true,
@@ -49,14 +49,14 @@ var deprecatedObjectUniqueIndexes = []types.Index{
 	{
 		Name: "bk_obj_id",
 		Keys: bson.D{{
-			"bk_obj_id", 1},
+			Key: "bk_obj_id", Value: 1},
 		},
 		Background: false,
 	},
 	{
 		Name: "idx_unique_id",
 		Keys: bson.D{{
-			"id", 1},
+			Key: "id", Value: 1},
 		},
 		Unique:     true,
 		Background: true,

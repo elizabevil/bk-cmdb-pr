@@ -159,7 +159,7 @@ func addTimeField(ctx context.Context, db dal.RDB) error {
 	// add time index
 	timeIndex := types.Index{
 		Name:               common.CCLogicIndexNamePrefix + "time",
-		Keys:               bson.D{{"time", -1}},
+		Keys:               bson.D{{Key: "time", Value: -1}},
 		Background:         true,
 		ExpireAfterSeconds: 7 * 24 * 60 * 60,
 	}
@@ -205,27 +205,27 @@ func addKubeDelArchiveTable(ctx context.Context, db dal.RDB) error {
 	indexes := []types.Index{
 		{
 			Name:               common.CCLogicIndexNamePrefix + "time",
-			Keys:               bson.D{{"time", -1}},
+			Keys:               bson.D{{Key: "time", Value: -1}},
 			Background:         true,
 			ExpireAfterSeconds: 2 * 24 * 60 * 60,
 		}, {
 			Name: common.CCLogicIndexNamePrefix + "coll_oid",
 			Keys: bson.D{
-				{"coll", 1},
-				{"oid", 1},
+				{Key: "coll", Value: 1},
+				{Key: "oid", Value: 1},
 			},
 			Unique:     true,
 			Background: true,
 		}, {
 			Name: common.CCLogicIndexNamePrefix + "coll",
 			Keys: bson.D{
-				{"coll", 1},
+				{Key: "coll", Value: 1},
 			},
 			Background: true,
 		}, {
 			Name: common.CCLogicIndexNamePrefix + "oid",
 			Keys: bson.D{
-				{"oid", 1},
+				{Key: "oid", Value: 1},
 			},
 			Background: true,
 		},

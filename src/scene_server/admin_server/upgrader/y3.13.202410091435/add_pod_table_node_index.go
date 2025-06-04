@@ -33,7 +33,7 @@ func addPodTableNodeIDIndex(ctx context.Context, db dal.RDB) error {
 	nodeIDIndex := dbtypes.Index{
 		Name: common.CCLogicIndexNamePrefix + "node_id",
 		Keys: bson.D{
-			{types.BKNodeIDField, 1},
+			{Key: types.BKNodeIDField, Value: 1},
 		},
 		Background: true,
 	}

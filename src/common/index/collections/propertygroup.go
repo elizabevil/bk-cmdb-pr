@@ -36,28 +36,28 @@ var deprecatedPropertyGroupIndexes = []types.Index{
 	{
 		Name: "bk_obj_id_1",
 		Keys: bson.D{{
-			"bk_obj_id", 1},
+			Key: "bk_obj_id", Value: 1},
 		},
 		Background: true,
 	},
 	{
 		Name: "bk_supplier_account_1",
 		Keys: bson.D{{
-			"bk_supplier_account", 1},
+			Key: "bk_supplier_account", Value: 1},
 		},
 		Background: true,
 	},
 	{
 		Name: "bk_group_id_1",
 		Keys: bson.D{{
-			"bk_group_id", 1},
+			Key: "bk_group_id", Value: 1},
 		},
 		Background: true,
 	},
 	{
 		Name: "idx_unique_id",
 		Keys: bson.D{{
-			"id", 1},
+			Key: "id", Value: 1},
 		},
 		Unique:     true,
 		Background: true,
@@ -65,9 +65,9 @@ var deprecatedPropertyGroupIndexes = []types.Index{
 	{
 		Name: "idx_unique_groupName",
 		Keys: bson.D{
-			{"bk_obj_id", 1},
-			{"bk_biz_id", 1},
-			{"bk_group_name", 1},
+			{Key: "bk_obj_id", Value: 1},
+			{Key: "bk_biz_id", Value: 1},
+			{Key: "bk_group_name", Value: 1},
 		},
 		Unique:     true,
 		Background: true,
@@ -75,9 +75,9 @@ var deprecatedPropertyGroupIndexes = []types.Index{
 	{
 		Name: "idx_unique_groupId",
 		Keys: bson.D{
-			{"bk_obj_id", 1},
-			{"bk_biz_id", 1},
-			{"bk_group_id", 1},
+			{Key: "bk_obj_id", Value: 1},
+			{Key: "bk_biz_id", Value: 1},
+			{Key: "bk_group_id", Value: 1},
 		},
 		Unique:     true,
 		Background: true,

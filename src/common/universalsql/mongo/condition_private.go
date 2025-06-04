@@ -68,7 +68,8 @@ func parseConditionFromMapStr(inputCond *mongoCondition, inputKey string,
 			case reflect.String,
 				reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
 				reflect.Float32, reflect.Float64,
-				reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Bool, reflect.Slice, reflect.Struct:
+				reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64,
+				reflect.Bool, reflect.Slice, reflect.Struct:
 				// Compatible with older versions of mongodb equal syntax
 				if len(inputKey) != 0 && len(operatorKey) != 0 {
 					outputCond.Element(&Eq{Key: inputKey, Val: (&Eq{Key: operatorKey, Val: val}).ToMapStr()})

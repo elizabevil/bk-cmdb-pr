@@ -42,7 +42,7 @@ func instanceObjectIDMapping(ctx context.Context, db dal.RDB, conf *upgrader.Con
 
 	index := types.Index{
 		Name:       common.CCLogicIndexNamePrefix + "InstID",
-		Keys:       bson.D{{common.BKInstIDField, 1}},
+		Keys:       bson.D{{Key: common.BKInstIDField, Value: 1}},
 		Background: true,
 		Unique:     true,
 	}

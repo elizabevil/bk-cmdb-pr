@@ -140,15 +140,15 @@ func (s *Service) createWatchDBChainCollections(rid string) error {
 
 func (s *Service) createWatchIndexes(cursorType watch.CursorType, key event.Key, rid string) error {
 	indexes := []daltypes.Index{
-		{Name: "index_id", Keys: bson.D{{common.BKFieldID, -1}}, Background: true, Unique: true},
-		{Name: "index_cursor", Keys: bson.D{{common.BKCursorField, -1}}, Background: true, Unique: true},
-		{Name: "index_cluster_time", Keys: bson.D{{common.BKClusterTimeField, -1}}, Background: true,
+		{Name: "index_id", Keys: bson.D{{Key: common.BKFieldID, Value: -1}}, Background: true, Unique: true},
+		{Name: "index_cursor", Keys: bson.D{{Key: common.BKCursorField, Value: -1}}, Background: true, Unique: true},
+		{Name: "index_cluster_time", Keys: bson.D{{Key: common.BKClusterTimeField, Value: -1}}, Background: true,
 			ExpireAfterSeconds: dbChainTTLTime},
 	}
 
 	if cursorType == watch.ObjectBase || cursorType == watch.MainlineInstance || cursorType == watch.InstAsst {
 		subResourceIndex := daltypes.Index{
-			Name: "index_sub_resource", Keys: bson.D{{common.BKSubResourceField, 1}}, Background: true,
+			Name: "index_sub_resource", Keys: bson.D{{Key: common.BKSubResourceField, Value: 1}}, Background: true,
 		}
 		indexes = append(indexes, subResourceIndex)
 	}

@@ -28,38 +28,38 @@ var (
 		{
 			Name: common.CCLogicIndexNamePrefix + "bkObjId",
 			Keys: bson.D{
-				{"bk_obj_id", 1},
+				{Key: "bk_obj_id", Value: 1},
 			},
 			Background: true,
 		},
 		{
 			Name: common.CCLogicIndexNamePrefix + "bkSupplierAccount_bkObjID",
 			Keys: bson.D{
-				{"bk_supplier_account", 1},
-				{"bk_obj_id", 1},
+				{Key: "bk_supplier_account", Value: 1},
+				{Key: "bk_obj_id", Value: 1},
 			},
 			Background: true,
 		},
 		{
 			Name: common.CCLogicIndexNamePrefix + "bkInstId_bkSupplierAccount",
 			Keys: bson.D{
-				{"bk_inst_id", 1},
-				{"bk_supplier_account", 1},
+				{Key: "bk_inst_id", Value: 1},
+				{Key: "bk_supplier_account", Value: 1},
 			},
 			Background: true,
 		},
 		{
 			Name: common.CCLogicIndexNamePrefix + "bkInstName_bkSupplierAccount",
 			Keys: bson.D{
-				{"bk_inst_name", 1},
-				{"bk_supplier_account", 1},
+				{Key: "bk_inst_name", Value: 1},
+				{Key: "bk_supplier_account", Value: 1},
 			},
 			Background: true,
 		},
 		{
 			Name: common.CCLogicIndexNamePrefix + "bkInstId",
 			Keys: bson.D{
-				{"bk_inst_id", 1},
+				{Key: "bk_inst_id", Value: 1},
 			},
 			Background: true,
 			// 新加 2021年03月11日
@@ -71,8 +71,8 @@ var (
 		{
 			Name: common.CCLogicIndexNamePrefix + "bkInstID_bkSupplierAccount",
 			Keys: bson.D{
-				{"bk_inst_id", 1},
-				{"bk_supplier_account", 1},
+				{Key: "bk_inst_id", Value: 1},
+				{Key: "bk_supplier_account", Value: 1},
 			},
 			Background: true,
 		},
@@ -80,7 +80,7 @@ var (
 		{
 			Name: common.CCLogicUniqueIdxNamePrefix + "ID",
 			Keys: bson.D{
-				{"id", 1},
+				{Key: "id", Value: 1},
 			},
 			Background: true,
 			Unique:     true,
@@ -95,8 +95,8 @@ func MainLineInstanceUniqueIndex() []types.Index {
 		{
 			Name: common.CCLogicUniqueIdxNamePrefix + "bkParentID_bkInstName",
 			Keys: bson.D{
-				{"bk_parent_id", 1},
-				{"bk_inst_name", 1},
+				{Key: "bk_parent_id", Value: 1},
+				{Key: "bk_inst_name", Value: 1},
 			},
 			Background: false,
 			Unique:     true,
@@ -115,7 +115,7 @@ func InstanceUniqueIndex() []types.Index {
 		{
 			Name: common.CCLogicUniqueIdxNamePrefix + "bkInstName",
 			Keys: bson.D{
-				{"bk_inst_name", 1},
+				{Key: "bk_inst_name", Value: 1},
 			},
 			Background: false,
 			Unique:     true,

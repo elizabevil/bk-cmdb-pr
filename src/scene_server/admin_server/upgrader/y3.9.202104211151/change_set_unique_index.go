@@ -27,7 +27,7 @@ import (
 var (
 	sortFlag      = 1
 	idUniqueIndex = types.Index{
-		Keys:       bson.D{{common.BKFieldID, sortFlag}},
+		Keys:       bson.D{{Key: common.BKFieldID, Value: sortFlag}},
 		Unique:     true,
 		Background: true,
 		Name:       "idx_unique_id",
@@ -36,7 +36,7 @@ var (
 
 func changeSetUniqueIndex(ctx context.Context, db dal.RDB, conf *upgrader.Config) (err error) {
 	idxUniqueParentIDSetName := types.Index{
-		Keys:       bson.D{{common.BKParentIDField, sortFlag}, {common.BKSetNameField, sortFlag}},
+		Keys:       bson.D{{Key: common.BKParentIDField, Value: sortFlag}, {Key: common.BKSetNameField, Value: sortFlag}},
 		Unique:     true,
 		Background: true,
 		Name:       "idx_unique_parentID_setName",

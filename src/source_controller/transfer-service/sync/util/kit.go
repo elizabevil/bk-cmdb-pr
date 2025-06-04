@@ -44,7 +44,7 @@ func NewKit() *Kit {
 	httpheader.SetUser(header, common.CCSystemOperatorUserName)
 	httpheader.SetSupplierAccount(header, common.BKDefaultOwnerID)
 	header.Add("Content-Type", "application/json")
-
+	//TODO ?? NOT USE ctx
 	ctx := util.NewContextFromHTTPHeader(header)
 	ctx, header = util.SetReadPreference(context.Background(), header, common.SecondaryPreferredMode)
 

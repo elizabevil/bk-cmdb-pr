@@ -163,7 +163,8 @@ func newWindow() *Window {
 	if cc.IsExist("datacollection.hostsnap.timeWindow.checkIntervalHours") {
 		checkIntervalHours, _ := cc.Int("datacollection.hostsnap.timeWindow.checkIntervalHours")
 		if checkIntervalHours <= 0 {
-			blog.Errorf("checkIntervalHours val %d can not be less than or equal to 0, set the default value %d", checkIntervalHours, defaultCheckIntervalHours)
+			blog.Errorf("checkIntervalHours val %d can not be less than or equal to 0, set the default value %d",
+				checkIntervalHours, defaultCheckIntervalHours)
 			checkIntervalHours = defaultCheckIntervalHours
 		}
 		w.setWindowMinutes(windowMinutes, checkIntervalHours*60)

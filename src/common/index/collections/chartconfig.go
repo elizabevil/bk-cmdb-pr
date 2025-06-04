@@ -36,7 +36,7 @@ var deprecatedChartConfigIndexes = []types.Index{
 	{
 		Name: "config_id",
 		Keys: bson.D{{
-			"config_id", 1},
+			Key: "config_id", Value: 1},
 		},
 		Unique:     true,
 		Background: true,
@@ -44,7 +44,7 @@ var deprecatedChartConfigIndexes = []types.Index{
 	{
 		Name: "bk_obj_id",
 		Keys: bson.D{{
-			"bk_obj_id", 1},
+			Key: "bk_obj_id", Value: 1},
 		},
 		Background: true,
 	},

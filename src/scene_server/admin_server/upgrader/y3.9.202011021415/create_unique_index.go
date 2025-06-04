@@ -33,7 +33,7 @@ const (
 var (
 	sortFlag      = 1
 	idUniqueIndex = types.Index{
-		Keys:       bson.D{{common.BKFieldID, sortFlag}},
+		Keys:       bson.D{{Key: common.BKFieldID, Value: sortFlag}},
 		Unique:     true,
 		Background: true,
 		Name:       "idx_unique_id",
@@ -73,7 +73,7 @@ func buildTopoIndex(indexes map[string][]types.Index) {
 
 	indexes[common.BKTableNameBaseApp] = []types.Index{
 		{
-			Keys:       bson.D{{common.BKAppIDField, sortFlag}},
+			Keys:       bson.D{{Key: common.BKAppIDField, Value: sortFlag}},
 			Unique:     true,
 			Background: true,
 			Name:       "idx_unique_bizID",
@@ -84,9 +84,9 @@ func buildTopoIndex(indexes map[string][]types.Index) {
 		idUniqueIndex,
 		{
 			Keys: bson.D{
-				{common.BKAppIDField, sortFlag},
-				{common.BKModuleIDField, sortFlag},
-				{common.BKAttributeIDField, sortFlag},
+				{Key: common.BKAppIDField, Value: sortFlag},
+				{Key: common.BKModuleIDField, Value: sortFlag},
+				{Key: common.BKAttributeIDField, Value: sortFlag},
 			},
 			Unique:     true,
 			Background: true,
@@ -96,7 +96,7 @@ func buildTopoIndex(indexes map[string][]types.Index) {
 
 	indexes[common.BKTableNameBaseHost] = []types.Index{
 		{
-			Keys:       bson.D{{common.BKHostIDField, sortFlag}},
+			Keys:       bson.D{{Key: common.BKHostIDField, Value: sortFlag}},
 			Unique:     true,
 			Background: true,
 			Name:       "idx_unique_hostID",
@@ -110,16 +110,16 @@ func buildTopoIndex(indexes map[string][]types.Index) {
 
 	indexes[common.BKTableNameBaseModule] = []types.Index{
 		{
-			Keys:       bson.D{{common.BKModuleIDField, sortFlag}},
+			Keys:       bson.D{{Key: common.BKModuleIDField, Value: sortFlag}},
 			Unique:     true,
 			Background: true,
 			Name:       "idx_unique_moduleID",
 		},
 		{
 			Keys: bson.D{
-				{common.BKAppIDField, sortFlag},
-				{common.BKSetIDField, sortFlag},
-				{common.BKModuleNameField, sortFlag},
+				{Key: common.BKAppIDField, Value: sortFlag},
+				{Key: common.BKSetIDField, Value: sortFlag},
+				{Key: common.BKModuleNameField, Value: sortFlag},
 			},
 			Unique:     true,
 			Background: true,
@@ -130,7 +130,7 @@ func buildTopoIndex(indexes map[string][]types.Index) {
 	indexes[common.BKTableNameModuleHostConfig] = []types.Index{
 
 		{
-			Keys:       bson.D{{common.BKModuleIDField, sortFlag}, {common.BKHostIDField, sortFlag}},
+			Keys:       bson.D{{Key: common.BKModuleIDField, Value: sortFlag}, {Key: common.BKHostIDField, Value: sortFlag}},
 			Unique:     true,
 			Background: true,
 			Name:       "idx_unique_moduleID_hostID",
@@ -139,13 +139,13 @@ func buildTopoIndex(indexes map[string][]types.Index) {
 	indexes[common.BKTableNameBaseSet] = []types.Index{
 
 		{
-			Keys:       bson.D{{common.BKSetIDField, sortFlag}},
+			Keys:       bson.D{{Key: common.BKSetIDField, Value: sortFlag}},
 			Unique:     true,
 			Background: true,
 			Name:       "idx_unique_setID",
 		},
 		{
-			Keys:       bson.D{{common.BKAppIDField, sortFlag}, {common.BKSetNameField, sortFlag}},
+			Keys:       bson.D{{Key: common.BKAppIDField, Value: sortFlag}, {Key: common.BKSetNameField, Value: sortFlag}},
 			Unique:     true,
 			Background: true,
 			Name:       "idx_unique_bizID_setName",
@@ -154,7 +154,7 @@ func buildTopoIndex(indexes map[string][]types.Index) {
 	indexes[common.BKTableNameBaseProcess] = []types.Index{
 
 		{
-			Keys:       bson.D{{common.BKProcessIDField, sortFlag}},
+			Keys:       bson.D{{Key: common.BKProcessIDField, Value: sortFlag}},
 			Unique:     true,
 			Background: true,
 			Name:       "idx_unique_procID",
@@ -164,7 +164,7 @@ func buildTopoIndex(indexes map[string][]types.Index) {
 	indexes[common.BKTableNameBasePlat] = []types.Index{
 
 		{
-			Keys:       bson.D{{common.BKCloudIDField, sortFlag}},
+			Keys:       bson.D{{Key: common.BKCloudIDField, Value: sortFlag}},
 			Unique:     true,
 			Background: true,
 			Name:       "idx_unique_cloudID",
@@ -173,13 +173,13 @@ func buildTopoIndex(indexes map[string][]types.Index) {
 	indexes[common.BKTableNameProcessInstanceRelation] = []types.Index{
 
 		{
-			Keys:       bson.D{{common.BKServiceInstanceIDField, sortFlag}, {common.BKProcessIDField, sortFlag}},
+			Keys:       bson.D{{Key: common.BKServiceInstanceIDField, Value: sortFlag}, {Key: common.BKProcessIDField, Value: sortFlag}},
 			Unique:     true,
 			Background: true,
 			Name:       "idx_unique_serviceInstID_ProcID",
 		},
 		{
-			Keys:       bson.D{{common.BKProcessIDField, sortFlag}, {common.BKHostIDField, sortFlag}},
+			Keys:       bson.D{{Key: common.BKProcessIDField, Value: sortFlag}, {Key: common.BKHostIDField, Value: sortFlag}},
 			Unique:     true,
 			Background: true,
 			Name:       "idx_unique_procID_hostID",
@@ -200,7 +200,7 @@ func buildTopoTemplateIndex(indexes map[string][]types.Index) {
 	indexes[common.BKTableNameServiceTemplate] = []types.Index{
 		idUniqueIndex,
 		{
-			Keys:       bson.D{{common.BKAppIDField, sortFlag}, {common.BKFieldName, sortFlag}},
+			Keys:       bson.D{{Key: common.BKAppIDField, Value: sortFlag}, {Key: common.BKFieldName, Value: sortFlag}},
 			Unique:     true,
 			Background: true,
 			Name:       "idx_unique_bizID_name",
@@ -209,8 +209,8 @@ func buildTopoTemplateIndex(indexes map[string][]types.Index) {
 	indexes[common.BKTableNameSetServiceTemplateRelation] = []types.Index{
 		{
 			Keys: bson.D{
-				{common.BKSetTemplateIDField, sortFlag},
-				{common.BKServiceTemplateIDField, sortFlag},
+				{Key: common.BKSetTemplateIDField, Value: sortFlag},
+				{Key: common.BKServiceTemplateIDField, Value: sortFlag},
 			},
 			Unique:     true,
 			Background: true,
@@ -221,7 +221,7 @@ func buildTopoTemplateIndex(indexes map[string][]types.Index) {
 	indexes[common.BKTableNameSetTemplate] = []types.Index{
 		idUniqueIndex,
 		{
-			Keys:       bson.D{{common.BKAppIDField, sortFlag}, {common.BKFieldName, sortFlag}},
+			Keys:       bson.D{{Key: common.BKAppIDField, Value: sortFlag}, {Key: common.BKFieldName, Value: sortFlag}},
 			Unique:     true,
 			Background: true,
 			Name:       "idx_unique_bizID_name",
@@ -235,7 +235,7 @@ func buildModelIndex(indexes map[string][]types.Index) {
 	indexes[common.BKTableNameAsstDes] = []types.Index{
 		idUniqueIndex,
 		{
-			Keys:       bson.D{{common.AssociationKindIDField, sortFlag}},
+			Keys:       bson.D{{Key: common.AssociationKindIDField, Value: sortFlag}},
 			Background: true,
 			Name:       "idx_unique_asstID",
 		},
@@ -253,9 +253,9 @@ func buildModelIndex(indexes map[string][]types.Index) {
 		idUniqueIndex,
 		{
 			Keys: bson.D{
-				{common.BKObjIDField, sortFlag},
-				{common.BKPropertyIDField, sortFlag},
-				{common.BKAppIDField, sortFlag},
+				{Key: common.BKObjIDField, Value: sortFlag},
+				{Key: common.BKPropertyIDField, Value: sortFlag},
+				{Key: common.BKAppIDField, Value: sortFlag},
 			},
 			Unique:     true,
 			Background: true,
@@ -263,9 +263,9 @@ func buildModelIndex(indexes map[string][]types.Index) {
 		},
 		{
 			Keys: bson.D{
-				{common.BKObjIDField, sortFlag},
-				{common.BKPropertyNameField, sortFlag},
-				{common.BKAppIDField, sortFlag},
+				{Key: common.BKObjIDField, Value: sortFlag},
+				{Key: common.BKPropertyNameField, Value: sortFlag},
+				{Key: common.BKAppIDField, Value: sortFlag},
 			},
 			Unique:     true,
 			Background: true,
@@ -276,13 +276,13 @@ func buildModelIndex(indexes map[string][]types.Index) {
 	indexes[common.BKTableNameObjClassification] = []types.Index{
 		idUniqueIndex,
 		{
-			Keys:       bson.D{{common.BKClassificationIDField, sortFlag}},
+			Keys:       bson.D{{Key: common.BKClassificationIDField, Value: sortFlag}},
 			Unique:     true,
 			Background: true,
 			Name:       "idx_unique_classificationID",
 		},
 		{
-			Keys:       bson.D{{common.BKClassificationNameField, sortFlag}},
+			Keys:       bson.D{{Key: common.BKClassificationNameField, Value: sortFlag}},
 			Unique:     true,
 			Background: true,
 			Name:       "idx_unique_classificationName",
@@ -292,7 +292,7 @@ func buildModelIndex(indexes map[string][]types.Index) {
 	indexes[common.BKTableNameObjDes] = []types.Index{
 		idUniqueIndex,
 		{
-			Keys:       bson.D{{common.BKObjIDField, sortFlag}},
+			Keys:       bson.D{{Key: common.BKObjIDField, Value: sortFlag}},
 			Unique:     true,
 			Background: true,
 			Name:       "idx_unique_objID",
@@ -301,7 +301,7 @@ func buildModelIndex(indexes map[string][]types.Index) {
 
 	indexes[common.BKTableNameBaseInst] = []types.Index{
 		{
-			Keys:       bson.D{{common.BKInstIDField, sortFlag}},
+			Keys:       bson.D{{Key: common.BKInstIDField, Value: sortFlag}},
 			Unique:     true,
 			Background: true,
 			Name:       "idx_unique_instID",
@@ -315,15 +315,15 @@ func buildModelIndex(indexes map[string][]types.Index) {
 	indexes[common.BKTableNamePropertyGroup] = []types.Index{
 		idUniqueIndex,
 		{
-			Keys: bson.D{{common.BKObjIDField, sortFlag}, {common.BKAppIDField, sortFlag},
-				{common.BKPropertyGroupNameField, sortFlag}},
+			Keys: bson.D{{Key: common.BKObjIDField, Value: sortFlag}, {Key: common.BKAppIDField, Value: sortFlag},
+				{Key: common.BKPropertyGroupNameField, Value: sortFlag}},
 			Unique:     true,
 			Background: true,
 			Name:       "idx_unique_objID_groupName",
 		},
 		{
-			Keys: bson.D{{common.BKObjIDField, sortFlag}, {common.BKAppIDField, sortFlag},
-				{common.BKPropertyGroupIndexField, sortFlag}},
+			Keys: bson.D{{Key: common.BKObjIDField, Value: sortFlag}, {Key: common.BKAppIDField, Value: sortFlag},
+				{Key: common.BKPropertyGroupIndexField, Value: sortFlag}},
 			Unique:     true,
 			Background: true,
 			Name:       "idx_unique_objID_groupIdx",
@@ -335,8 +335,8 @@ func buildExtIndex(indexes map[string][]types.Index) {
 	indexes[common.BKTableNameServiceCategory] = []types.Index{
 		idUniqueIndex,
 		{
-			Keys: bson.D{{common.BKFieldName, sortFlag},
-				{common.BKParentIDField, sortFlag}, {common.BKAppIDField, sortFlag}},
+			Keys: bson.D{{Key: common.BKFieldName, Value: sortFlag},
+				{Key: common.BKParentIDField, Value: sortFlag}, {Key: common.BKAppIDField, Value: sortFlag}},
 			Unique:     true,
 			Background: true,
 			Name:       "idx_unique_Name_parentID_bizID",
@@ -345,13 +345,13 @@ func buildExtIndex(indexes map[string][]types.Index) {
 
 	indexes[tableNameSubscription] = []types.Index{
 		{
-			Keys:       bson.D{{subscriptionIDField, sortFlag}},
+			Keys:       bson.D{{Key: subscriptionIDField, Value: sortFlag}},
 			Unique:     true,
 			Background: true,
 			Name:       "idx_unique_subscriptionID",
 		},
 		{
-			Keys:       bson.D{{subscriptionNameField, sortFlag}},
+			Keys:       bson.D{{Key: subscriptionNameField, Value: sortFlag}},
 			Unique:     true,
 			Background: true,
 			Name:       "idx_unique_subscriptionName",

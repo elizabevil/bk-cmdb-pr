@@ -547,15 +547,15 @@ var associationDefaultIndexes = []types.Index{
 	{
 		Name: common.CCLogicIndexNamePrefix + "bkObjId_bkInstID",
 		Keys: bson.D{
-			{"bk_obj_id", 1},
-			{"bk_inst_id", 1},
+			{Key: "bk_obj_id", Value: 1},
+			{Key: "bk_inst_id", Value: 1},
 		},
 		Background: true,
 	},
 	{
 		Name: common.CCLogicUniqueIdxNamePrefix + "id",
 		Keys: bson.D{
-			{"id", 1},
+			{Key: "id", Value: 1},
 		},
 		Unique:     true,
 		Background: true,
@@ -563,16 +563,16 @@ var associationDefaultIndexes = []types.Index{
 	{
 		Name: common.CCLogicIndexNamePrefix + "bkInstId_bkObjId",
 		Keys: bson.D{
-			{"bk_inst_id", 1},
-			{"bk_obj_id", 1},
+			{Key: "bk_inst_id", Value: 1},
+			{Key: "bk_obj_id", Value: 1},
 		},
 		Background: true,
 	},
 	{
 		Name: common.CCLogicIndexNamePrefix + "bkAsstObjId_bkAsstInstId",
 		Keys: bson.D{
-			{"bk_asst_obj_id", 1},
-			{"bk_asst_inst_id", 1},
+			{Key: "bk_asst_obj_id", Value: 1},
+			{Key: "bk_asst_inst_id", Value: 1},
 		},
 		Background: true,
 	},
@@ -582,21 +582,21 @@ var instanceDefaultIndexes = []types.Index{
 	{
 		Name: common.CCLogicIndexNamePrefix + "bkObjId",
 		Keys: bson.D{
-			{"bk_obj_id", 1},
+			{Key: "bk_obj_id", Value: 1},
 		},
 		Background: true,
 	},
 	{
 		Name: common.CCLogicIndexNamePrefix + "bkSupplierAccount",
 		Keys: bson.D{
-			{"bk_supplier_account", 1},
+			{Key: "bk_supplier_account", Value: 1},
 		},
 		Background: true,
 	},
 	{
 		Name: common.CCLogicIndexNamePrefix + "bkInstId",
 		Keys: bson.D{
-			{"bk_inst_id", 1},
+			{Key: "bk_inst_id", Value: 1},
 		},
 		Background: true,
 		// 新加 2021年03月11日
@@ -605,7 +605,7 @@ var instanceDefaultIndexes = []types.Index{
 	{
 		Name: common.CCLogicIndexNamePrefix + "bkInstName",
 		Keys: bson.D{
-			{"bk_inst_name", 1},
+			{Key: "bk_inst_name", Value: 1},
 		},
 		Background: false,
 	},

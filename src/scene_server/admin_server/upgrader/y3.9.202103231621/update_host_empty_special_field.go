@@ -83,5 +83,5 @@ func updateHostEmptySpecialField(ctx context.Context, db dal.RDB, conf *upgrader
 			return nil
 		}
 	}
-	return nil
+
 }

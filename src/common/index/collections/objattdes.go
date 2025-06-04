@@ -34,10 +34,10 @@ var commObjAttDesIndexes = []types.Index{
 		Name: common.CCLogicIndexNamePrefix + "bkTemplateID_bkSupplierAccount",
 		Keys: bson.D{
 			{
-				common.BKTemplateID, 1,
+				Key: common.BKTemplateID, Value: 1,
 			},
 			{
-				common.BKOwnerIDField, 1,
+				Key: common.BKOwnerIDField, Value: 1,
 			},
 		},
 		Background: true,
@@ -49,23 +49,23 @@ var deprecatedObjAttDesIndexes = []types.Index{
 	{
 		Name: "bk_obj_id_1",
 		Keys: bson.D{{
-			"bk_obj_id", 1},
+			Key: "bk_obj_id", Value: 1},
 		},
 		Background: true,
 	},
 	{
 		Name: "bk_supplier_account_1",
 		Keys: bson.D{{
-			"bk_supplier_account", 1},
+			Key: "bk_supplier_account", Value: 1},
 		},
 		Background: true,
 	},
 	{
 		Name: "idx_unique_objID_propertyID_bizID",
 		Keys: bson.D{
-			{"bk_property_id", 1},
-			{"bk_biz_id", 1},
-			{"bk_obj_id", 1},
+			{Key: "bk_property_id", Value: 1},
+			{Key: "bk_biz_id", Value: 1},
+			{Key: "bk_obj_id", Value: 1},
 		},
 		Unique:     true,
 		Background: true,
@@ -73,7 +73,7 @@ var deprecatedObjAttDesIndexes = []types.Index{
 	{
 		Name: "idx_unique_Id",
 		Keys: bson.D{{
-			"id", 1},
+			Key: "id", Value: 1},
 		},
 		Unique:     true,
 		Background: true,

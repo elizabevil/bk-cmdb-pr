@@ -29,7 +29,7 @@ import (
 func CreateObjectIDIndex(ctx context.Context, db dal.RDB, conf *upgrader.Config) error {
 	idx := types.Index{
 		Keys: bson.D{
-			{common.BKObjIDField, 1},
+			{Key: common.BKObjIDField, Value: 1},
 		},
 		Name:       common.BKObjIDField,
 		Unique:     false,

@@ -33,10 +33,10 @@ var commModelQuoteRelationIndexes = []types.Index{
 		Name: common.CCLogicIndexNamePrefix + "destModel_bkSupplierAccount",
 		Keys: bson.D{
 			{
-				common.BKDestModelField, 1,
+				Key: common.BKDestModelField, Value: 1,
 			},
 			{
-				common.BKOwnerIDField, 1,
+				Key: common.BKOwnerIDField, Value: 1,
 			},
 		},
 		Background: true,
@@ -45,13 +45,13 @@ var commModelQuoteRelationIndexes = []types.Index{
 		Name: common.CCLogicIndexNamePrefix + "srcModel_bkPropertyID_bkSupplierAccount",
 		Keys: bson.D{
 			{
-				common.BKSrcModelField, 1,
+				Key: common.BKSrcModelField, Value: 1,
 			},
 			{
-				common.BKPropertyIDField, 1,
+				Key: common.BKPropertyIDField, Value: 1,
 			},
 			{
-				common.BKOwnerIDField, 1,
+				Key: common.BKOwnerIDField, Value: 1,
 			},
 		},
 		Background: true,
@@ -60,10 +60,10 @@ var commModelQuoteRelationIndexes = []types.Index{
 		Name: common.CCLogicIndexNamePrefix + "srcModel_bkSupplierAccount",
 		Keys: bson.D{
 			{
-				common.BKSrcModelField, 1,
+				Key: common.BKSrcModelField, Value: 1,
 			},
 			{
-				common.BKOwnerIDField, 1,
+				Key: common.BKOwnerIDField, Value: 1,
 			},
 		},
 		Background: true,

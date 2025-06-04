@@ -391,31 +391,31 @@ func addProjectTableIndexes(ctx context.Context, db dal.RDB) error {
 	indexes := []types.Index{
 		{
 			Name:       common.CCLogicUniqueIdxNamePrefix + common.BKFieldID,
-			Keys:       bson.D{{common.BKFieldID, 1}},
+			Keys:       bson.D{{Key: common.BKFieldID, Value: 1}},
 			Background: true,
 			Unique:     true,
 		},
 		{
 			Name:       common.CCLogicUniqueIdxNamePrefix + common.BKProjectIDField,
-			Keys:       bson.D{{common.BKProjectIDField, 1}},
+			Keys:       bson.D{{Key: common.BKProjectIDField, Value: 1}},
 			Background: true,
 			Unique:     true,
 		},
 		{
 			Name:       common.CCLogicUniqueIdxNamePrefix + common.BKProjectNameField,
-			Keys:       bson.D{{common.BKProjectNameField, 1}},
+			Keys:       bson.D{{Key: common.BKProjectNameField, Value: 1}},
 			Unique:     true,
 			Background: true,
 		},
 		{
 			Name:       common.CCLogicUniqueIdxNamePrefix + common.BKProjectCodeField,
-			Keys:       bson.D{{common.BKProjectCodeField, 1}},
+			Keys:       bson.D{{Key: common.BKProjectCodeField, Value: 1}},
 			Unique:     true,
 			Background: true,
 		},
 		{
 			Name:       common.CCLogicIndexNamePrefix + common.BKProjectStatusField,
-			Keys:       bson.D{{common.BKProjectStatusField, 1}},
+			Keys:       bson.D{{Key: common.BKProjectStatusField, Value: 1}},
 			Background: true,
 		},
 	}

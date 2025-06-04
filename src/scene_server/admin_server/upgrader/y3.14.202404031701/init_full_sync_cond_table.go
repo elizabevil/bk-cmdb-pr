@@ -57,7 +57,7 @@ func initFullSyncCondIndex(ctx context.Context, db dal.RDB) error {
 		{
 			Name: common.CCLogicUniqueIdxNamePrefix + fullsynccond.IDField,
 			Keys: bson.D{
-				{fullsynccond.IDField, 1},
+				{Key: fullsynccond.IDField, Value: 1},
 			},
 			Background: true,
 			Unique:     true,
@@ -65,9 +65,9 @@ func initFullSyncCondIndex(ctx context.Context, db dal.RDB) error {
 		{
 			Name: common.CCLogicUniqueIdxNamePrefix + "resource_subResource",
 			Keys: bson.D{
-				{fullsynccond.ResourceField, 1},
-				{fullsynccond.SubResField, 1},
-				{common.BkSupplierAccount, 1},
+				{Key: fullsynccond.ResourceField, Value: 1},
+				{Key: fullsynccond.SubResField, Value: 1},
+				{Key: common.BkSupplierAccount, Value: 1},
 			},
 			PartialFilterExpression: map[string]interface{}{
 				fullsynccond.IsAllField: true,

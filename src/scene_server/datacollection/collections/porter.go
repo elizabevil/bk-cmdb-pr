@@ -392,7 +392,7 @@ func (p *SimplePorter) collectLoop() error {
 	}
 
 	// should no-reach.
-	return nil
+
 }
 
 // fusing is fuse controller, it would weed out the stacked message in channel,

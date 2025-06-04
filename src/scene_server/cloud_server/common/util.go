@@ -39,7 +39,6 @@ func CovertInstState(instState string) string {
 		blog.Infof("convert to unknow state, the origin instState:%s", instState)
 		return common.BKCloudHostStatusUnknown
 	}
-	return instState
 }
 
 // NewHeader 创建云资源同步需要的header

@@ -350,8 +350,8 @@ func adjustHostUniqueIndex(ctx context.Context, db dal.RDB, conf *upgrader.Confi
 		{
 			Name: common.CCLogicUniqueIdxNamePrefix + "bkHostInnerIP_bkCloudID",
 			Keys: bson.D{
-				{common.BKHostInnerIPField, 1},
-				{common.BKCloudIDField, 1},
+				{Key: common.BKHostInnerIPField, Value: 1},
+				{Key: common.BKCloudIDField, Value: 1},
 			},
 			Unique:     true,
 			Background: true,
@@ -364,8 +364,8 @@ func adjustHostUniqueIndex(ctx context.Context, db dal.RDB, conf *upgrader.Confi
 		{
 			Name: common.CCLogicUniqueIdxNamePrefix + "bkHostInnerIPv6_bkCloudID",
 			Keys: bson.D{
-				{common.BKHostInnerIPv6Field, 1},
-				{common.BKCloudIDField, 1},
+				{Key: common.BKHostInnerIPv6Field, Value: 1},
+				{Key: common.BKCloudIDField, Value: 1},
 			},
 			Unique:     true,
 			Background: true,
@@ -378,7 +378,7 @@ func adjustHostUniqueIndex(ctx context.Context, db dal.RDB, conf *upgrader.Confi
 		{
 			Name: common.CCLogicUniqueIdxNamePrefix + "bkAgentID",
 			Keys: bson.D{
-				{common.BKAgentIDField, 1},
+				{Key: common.BKAgentIDField, Value: 1},
 			},
 			Unique:     true,
 			Background: true,

@@ -28,36 +28,36 @@ var (
 		{
 			Name: common.CCLogicIndexNamePrefix + "bkObjId_bkInstID",
 			Keys: bson.D{
-				{"bk_obj_id", 1},
-				{"bk_inst_id", 1},
+				{Key: "bk_obj_id", Value: 1},
+				{Key: "bk_inst_id", Value: 1},
 			},
 			Background: true,
 		},
 		{
 			Name:       common.CCLogicUniqueIdxNamePrefix + "id",
-			Keys:       bson.D{{"id", 1}},
+			Keys:       bson.D{{Key: "id", Value: 1}},
 			Unique:     true,
 			Background: true,
 		},
 		{
 			Name: common.CCLogicIndexNamePrefix + "bkAsstObjId_bkAsstInstId",
 			Keys: bson.D{
-				{"bk_asst_obj_id", 1},
-				{"bk_asst_inst_id", 1},
+				{Key: "bk_asst_obj_id", Value: 1},
+				{Key: "bk_asst_inst_id", Value: 1},
 			},
 			Background: true,
 		},
 		{
 			Name:       common.CCLogicIndexNamePrefix + "bkAsstID",
-			Keys:       bson.D{{"bk_asst_id", 1}},
+			Keys:       bson.D{{Key: "bk_asst_id", Value: 1}},
 			Background: true,
 		},
 		{
 			Name: common.CCLogicUniqueIdxNamePrefix + "bkInstID_bkAsstInstID_bkObjAsstID",
 			Keys: bson.D{
-				{common.BKInstIDField, 1},
-				{common.BKAsstInstIDField, 1},
-				{common.AssociationObjAsstIDField, 1},
+				{Key: common.BKInstIDField, Value: 1},
+				{Key: common.BKAsstInstIDField, Value: 1},
+				{Key: common.AssociationObjAsstIDField, Value: 1},
 			},
 			Unique:     true,
 			Background: true,

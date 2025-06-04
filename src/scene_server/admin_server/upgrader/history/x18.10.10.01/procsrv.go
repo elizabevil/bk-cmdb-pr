@@ -36,8 +36,8 @@ func addProcOpTaskTable(ctx context.Context, db dal.RDB, conf *upgrader.Config) 
 		}
 	}
 	indexs := []types.Index{
-		types.Index{Name: "idx_taskID_gseTaskID", Keys: bson.D{{common.BKTaskIDField, 1},
-			{common.BKGseOpTaskIDField, 1}}, Background: true},
+		types.Index{Name: "idx_taskID_gseTaskID", Keys: bson.D{{Key: common.BKTaskIDField, Value: 1},
+			{Key: common.BKGseOpTaskIDField, Value: 1}}, Background: true},
 	}
 	for _, index := range indexs {
 
@@ -61,12 +61,12 @@ func addProcInstanceModelTable(ctx context.Context, db dal.RDB, conf *upgrader.C
 	}
 	indexs := []types.Index{
 		types.Index{Name: "idx_bkBizID_bkSetID_bkModuleID_bkHostInstanceID", Keys: bson.D{
-			{common.BKAppIDField, 1}, {common.BKSetIDField, 1}, {common.BKModuleIDField, 1},
-			{"bk_host_instance_id", 1}}, Background: true},
-		types.Index{Name: "idx_bkBizID_bkHostID", Keys: bson.D{{common.BKAppIDField, 1},
-			{common.BKHostIDField, 1}}, Background: true},
-		types.Index{Name: "idx_bkBizID_bkProcessID", Keys: bson.D{{common.BKAppIDField, 1},
-			{common.BKProcessIDField, 1}}, Background: true},
+			{Key: common.BKAppIDField, Value: 1}, {Key: common.BKSetIDField, Value: 1}, {Key: common.BKModuleIDField, Value: 1},
+			{Key: "bk_host_instance_id", Value: 1}}, Background: true},
+		types.Index{Name: "idx_bkBizID_bkHostID", Keys: bson.D{{Key: common.BKAppIDField, Value: 1},
+			{Key: common.BKHostIDField, Value: 1}}, Background: true},
+		types.Index{Name: "idx_bkBizID_bkProcessID", Keys: bson.D{{Key: common.BKAppIDField, Value: 1},
+			{Key: common.BKProcessIDField, Value: 1}}, Background: true},
 	}
 	for _, index := range indexs {
 		if err = db.Table(tableName).CreateIndex(ctx, index); err != nil && !db.IsDuplicatedError(err) {
@@ -87,12 +87,12 @@ func addProcInstanceDetailTable(ctx context.Context, db dal.RDB, conf *upgrader.
 		}
 	}
 	indexs := []types.Index{
-		types.Index{Name: "idx_bkBizID_bkModuleID_bkProcessID", Keys: bson.D{{common.BKAppIDField, 1},
-			{common.BKModuleIDField, 1}, {common.BKProcessIDField, 1}}, Background: true},
-		types.Index{Name: "idx_bkBizID_status", Keys: bson.D{{common.BKAppIDField, 1},
-			{common.BKStatusField, 1}}, Background: true},
-		types.Index{Name: "idx_bkBizID_bkHostID", Keys: bson.D{{common.BKAppIDField, 1},
-			{common.BKHostIDField, 1}}, Background: true},
+		types.Index{Name: "idx_bkBizID_bkModuleID_bkProcessID", Keys: bson.D{{Key: common.BKAppIDField, Value: 1},
+			{Key: common.BKModuleIDField, Value: 1}, {Key: common.BKProcessIDField, Value: 1}}, Background: true},
+		types.Index{Name: "idx_bkBizID_status", Keys: bson.D{{Key: common.BKAppIDField, Value: 1},
+			{Key: common.BKStatusField, Value: 1}}, Background: true},
+		types.Index{Name: "idx_bkBizID_bkHostID", Keys: bson.D{{Key: common.BKAppIDField, Value: 1},
+			{Key: common.BKHostIDField, Value: 1}}, Background: true},
 	}
 	for _, index := range indexs {
 		if err = db.Table(tableName).CreateIndex(ctx, index); err != nil && !db.IsDuplicatedError(err) {

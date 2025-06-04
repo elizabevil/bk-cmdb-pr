@@ -28,7 +28,7 @@ import (
 func addServiceInstanceIndex(ctx context.Context, db dal.RDB, conf *upgrader.Config) error {
 	tableName := common.BKTableNameServiceInstance
 	index := types.Index{
-		Keys:       bson.D{{"bk_module_id", 1}},
+		Keys:       bson.D{{Key: "bk_module_id", Value: 1}},
 		Name:       "moduleID",
 		Unique:     false,
 		Background: true,

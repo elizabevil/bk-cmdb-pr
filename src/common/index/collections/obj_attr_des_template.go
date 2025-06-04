@@ -33,7 +33,7 @@ var commObjAttDesTemplateIndexes = []types.Index{
 		Name: common.CCLogicUniqueIdxNamePrefix + common.BKFieldID,
 		Keys: bson.D{
 			{
-				common.BKFieldID, 1,
+				Key: common.BKFieldID, Value: 1,
 			},
 		},
 		Background: true,
@@ -43,10 +43,10 @@ var commObjAttDesTemplateIndexes = []types.Index{
 		Name: common.CCLogicUniqueIdxNamePrefix + "bkTemplateID_bkPropertyID",
 		Keys: bson.D{
 			{
-				common.BKTemplateID, 1,
+				Key: common.BKTemplateID, Value: 1,
 			},
 			{
-				common.BKPropertyIDField, 1,
+				Key: common.BKPropertyIDField, Value: 1,
 			},
 		},
 		Background: true,
@@ -56,10 +56,10 @@ var commObjAttDesTemplateIndexes = []types.Index{
 		Name: common.CCLogicUniqueIdxNamePrefix + "bkTemplateID_bkPropertyName",
 		Keys: bson.D{
 			{
-				common.BKTemplateID, 1,
+				Key: common.BKTemplateID, Value: 1,
 			},
 			{
-				common.BKPropertyNameField, 1,
+				Key: common.BKPropertyNameField, Value: 1,
 			},
 		},
 		Background: true,

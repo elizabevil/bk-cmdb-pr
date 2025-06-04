@@ -36,21 +36,21 @@ var deprecatedNetcollectDeviceIndexes = []types.Index{
 	{
 		Name: "device_id_1",
 		Keys: bson.D{{
-			"device_id", 1},
+			Key: "device_id", Value: 1},
 		},
 		Background: true,
 	},
 	{
 		Name: "device_name_1",
 		Keys: bson.D{{
-			"device_name", 1},
+			Key: "device_name", Value: 1},
 		},
 		Background: true,
 	},
 	{
 		Name: "bk_supplier_account_1",
 		Keys: bson.D{{
-			"bk_supplier_account", 1},
+			Key: "bk_supplier_account", Value: 1},
 		},
 		Background: true,
 	},

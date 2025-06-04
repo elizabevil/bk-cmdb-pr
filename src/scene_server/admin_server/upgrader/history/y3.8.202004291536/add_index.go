@@ -49,12 +49,12 @@ func createIndex(ctx context.Context, db dal.RDB, tableName string, createIndexA
 func CreateServiceTemplateIndex(ctx context.Context, db dal.RDB, conf *upgrader.Config) error {
 	createIndexArr := []types.Index{
 		{
-			Keys:       bson.D{{common.BKFieldID, 1}},
+			Keys:       bson.D{{Key: common.BKFieldID, Value: 1}},
 			Name:       "idx_id",
 			Background: true,
 		},
 		{
-			Keys:       bson.D{{common.BKAppIDField, 1}},
+			Keys:       bson.D{{Key: common.BKAppIDField, Value: 1}},
 			Name:       "idx_bkBizID",
 			Background: true,
 		},
@@ -66,17 +66,17 @@ func CreateServiceTemplateIndex(ctx context.Context, db dal.RDB, conf *upgrader.
 func CreateProcessTemplateIndex(ctx context.Context, db dal.RDB, conf *upgrader.Config) error {
 	createIndexArr := []types.Index{
 		{
-			Keys:       bson.D{{common.BKServiceTemplateIDField, 1}},
+			Keys:       bson.D{{Key: common.BKServiceTemplateIDField, Value: 1}},
 			Name:       "idx_serviceTemplateID",
 			Background: true,
 		},
 		{
-			Keys:       bson.D{{common.BKFieldID, 1}},
+			Keys:       bson.D{{Key: common.BKFieldID, Value: 1}},
 			Name:       "idx_id",
 			Background: true,
 		},
 		{
-			Keys:       bson.D{{common.BKAppIDField, 1}},
+			Keys:       bson.D{{Key: common.BKAppIDField, Value: 1}},
 			Name:       "idx_bkBizID",
 			Background: true,
 		},
@@ -88,17 +88,17 @@ func CreateProcessTemplateIndex(ctx context.Context, db dal.RDB, conf *upgrader.
 func CreateServiceInstanceIndex(ctx context.Context, db dal.RDB, conf *upgrader.Config) error {
 	createIndexArr := []types.Index{
 		{
-			Keys:       bson.D{{common.BKFieldID, 1}},
+			Keys:       bson.D{{Key: common.BKFieldID, Value: 1}},
 			Name:       "idx_id",
 			Background: true,
 		},
 		{
-			Keys:       bson.D{{common.BKAppIDField, 1}},
+			Keys:       bson.D{{Key: common.BKAppIDField, Value: 1}},
 			Name:       "idx_bkBizID",
 			Background: true,
 		},
 		{
-			Keys:       bson.D{{common.BKServiceTemplateIDField, 1}},
+			Keys:       bson.D{{Key: common.BKServiceTemplateIDField, Value: 1}},
 			Name:       "idx_serviceTemplateID",
 			Background: true,
 		},
@@ -110,22 +110,22 @@ func CreateServiceInstanceIndex(ctx context.Context, db dal.RDB, conf *upgrader.
 func CreateProcessInstanceRelationIndex(ctx context.Context, db dal.RDB, conf *upgrader.Config) error {
 	createIndexArr := []types.Index{
 		{
-			Keys:       bson.D{{common.BKServiceInstanceIDField, 1}},
+			Keys:       bson.D{{Key: common.BKServiceInstanceIDField, Value: 1}},
 			Name:       "idx_bkServiceInstanceID",
 			Background: true,
 		},
 		{
-			Keys:       bson.D{{common.BKProcessTemplateIDField, 1}},
+			Keys:       bson.D{{Key: common.BKProcessTemplateIDField, Value: 1}},
 			Name:       "idx_bkProcessTemplateID",
 			Background: true,
 		},
 		{
-			Keys:       bson.D{{common.BKAppIDField, 1}},
+			Keys:       bson.D{{Key: common.BKAppIDField, Value: 1}},
 			Name:       "idx_bkBizID",
 			Background: true,
 		},
 		{
-			Keys:       bson.D{{common.BKProcessIDField, 1}},
+			Keys:       bson.D{{Key: common.BKProcessIDField, Value: 1}},
 			Name:       "idx_bkProcessID",
 			Background: true,
 		},

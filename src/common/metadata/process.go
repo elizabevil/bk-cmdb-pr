@@ -1371,64 +1371,49 @@ func (pt *ProcessTemplate) ExtractChangeInfo(i *Process, host map[string]interfa
 	if IsAsDefaultValue(t.StopCmd.AsDefaultValue) {
 		changed = processTemplateProperty(t.StopCmd.Value, i.StopCmd, process, "stop_cmd") || changed
 	}
-
 	if IsAsDefaultValue(t.RestartCmd.AsDefaultValue) {
 		changed = processTemplateProperty(t.RestartCmd.Value, i.RestartCmd, process, "restart_cmd") || changed
 	}
-
 	if IsAsDefaultValue(t.ForceStopCmd.AsDefaultValue) {
 		changed = processTemplateProperty(t.ForceStopCmd.Value, i.ForceStopCmd, process, "face_stop_cmd") || changed
 	}
-
 	if IsAsDefaultValue(t.FuncName.AsDefaultValue) {
 		changed = processTemplateProperty(t.FuncName.Value, i.FuncName, process, "bk_func_name") || changed
 	}
-
 	if IsAsDefaultValue(t.WorkPath.AsDefaultValue) {
 		changed = processTemplateProperty(t.WorkPath.Value, i.WorkPath, process, "work_path") || changed
 	}
-
 	if IsAsDefaultValue(t.ReloadCmd.AsDefaultValue) {
 		changed = processTemplateProperty(t.ReloadCmd.Value, i.ReloadCmd, process, "reload_cmd") || changed
 	}
-
 	if IsAsDefaultValue(t.ProcessName.AsDefaultValue) {
 		changed = processTemplateProperty(t.ProcessName.Value, i.ProcessName, process, "bk_process_name") || changed
 	}
-
 	if IsAsDefaultValue(t.AutoStart.AsDefaultValue) {
 		changed = processTemplateProperty(t.AutoStart.Value, i.AutoStart, process, "auto_start") || changed
 	}
-
 	if IsAsDefaultValue(t.StartCheckSecs.AsDefaultValue) {
 		changed = processTemplateProperty(t.StartCheckSecs.Value, i.StartCheckSecs, process, "bk_start_check_secs") || changed
 	}
-
 	if IsAsDefaultValue(t.StartCmd.AsDefaultValue) {
 		changed = processTemplateProperty(t.StartCmd.Value, i.StartCmd, process, "start_cmd") || changed
 	}
-
 	if IsAsDefaultValue(t.User.AsDefaultValue) {
 		changed = processTemplateProperty(t.User.Value, i.User, process, "user") || changed
 	}
-
 	if IsAsDefaultValue(t.TimeoutSeconds.AsDefaultValue) {
 		changed = processTemplateProperty(t.TimeoutSeconds.Value, i.TimeoutSeconds, process, "timeout") || changed
 	}
-
 	if IsAsDefaultValue(t.Description.AsDefaultValue) {
 		changed = processTemplateProperty(t.Description.Value, i.Description, process, "description") || changed
 	}
-
 	if IsAsDefaultValue(t.StartParamRegex.AsDefaultValue) {
 		changed = processTemplateProperty(t.StartParamRegex.Value, i.StartParamRegex, process,
 			"bk_start_param_regex") || changed
 	}
-
 	if IsAsDefaultValue(t.PidFile.AsDefaultValue) {
 		changed = processTemplateProperty(t.PidFile.Value, i.PidFile, process, "pid_file") || changed
 	}
-
 	if IsAsDefaultValue(t.Priority.AsDefaultValue) {
 		changed = processTemplateProperty(t.Priority.Value, i.Priority, process, "priority") || changed
 	}

@@ -54,33 +54,33 @@ func addContainerIndex(ctx context.Context, db dal.RDB) error {
 		{
 			Name: common.CCLogicIndexNamePrefix + "biz_id",
 			Keys: bson.D{
-				{types.BKBizIDField, 1},
-				{common.BkSupplierAccount, 1},
+				{Key: types.BKBizIDField, Value: 1},
+				{Key: common.BkSupplierAccount, Value: 1},
 			},
 			Background: true,
 		},
 		{
 			Name: common.CCLogicIndexNamePrefix + "cluster_id",
 			Keys: bson.D{
-				{types.BKClusterIDFiled, 1},
-				{common.BkSupplierAccount, 1},
+				{Key: types.BKClusterIDFiled, Value: 1},
+				{Key: common.BkSupplierAccount, Value: 1},
 			},
 			Background: true,
 		},
 		{
 			Name: common.CCLogicIndexNamePrefix + "namespace_id",
 			Keys: bson.D{
-				{types.BKNamespaceIDField, 1},
-				{common.BkSupplierAccount, 1},
+				{Key: types.BKNamespaceIDField, Value: 1},
+				{Key: common.BkSupplierAccount, Value: 1},
 			},
 			Background: true,
 		},
 		{
 			Name: common.CCLogicIndexNamePrefix + "reference_id_reference_kind",
 			Keys: bson.D{
-				{types.RefIDField, 1},
-				{types.RefKindField, 1},
-				{common.BkSupplierAccount, 1},
+				{Key: types.RefIDField, Value: 1},
+				{Key: types.RefKindField, Value: 1},
+				{Key: common.BkSupplierAccount, Value: 1},
 			},
 			Background: true,
 		},

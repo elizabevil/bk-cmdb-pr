@@ -52,24 +52,24 @@ func SetTemplateSyncStatusMigrate(ctx context.Context, db dal.RDB, conf *upgrade
 		}
 		indexArr := []types.Index{
 			{
-				Keys:       bson.D{{"task_id", 1}},
+				Keys:       bson.D{{Key: "task_id", Value: 1}},
 				Name:       "idx_taskID",
 				Unique:     taskIDUnique,
 				Background: true,
 			},
 			{
-				Keys:       bson.D{{"bk_set_id", 1}},
+				Keys:       bson.D{{Key: "bk_set_id", Value: 1}},
 				Name:       "idx_setID",
 				Unique:     setIDUnique,
 				Background: true,
 			},
 			{
-				Keys:       bson.D{{"last_time", 1}, {"create_time", 1}},
+				Keys:       bson.D{{Key: "last_time", Value: 1}, {Key: "create_time", Value: 1}},
 				Name:       "idx_createLastTime",
 				Background: true,
 			},
 			{
-				Keys:       bson.D{{"status", 1}},
+				Keys:       bson.D{{Key: "status", Value: 1}},
 				Name:       "idx_status",
 				Unique:     false,
 				Background: true,

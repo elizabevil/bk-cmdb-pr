@@ -27,14 +27,14 @@ import (
 )
 
 var oidCollIndex = types.Index{
-	Keys:       bson.D{{"oid", 1}, {"coll", 1}},
+	Keys:       bson.D{{Key: "oid", Value: 1}, {Key: "coll", Value: 1}},
 	Unique:     true,
 	Background: true,
 	Name:       "idx_oid_coll",
 }
 
 var collIndex = types.Index{
-	Keys:       bson.D{{"coll", 1}},
+	Keys:       bson.D{{Key: "coll", Value: 1}},
 	Unique:     false,
 	Background: true,
 	Name:       "idx_coll",
@@ -75,7 +75,6 @@ func delPreviousDelArchiveData(ctx context.Context, db dal.RDB, conf *upgrader.C
 		time.Sleep(time.Millisecond * 5)
 	}
 
-	return nil
 }
 
 // addDelArchiveIndex add unique index for coll and oid

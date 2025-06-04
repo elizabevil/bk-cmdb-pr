@@ -164,8 +164,8 @@ func cronInsEnumInfo(input *monstachemap.InitPluginInput) {
 			modelAttrs := make([]map[string]interface{}, 0)
 
 			modelAttrsCursor, err := input.MongoClient.Database(mongoDatabase).Collection(common.BKTableNameObjAttDes).
-				Find(context.Background(), bson.D{{common.BKObjIDField, obj},
-					{common.BKPropertyTypeField, mongoEnum}})
+				Find(context.Background(), bson.D{{Key: common.BKObjIDField, Value: obj},
+					{Key: common.BKPropertyTypeField, Value: mongoEnum}})
 			if err != nil {
 				return
 			}
@@ -704,7 +704,7 @@ func indexingModel(input *monstachemap.MapperPluginInput, output *monstachemap.M
 	model := make(map[string]interface{})
 
 	if err := input.MongoClient.Database(input.Database).Collection(common.BKTableNameObjDes).
-		FindOne(context.Background(), bson.D{{common.BKObjIDField, objectID}}).
+		FindOne(context.Background(), bson.D{{Key: common.BKObjIDField, Value: objectID}}).
 		Decode(&model); err != nil {
 		return fmt.Errorf("query model object[%s] failed, %v", objectID, err)
 	}
@@ -721,7 +721,7 @@ func indexingModel(input *monstachemap.MapperPluginInput, output *monstachemap.M
 	modelAttrs, tableAttrs := make([]map[string]interface{}, 0), make([]map[string]interface{}, 0)
 
 	modelAttrsCursor, err := input.MongoClient.Database(input.Database).Collection(common.BKTableNameObjAttDes).
-		Find(context.Background(), bson.D{{common.BKObjIDField, objectID}})
+		Find(context.Background(), bson.D{{Key: common.BKObjIDField, Value: objectID}})
 	if err != nil {
 		return fmt.Errorf("query model attributes object[%s] cursor failed, %v", objectID, err)
 	}
@@ -827,7 +827,7 @@ func initSkipBizId(input *monstachemap.InitPluginInput) error {
 
 	bizInfo := make([]bizId, 0)
 	appCursor, err := input.MongoClient.Database(mongoDatabase).Collection(common.BKTableNameBaseApp).
-		Find(context.Background(), bson.D{{common.BKDefaultField, 1}})
+		Find(context.Background(), bson.D{{Key: common.BKDefaultField, Value: 1}})
 	if err != nil {
 		return fmt.Errorf("query app database appCursor fail, err: %v", err)
 	}
@@ -1211,7 +1211,7 @@ func getEsIDByMongoID(input *monstachemap.MapperPluginInput, collection, idType 
 	doc := make(map[string]interface{}, 0)
 	err := input.MongoClient.Database(mongoDatabase).
 		Collection(collection).
-		FindOne(context.Background(), bson.D{{idType, id}}).Decode(&doc)
+		FindOne(context.Background(), bson.D{{Key: idType, Value: id}}).Decode(&doc)
 	if err != nil {
 		log.Printf("get document failed, collection: %s, id: %d, err: %v", collection, id, err)
 		return "", err
