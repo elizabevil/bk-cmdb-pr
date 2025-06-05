@@ -16,7 +16,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"os"
@@ -69,7 +69,7 @@ func runEchoServer(c *echo) error {
 }
 
 func (c *echo) echoServer(w http.ResponseWriter, r *http.Request) {
-	s, err := ioutil.ReadAll(r.Body)
+	s, err := io.ReadAll(r.Body)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "read http request failed. error: %s", err.Error())
 		return

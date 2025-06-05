@@ -16,7 +16,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"path"
 	"path/filepath"
@@ -182,7 +182,7 @@ func (cc *ConfCenter) WriteConfigure(confFilePath, key string) error {
 	}
 	defer confFile.Close()
 
-	data, err := ioutil.ReadAll(confFile)
+	data, err := io.ReadAll(confFile)
 	if err != nil {
 		blog.Errorf("fail to read all data from config file(%s), err:%s", confFilePath, err.Error())
 		return err

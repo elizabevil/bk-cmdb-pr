@@ -25,7 +25,8 @@ import (
 
 // addBKApp add bk app
 func addBKApp(ctx context.Context, db dal.RDB, conf *upgrader.Config) error {
-	if count, err := db.Table(common.BKTableNameBaseApp).Find(mapstr.MapStr{common.BKAppNameField: common.BKAppName}).Count(ctx); err != nil {
+	if count, err := db.Table(common.BKTableNameBaseApp).
+		Find(mapstr.MapStr{common.BKAppNameField: common.BKAppName}).Count(ctx); err != nil {
 		return err
 	} else if count >= 1 {
 		return nil
@@ -42,7 +43,8 @@ func addBKApp(ctx context.Context, db dal.RDB, conf *upgrader.Config) error {
 	appModelData[common.BKDefaultField] = common.DefaultFlagDefaultValue
 	filled := fillEmptyFields(appModelData, AppRow())
 	var preData map[string]interface{}
-	bizID, preData, err := upgrader.Upsert(ctx, db, common.BKTableNameBaseApp, appModelData, common.BKAppIDField, []string{common.BKAppNameField, common.BKOwnerIDField}, append(filled, common.BKAppIDField))
+	bizID, preData, err := upgrader.Upsert(ctx, db, common.BKTableNameBaseApp, appModelData, common.BKAppIDField,
+		[]string{common.BKAppNameField, common.BKOwnerIDField}, append(filled, common.BKAppIDField))
 	if err != nil {
 		blog.Error("add addBKApp error ", err.Error())
 		return err
@@ -100,7 +102,10 @@ func addBKApp(ctx context.Context, db dal.RDB, conf *upgrader.Config) error {
 	inputSetInfo[common.BKDefaultField] = common.DefaultResSetFlag
 	inputSetInfo[common.BKOwnerIDField] = conf.OwnerID
 	filled = fillEmptyFields(inputSetInfo, SetRow())
-	setID, _, err := upgrader.Upsert(ctx, db, common.BKTableNameBaseSet, inputSetInfo, common.BKSetIDField, []string{common.BKOwnerIDField, common.BKAppIDField, common.BKSetNameField}, append(filled, common.BKSetIDField))
+	setID, _, err := upgrader.Upsert(ctx, db, common.BKTableNameBaseSet, inputSetInfo, common.BKSetIDField,
+		[]string{common.BKOwnerIDField, common.BKAppIDField, common.BKSetNameField},
+		append(filled, common.BKSetIDField),
+	)
 	if err != nil {
 		blog.Error("add defaultSet error ", err.Error())
 		return err
@@ -115,7 +120,10 @@ func addBKApp(ctx context.Context, db dal.RDB, conf *upgrader.Config) error {
 	inputResModuleInfo[common.BKDefaultField] = common.DefaultResModuleFlag
 	inputResModuleInfo[common.BKOwnerIDField] = conf.OwnerID
 	filled = fillEmptyFields(inputResModuleInfo, ModuleRow())
-	_, _, err = upgrader.Upsert(ctx, db, common.BKTableNameBaseModule, inputResModuleInfo, common.BKModuleIDField, []string{common.BKOwnerIDField, common.BKModuleNameField, common.BKAppIDField, common.BKSetIDField}, append(filled, common.BKModuleIDField))
+	_, _, err = upgrader.Upsert(ctx, db, common.BKTableNameBaseModule, inputResModuleInfo, common.BKModuleIDField,
+		[]string{common.BKOwnerIDField, common.BKModuleNameField, common.BKAppIDField, common.BKSetIDField},
+		append(filled, common.BKModuleIDField),
+	)
 	if err != nil {
 		blog.Error("add defaultResModule error ", err.Error())
 		return err
@@ -129,7 +137,10 @@ func addBKApp(ctx context.Context, db dal.RDB, conf *upgrader.Config) error {
 	inputFaultModuleInfo[common.BKDefaultField] = common.DefaultFaultModuleFlag
 	inputFaultModuleInfo[common.BKOwnerIDField] = conf.OwnerID
 	filled = fillEmptyFields(inputFaultModuleInfo, ModuleRow())
-	_, _, err = upgrader.Upsert(ctx, db, common.BKTableNameBaseModule, inputFaultModuleInfo, common.BKModuleIDField, []string{common.BKOwnerIDField, common.BKModuleNameField, common.BKAppIDField, common.BKSetIDField}, append(filled, common.BKModuleIDField))
+	_, _, err = upgrader.Upsert(ctx, db, common.BKTableNameBaseModule, inputFaultModuleInfo, common.BKModuleIDField,
+		[]string{common.BKOwnerIDField, common.BKModuleNameField, common.BKAppIDField, common.BKSetIDField},
+		append(filled, common.BKModuleIDField),
+	)
 	if err != nil {
 		blog.Error("add defaultFaultModule error ", err.Error())
 		return err

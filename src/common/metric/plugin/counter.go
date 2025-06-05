@@ -102,7 +102,6 @@ func (c *counter) Set(val float64) {
 	c.locker.Lock()
 	defer c.locker.Unlock()
 	c.value = val
-	return
 }
 
 // Reset TODO
@@ -110,5 +109,4 @@ func (c *counter) Reset() {
 	c.locker.Lock()
 	defer c.locker.Unlock()
 	c.value = 0
-	return
 }

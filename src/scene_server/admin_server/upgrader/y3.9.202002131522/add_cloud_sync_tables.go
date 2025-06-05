@@ -54,7 +54,7 @@ func upsertTable(ctx context.Context, db dal.RDB, conf *upgrader.Config, tableNa
 	if err != nil {
 		return fmt.Errorf("check HasTable failed, tableName: %s, err: %+v", tableName, err)
 	}
-	if exists == false {
+	if !exists {
 		if err = db.CreateTable(ctx, tableName); err != nil && !db.IsDuplicatedError(err) {
 			return fmt.Errorf("CreateTable failed, tableName: %s, err: %+v", tableName, err)
 		}

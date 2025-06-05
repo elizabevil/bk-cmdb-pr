@@ -980,7 +980,7 @@ func (h *importInstance) getQueryHostsFilter(hostInfos map[int64]map[string]inte
 	}
 
 	filter := map[string]interface{}{
-		common.BKDBOR: append(ipCond),
+		common.BKDBOR: ipCond,
 	}
 	return filter, nil
 }

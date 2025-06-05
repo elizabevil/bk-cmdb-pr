@@ -26,7 +26,7 @@ func GetInitials(input string) string {
 	if len(input) == 0 {
 		return ""
 	}
-
+	// TODO ?? the surrounding loop is unconditionally terminated
 	for _, initials := range input {
 		pinyinResult := pinyin.SinglePinyin(initials, pinyin.NewArgs())
 		for _, p := range pinyinResult {

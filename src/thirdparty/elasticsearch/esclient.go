@@ -26,8 +26,13 @@ func NewEsClient(esConf EsConfig) (*elastic.Client, error) {
 	// on 127.0.0.1:9200. Of course you can configure your client to connect
 	// to other hosts and configure it in various other ways.
 	httpClient := &http.Client{}
-	client := &elastic.Client{}
-	var err error
+	opts := make([]elastic.ClientOptionFunc, 0, 5)
+	opts = append(opts,
+		elastic.SetURL(esConf.EsUrl),
+		elastic.SetSniff(false),
+		elastic.SetBasicAuth(esConf.EsUser, esConf.EsPassword),
+	)
+	scheme := "http"
 	if strings.HasPrefix(esConf.EsUrl, "https://") {
 		// if use https tls or else, config httpClient first
 		tr := &http.Transport{}
@@ -39,28 +44,15 @@ func NewEsClient(esConf EsConfig) (*elastic.Client, error) {
 			tr.TLSClientConfig = tlsConf
 		}
 		httpClient.Transport = tr
-		client, err = elastic.NewClient(
-			elastic.SetHttpClient(httpClient),
-			elastic.SetURL(esConf.EsUrl),
-			elastic.SetScheme("https"),
-			elastic.SetSniff(false),
-			elastic.SetBasicAuth(esConf.EsUser, esConf.EsPassword))
-		if err != nil {
-			blog.Errorf("create new es https es client error, err: %v", err)
-			return nil, err
-		}
-	} else {
-		client, err = elastic.NewClient(
-			elastic.SetHttpClient(httpClient),
-			elastic.SetURL(esConf.EsUrl),
-			elastic.SetSniff(false),
-			elastic.SetBasicAuth(esConf.EsUser, esConf.EsPassword))
-		if err != nil {
-			blog.Errorf("create new http es client error, err: %v", err)
-			return nil, err
-		}
+		scheme = "https"
+		opts = append(opts, elastic.SetScheme(scheme))
 	}
-
+	opts = append(opts, elastic.SetHttpClient(httpClient))
+	client, err := elastic.NewClient(opts...)
+	if err != nil {
+		blog.Errorf("create new es %s es client error, err: %v", scheme, err)
+		return nil, err
+	}
 	// it's amazing that we found new client result success with value nil once a time.
 	if client == nil {
 		return nil, errors.New("create es client, but it's is nil")

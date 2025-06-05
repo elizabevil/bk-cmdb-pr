@@ -77,7 +77,11 @@ func SetTemplateSyncStatusMigrate(ctx context.Context, db dal.RDB, conf *upgrade
 		}
 
 		existIndexes, err := db.Table(tableName).Indexes(ctx)
-		existIndexNames := make([]string, 0)
+		if err != nil {
+			blog.ErrorJSON("get indexes for table %s failed, err:%s", tableName, err.Error())
+			return err
+		}
+		existIndexNames := make([]string, 0, len(existIndexes))
 		for _, item := range existIndexes {
 			existIndexNames = append(existIndexNames, item.Name)
 		}

@@ -27,11 +27,21 @@ import (
 
 // VerifyRegularExpress verify regular express
 func (s *Service) VerifyRegularExpress(c *gin.Context) {
-	requestBody := new(VerifyRegularExpressRequest)
-	err := c.BindJSON(requestBody)
-
 	language := webCommon.GetLanguageByHTTPRequest(c)
 	defErr := s.CCErr.CreateDefaultCCErrorIf(language)
+
+	requestBody := new(VerifyRegularExpressRequest)
+	err := c.BindJSON(requestBody)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusOK, metadata.ResponseDataMapStr{
+			BaseResp: metadata.BaseResp{
+				Result: false,
+				Code:   common.CCErrCommParamsInvalid,
+				ErrMsg: defErr.Errorf(common.CCErrCommParamsInvalid, "Regular").Error(),
+			}},
+		)
+		return
+	}
 
 	if len(requestBody.Regular) == 0 {
 		result := metadata.ResponseDataMapStr{

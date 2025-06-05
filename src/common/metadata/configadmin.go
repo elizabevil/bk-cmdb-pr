@@ -509,25 +509,19 @@ func (b *BaseCfgItem) ValidateValueFormat() error {
 		return fmt.Errorf("value cant't be empty")
 	}
 	if b.IsExceedMaxLength() {
-		return fmt.Errorf("value length can't exceed %s", common.AttributeOptionMaxLength)
+		return fmt.Errorf("value length can't exceed %v", common.AttributeOptionMaxLength)
 	}
 	return nil
 }
 
 // IsEmpty judge whether the value is empty
 func (b *BaseCfgItem) IsEmpty() bool {
-	if strings.TrimSpace(b.Value) == "" {
-		return true
-	}
-	return false
+	return strings.TrimSpace(b.Value) == ""
 }
 
 // IsExceedMaxLength judge whether the the length of value exceed the max value
 func (b *BaseCfgItem) IsExceedMaxLength() bool {
-	if len(strings.TrimSpace(b.Value)) > common.AttributeOptionMaxLength {
-		return true
-	}
-	return false
+	return len(strings.TrimSpace(b.Value)) > common.AttributeOptionMaxLength
 }
 
 // ValidateRegex validate regex

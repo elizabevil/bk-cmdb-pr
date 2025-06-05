@@ -508,7 +508,7 @@ func (r CombinedRule) ToMgo() (mgoFilter map[string]interface{}, key string, err
 	if err := r.Condition.Validate(); err != nil {
 		return nil, "condition", err
 	}
-	if r.Rules == nil || len(r.Rules) == 0 {
+	if len(r.Rules) == 0 {
 		return nil, "rules", fmt.Errorf("combined rules shouldn't be empty")
 	}
 	filters := make([]map[string]interface{}, 0)

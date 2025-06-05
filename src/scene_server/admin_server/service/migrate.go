@@ -14,7 +14,6 @@ package service
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"path/filepath"
 	"time"
@@ -296,7 +295,7 @@ var allConfigNames = map[string]bool{
 	"all":      true,
 }
 
-var configHelpInfo = fmt.Sprintf("config_name must be one of the [redis, mongodb, common, extra, error, language, all]")
+var configHelpInfo = "config_name must be one of the [redis, mongodb, common, extra, error, language, all]"
 
 func (s *Service) refreshConfig(req *restful.Request, resp *restful.Response) {
 	rHeader := req.Request.Header

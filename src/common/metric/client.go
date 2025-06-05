@@ -105,7 +105,7 @@ func (mc *MetricController) PackMetrics() (*[]byte, error) {
 
 	for name, collector := range mc.Collectors {
 		mf.MetricBundle[name] = make([]*Metric, 0)
-		done := make(chan struct{}, 0)
+		done := make(chan struct{})
 		go func(c CollectInter) {
 			for _, mc := range c.Collect() {
 				metric, err := newMetric(mc)

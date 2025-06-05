@@ -35,7 +35,7 @@ func FixServiceInstanceMaxID(ctx context.Context, db dal.RDB, conf *upgrader.Con
 	var maxID uint64
 	idGenerator := Idgen{}
 	if err := db.Table(common.BKTableNameIDgenerator).Find(filter).One(ctx, &idGenerator); err != nil {
-		if db.IsNotFoundError(err) == false {
+		if !db.IsNotFoundError(err) {
 			return fmt.Errorf("upgrade x19_08_26_02, get service instance id generator failed, err: %v", err)
 		}
 	} else {
@@ -48,7 +48,7 @@ func FixServiceInstanceMaxID(ctx context.Context, db dal.RDB, conf *upgrader.Con
 		"_id": common.BKTableNameProcessTemplate,
 	}
 	if err := db.Table(common.BKTableNameIDgenerator).Find(processTemplateFilter).One(ctx, &idGenerator); err != nil {
-		if db.IsNotFoundError(err) == false {
+		if !db.IsNotFoundError(err) {
 			return fmt.Errorf("upgrade x19_08_26_02, get process template id generator failed, err: %v", err)
 		}
 	} else {
@@ -66,7 +66,7 @@ func FixServiceInstanceMaxID(ctx context.Context, db dal.RDB, conf *upgrader.Con
 		"SequenceID": maxID,
 	}
 	if err := db.Table(common.BKTableNameIDgenerator).Update(ctx, updateFiler, doc); err != nil {
-		if db.IsNotFoundError(err) == false {
+		if !db.IsNotFoundError(err) {
 			return fmt.Errorf("upgrade x19_08_26_02, update max id failed, err: %v", err)
 		}
 	}

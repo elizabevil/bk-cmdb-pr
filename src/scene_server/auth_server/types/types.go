@@ -80,7 +80,7 @@ func (req *PullResourceReq) UnmarshalJSON(raw []byte) error {
 	req.Type = data.Type
 	req.Method = data.Method
 	req.Page = data.Page
-	if data.Filter == nil || len(data.Filter) == 0 {
+	if len(data.Filter) == 0 {
 		return nil
 	}
 	switch data.Method {

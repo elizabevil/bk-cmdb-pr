@@ -726,6 +726,9 @@ func (m *instanceManager) validInstIDs(kit *rest.Kit, property metadata.Attribut
 	}
 
 	arrOption, err := metadata.ParseEnumQuoteOption(kit.Ctx, property.Option)
+	if err != nil {
+		return fmt.Errorf("parse enum quote option data err:%v", err)
+	}
 	if len(arrOption) == 0 {
 		return fmt.Errorf("parse enum quote option data, but is null")
 	}

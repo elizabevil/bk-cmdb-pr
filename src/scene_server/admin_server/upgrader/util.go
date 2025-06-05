@@ -48,7 +48,7 @@ func Upsert(ctx context.Context, db dal.RDB, tableName string, row interface{}, 
 	err = db.Table(tableName).Find(condition).One(ctx, &existOne)
 
 	if db.IsNotFoundError(err) {
-		if "" != idField {
+		if idField != "" {
 			instID, err = db.NextSequence(ctx, tableName)
 			if err != nil {
 				return 0, nil, err
@@ -67,7 +67,7 @@ func Upsert(ctx context.Context, db dal.RDB, tableName string, row interface{}, 
 	}
 
 	ignoreSet := map[string]bool{idField: true}
-	if "" != idField {
+	if idField != "" {
 		switch id := existOne[idField].(type) {
 		case nil:
 			return 0, nil, errors.New("there is no " + idField + " field in table " + tableName)

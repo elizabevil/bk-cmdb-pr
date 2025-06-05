@@ -378,7 +378,7 @@ func (s *Service) SearchPlatformSettingConfig(req *restful.Request, resp *restfu
 	defErr := s.CCErr.CreateDefaultCCErrorIf(httpheader.GetLanguage(rHeader))
 	typeId := req.PathParameter("type")
 
-	conf := new(metadata.PlatformSettingConfig)
+	var conf *metadata.PlatformSettingConfig
 	var err error
 	switch typeId {
 

@@ -19,7 +19,7 @@ package cmdb
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strconv"
 
@@ -50,7 +50,7 @@ func (c *cmdb) Proxy(req *http.Request, rw http.ResponseWriter) {
 	body := []byte("")
 	if req.Body != nil {
 		var err error
-		body, err = ioutil.ReadAll(req.Body)
+		body, err = io.ReadAll(req.Body)
 		if err != nil {
 			blog.Errorf("read cmdb api gateway request body failed, err: %v", err)
 			rw.Write([]byte(err.Error()))

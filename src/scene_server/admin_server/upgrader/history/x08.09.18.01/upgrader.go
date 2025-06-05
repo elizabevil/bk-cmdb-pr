@@ -99,7 +99,7 @@ func fixedHostPlatAssocateRelation(ctx context.Context, db dal.RDB, conf *upgrad
 		if nil != err {
 			return err
 		}
-		if 0 == cnt {
+		if cnt == 0 {
 			id, err := db.NextSequence(ctx, common.BKTableNameInstAsst)
 			if nil != err {
 				return err

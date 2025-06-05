@@ -58,71 +58,62 @@ func ConvParamsTime(data interface{}) interface{} {
 
 func convTimeItem(item interface{}) (interface{}, error) {
 
-	switch item.(type) {
+	switch vv := item.(type) {
 	case map[string]interface{}:
-		arrItem, ok := item.(map[string]interface{})
-		if ok {
-
-			for key, value := range arrItem {
-				var timeTypeOk = false
-				for _, convTimeKey := range convTimeFields {
-					if key == convTimeKey {
-						timeTypeOk = true
-						break
-					}
-				}
-				// 如果当前不需要转换，递归转
-				if !timeTypeOk {
-					arrItem[key], _ = convTimeItem(value)
-					continue
-				}
-
-				switch value := value.(type) {
-				case []interface{}:
-					arr := value
-					for index, tsValue := range arr {
-						ts, err := convInterfaceToTime(tsValue)
-						if err != nil {
-							continue
-						}
-						arr[index] = ts
-					}
-					arrItem[key] = arr
-				case map[string]interface{}:
-					arr := value
-					for mapKey, mapVal := range arr {
-						ts, err := convInterfaceToTime(mapVal)
-						if err != nil {
-							continue
-						}
-						arr[mapKey] = ts
-					}
-					arrItem[key] = arr
-				case string:
-					ts, err := convInterfaceToTime(value)
-					if nil == err {
-						arrItem[key] = ts
-					}
-
+		arrItem := vv
+		for key, value := range arrItem {
+			var timeTypeOk = false
+			for _, convTimeKey := range convTimeFields {
+				if key == convTimeKey {
+					timeTypeOk = true
+					break
 				}
 			}
-			item = arrItem
+			// 如果当前不需要转换，递归转
+			if !timeTypeOk {
+				arrItem[key], _ = convTimeItem(value)
+				continue
+			}
+			switch value := value.(type) {
+			case []interface{}:
+				arr := value
+				for index, tsValue := range arr {
+					ts, err := convInterfaceToTime(tsValue)
+					if err != nil {
+						continue
+					}
+					arr[index] = ts
+				}
+				arrItem[key] = arr
+			case map[string]interface{}:
+				arr := value
+				for mapKey, mapVal := range arr {
+					ts, err := convInterfaceToTime(mapVal)
+					if err != nil {
+						continue
+					}
+					arr[mapKey] = ts
+				}
+				arrItem[key] = arr
+			case string:
+				ts, err := convInterfaceToTime(value)
+				if nil == err {
+					arrItem[key] = ts
+				}
+			}
 		}
+		item = arrItem
 	case []interface{}:
 		// 如果是数据，递归转换所有子项
-		arrItem, ok := item.([]interface{})
-		if ok {
-			for index, value := range arrItem {
-				newValue, err := convTimeItem(value)
-				if err != nil {
-					return nil, err
+		for index, value := range vv {
+			newValue, err := convTimeItem(value)
+			if err != nil {
+				return nil, err
 
-				}
-				arrItem[index] = newValue
 			}
-			item = arrItem
-
+			vv[index] = newValue
 		}
+		item = vv
 	}
 
 	return item, nil

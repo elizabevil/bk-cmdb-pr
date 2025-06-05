@@ -249,7 +249,6 @@ func (s *service) authFilter(errFunc func() errors.CCErrorIf) restful.FilterFunc
 		}
 
 		fchain.ProcessFilter(req, resp)
-		return
 	}
 }
 
@@ -419,7 +418,6 @@ func (s *service) LimiterFilter() func(req *restful.Request, resp *restful.Respo
 		}
 
 		fchain.ProcessFilter(req, resp)
-		return
 	}
 }
 
@@ -436,6 +434,5 @@ func (s *service) JwtFilter() func(req *restful.Request, resp *restful.Response,
 		}
 		req.Request.Header = header
 		fchain.ProcessFilter(req, resp)
-		return
 	}
 }

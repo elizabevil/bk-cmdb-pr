@@ -122,7 +122,7 @@ func insertHostAgentIDAndIPv6Attr(ctx context.Context, db dal.RDB, attrIDs []str
 		return err
 	}
 
-	for index, _ := range toInsertAttrs {
+	for index := range toInsertAttrs {
 		toInsertAttrs[index].ID = int64(newAttrIDs[index])
 		toInsertAttrs[index].PropertyIndex = maxIdxAttr.PropertyIndex + int64(index) + 1
 	}

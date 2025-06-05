@@ -658,7 +658,6 @@ func (s *Service) GetHostApplyTaskStatus(ctx *rest.Contexts) {
 		})
 	}
 	ctx.RespEntity(result)
-	return
 }
 
 // UpdateModuleHostApplyRule update host auto-apply rules in module dimension.
@@ -1108,7 +1107,6 @@ func (s *Service) GenerateTemplateApplyPlan(ctx *rest.Contexts) {
 	}
 
 	ctx.RespEntity(result)
-	return
 }
 
 func (s *Service) generateServiceTemplateApplyPlan(kit *rest.Kit, option *metadata.HostApplyServiceTemplateOption) (

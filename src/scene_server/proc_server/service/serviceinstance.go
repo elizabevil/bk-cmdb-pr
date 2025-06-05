@@ -2554,11 +2554,6 @@ func (ps *ProcServer) createProcessForServiceInstance(kit *rest.Kit, updateSvcIn
 	auditLogs := make([]metadata.AuditLog, 0)
 	// generate update service instance audit logs
 	if len(updateSvcInst) > 0 {
-		updatedSvcInsts := make([]metadata.ServiceInstance, 0)
-		for _, svcInst := range updateSvcInst {
-			updatedSvcInsts = append(updatedSvcInsts, svcInst)
-		}
-
 		genAuditParam := auditlog.NewGenerateAuditCommonParameter(kit, metadata.AuditUpdate)
 		logs := audit.GenerateAuditLog(genAuditParam)
 		auditLogs = append(auditLogs, logs...)
@@ -2748,7 +2743,7 @@ func (ps *ProcServer) ListServiceInstancesWithHost(ctx *rest.Contexts) {
 	instances, err := ps.CoreAPI.CoreService().Process().ListServiceInstance(ctx.Kit.Ctx, ctx.Kit.Header, &option)
 	if err != nil {
 		ctx.RespWithError(err, common.CCErrProcGetServiceInstancesFailed,
-			"list service instance failed, bizID: %d, hostID: %d", input.BizID, input.HostID, err)
+			"list service instance failed, bizID: %d, hostID: %d err: %v", input.BizID, input.HostID, err)
 		return
 	}
 

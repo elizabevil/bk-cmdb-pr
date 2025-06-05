@@ -119,11 +119,7 @@ func (t *Topology) onSetChange(es []*types.Event) (retry bool) {
 	bizList = util.IntArrayUnique(bizList)
 
 	err := t.refreshBatch(bizList, rid)
-	if err != nil {
-		return true
-	}
-
-	return false
+	return err != nil
 }
 
 func (t *Topology) watchModule() error {
@@ -211,11 +207,7 @@ func (t *Topology) onModuleChange(es []*types.Event) (retry bool) {
 	bizList = util.IntArrayUnique(bizList)
 
 	err := t.refreshBatch(bizList, rid)
-	if err != nil {
-		return true
-	}
-
-	return false
+	return err != nil
 }
 
 // watchCustom watch business custom change event
@@ -328,9 +320,5 @@ func (t *Topology) onCustomChange(es []*types.Event) (retry bool) {
 	bizList = util.IntArrayUnique(bizList)
 
 	err := t.refreshBatch(bizList, rid)
-	if err != nil {
-		return true
-	}
-
-	return false
+	return err != nil
 }

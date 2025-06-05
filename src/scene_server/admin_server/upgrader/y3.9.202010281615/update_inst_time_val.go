@@ -91,7 +91,7 @@ func updateInstTimeVal(ctx context.Context, db dal.RDB, conf *upgrader.Config) e
 						continue
 					}
 					valStr, ok := val.(string)
-					if ok == false {
+					if !ok {
 						continue
 					}
 					if timeType, isTime := util.IsTime(valStr); isTime {

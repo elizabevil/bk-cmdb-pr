@@ -284,7 +284,7 @@ func (c *awsClient) newDescribeInstancesInput(opt *ccom.InstanceOpt) *ec2.Descri
 
 // setFilters 设置过滤条件
 func (c *awsClient) setFilters(dst *[]*ec2.Filter, src []*ccom.Filter) {
-	if src == nil || len(src) == 0 {
+	if len(src) == 0 {
 		return
 	}
 	if dst == nil {

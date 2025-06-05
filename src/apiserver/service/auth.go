@@ -53,7 +53,7 @@ func (s *service) AuthVerify(req *restful.Request, resp *restful.Response) {
 		SupplierAccount: ownerID,
 	}
 
-	resources := make([]metadata.AuthBathVerifyResult, len(body.Resources), len(body.Resources))
+	resources := make([]metadata.AuthBathVerifyResult, len(body.Resources))
 
 	attrs := make([]meta.ResourceAttribute, 0)
 	needExactAuthAttrs := make([]meta.ResourceAttribute, 0)

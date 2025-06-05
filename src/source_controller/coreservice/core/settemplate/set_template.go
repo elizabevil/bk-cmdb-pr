@@ -96,7 +96,7 @@ func (p *setTemplateOperation) CreateSetTemplate(kit *rest.Kit, bizID int64, opt
 	}
 
 	// validate service template id
-	if option.ServiceTemplateIDs != nil && len(option.ServiceTemplateIDs) > 0 {
+	if len(option.ServiceTemplateIDs) > 0 {
 		serviceTemplateIDs, err := p.ValidateServiceTemplateIDs(kit, bizID, option.ServiceTemplateIDs...)
 		if err != nil {
 			return setTemplate, err
@@ -136,7 +136,7 @@ func (p *setTemplateOperation) CreateSetTemplate(kit *rest.Kit, bizID int64, opt
 	}
 
 	// TODO: add transaction
-	if option.ServiceTemplateIDs != nil && len(option.ServiceTemplateIDs) > 0 {
+	if len(option.ServiceTemplateIDs) > 0 {
 		relations := make([]metadata.SetServiceTemplateRelation, 0)
 		for _, serviceTemplateID := range option.ServiceTemplateIDs {
 			relations = append(relations, metadata.SetServiceTemplateRelation{

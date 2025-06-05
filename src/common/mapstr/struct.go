@@ -201,7 +201,7 @@ func setMapToReflectValue(structField reflect.StructField, returnVal, inputVal r
 	if !returnVal.CanSet() {
 		return returnVal, fmt.Errorf("can not set to value %v", returnVal)
 	}
-	retVal = *(&returnVal)
+	retVal = returnVal
 	t := retVal.Type()
 	if retVal.IsNil() {
 		retVal.Set(reflect.MakeMap(t))

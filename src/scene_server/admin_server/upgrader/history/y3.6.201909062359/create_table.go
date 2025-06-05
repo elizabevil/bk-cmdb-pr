@@ -58,7 +58,7 @@ func createSetTemplateTables(ctx context.Context, db dal.RDB, conf *upgrader.Con
 
 	// check index exist and add
 	idxName := "idx_id"
-	if _, ok := idxMap[idxName]; ok == false {
+	if _, ok := idxMap[idxName]; !ok {
 		index := types.Index{
 			Keys:       bson.D{{Key: common.BKFieldID, Value: 1}},
 			Name:       idxName,

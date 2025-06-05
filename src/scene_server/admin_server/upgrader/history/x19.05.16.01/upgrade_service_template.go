@@ -322,7 +322,11 @@ func upgradeServiceTemplate(ctx context.Context, db dal.RDB, conf *upgrader.Conf
 					if err != nil {
 						return err
 					}
-
+					compile, err := regexp.Compile(common.PatternIP)
+					if err != nil {
+						blog.Errorf("regexp IP: %#v, err: %v", common.PatternIP, err)
+						return err
+					}
 					for index, inst := range oldProcess {
 						processTemplateID := inst2ProcessInstTemplate[inst.ProcessID].ID
 						inst.ProcessID = int64(procInstIDs[index])
@@ -362,11 +366,7 @@ func upgradeServiceTemplate(ctx context.Context, db dal.RDB, conf *upgrader.Conf
 							if tplBindIP == "" {
 								*inst.BindIP = "127.0.0.1"
 							} else {
-								matched, err := regexp.MatchString(common.PatternIP, *inst.BindIP)
-								if err != nil {
-									return err
-								}
-
+								matched := compile.MatchString(*inst.BindIP)
 								if !matched {
 									bindIP, err := tplBindIP.IP(hostMap[moduleHost.HostID])
 									if err != nil {

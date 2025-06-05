@@ -14,7 +14,7 @@ package util
 
 import (
 	"bytes"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"testing"
 
@@ -57,11 +57,11 @@ func TestPeekRequest(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, expectbody, string(content))
 
-	ncontent, err := ioutil.ReadAll(req.Request.Body)
+	ncontent, err := io.ReadAll(req.Request.Body)
 	require.NoError(t, err)
 	require.Equal(t, expectbody, string(ncontent))
 
-	ncontent, err = ioutil.ReadAll(req.Request.Body)
+	ncontent, err = io.ReadAll(req.Request.Body)
 	require.NoError(t, err)
 	require.Equal(t, "", string(ncontent))
 }

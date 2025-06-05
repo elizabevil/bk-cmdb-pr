@@ -68,14 +68,11 @@ func (s *Service) UpdateObjectGroup(ctx *rest.Contexts) {
 		if cond.Condition.ID != 0 {
 			searchCondition.Set(common.BKFieldID, cond.Condition.ID)
 		}
-		result, err := s.Logics.GroupOperation().FindObjectGroup(ctx.Kit, searchCondition, cond.ModelBizID)
+		_, err = s.Logics.GroupOperation().FindObjectGroup(ctx.Kit, searchCondition, cond.ModelBizID)
 		if err != nil {
 			blog.Errorf("search attribute group by condition failed, err: %+v, rid: %s", err, ctx.Kit.Rid)
 			return err
 		}
-		//TODO ?? NOT USE, DEL
-		attributeGroups := make([]metadata.Group, 0)
-		attributeGroups = append(attributeGroups, result...)
 		return nil
 	})
 

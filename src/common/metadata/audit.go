@@ -582,7 +582,7 @@ type GenericOpDetail struct {
 	// Data the operated data, which is previous data before delete or update, and current data after create operation
 	Data interface{} `json:"data" bson:"data"`
 	// UpdateFields the data that user uses to update the previous data, might not be the actual changed data
-	UpdateFields interface{} `json:"update_fields,omitempty'" bson:"update_fields,omitempty"`
+	UpdateFields interface{} `json:"update_fields,omitempty" bson:"update_fields,omitempty"`
 }
 
 // WithName returns the generic operation detail name

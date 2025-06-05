@@ -88,7 +88,7 @@ func (f *filter) gc() {
 }
 
 func (f *filter) randomTTL() int64 {
-	rand.Seed(time.Now().UnixNano())
+	rand.New(rand.NewSource(time.Now().UnixNano()))
 	seconds := rand.Intn(f.ttlRangeSeconds[1]-f.ttlRangeSeconds[0]) + f.ttlRangeSeconds[0]
 	return time.Now().Unix() + int64(seconds)
 

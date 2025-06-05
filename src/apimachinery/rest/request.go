@@ -18,7 +18,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net"
 	"net/http"
 	"net/url"
@@ -217,11 +216,7 @@ func (r *Request) Body(body interface{}) *Request {
 			r.body = []byte("")
 			return r
 		}
-		break
-
 	case reflect.Struct:
-		break
-
 	default:
 		r.err = errors.New("body should be one of interface, map, pointer or slice value")
 		r.body = []byte("")
@@ -405,7 +400,7 @@ func (r *Request) do(client util.HttpClient, req *http.Request, result *Result, 
 
 	var body []byte
 	if resp.Body != nil {
-		data, err := ioutil.ReadAll(resp.Body)
+		data, err := io.ReadAll(resp.Body)
 		if err != nil {
 			if err == io.ErrUnexpectedEOF {
 				// retry now

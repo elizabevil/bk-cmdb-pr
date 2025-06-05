@@ -933,7 +933,7 @@ func (ov *openVersionProcBindInfo) UJSON(data []byte, bindInfo *ProcBindInfo) er
 
 // UBSON TODO
 func (ov *openVersionProcBindInfo) UBSON(data []byte, bindInfo *ProcBindInfo) error {
-	if data == nil || len(data) == 0 {
+	if len(data) == 0 {
 		return nil
 	}
 
@@ -945,7 +945,7 @@ func (ov *openVersionProcBindInfo) UBSON(data []byte, bindInfo *ProcBindInfo) er
 
 // UJSON TODO
 func (ov *openVersionPropertyBindInfo) UJSON(data []byte, bindInfo *ProcPropertyBindInfoValue) error {
-	if data == nil || len(data) == 0 {
+	if len(data) == 0 {
 		return nil
 	}
 

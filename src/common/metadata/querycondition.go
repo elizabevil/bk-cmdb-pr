@@ -56,67 +56,55 @@ func (o *ObjQueryInput) ConvTime() error {
 // convTimeItem 转义具体的某一项,将查询条件中字段包含cc_time_type
 func (o *ObjQueryInput) convTimeItem(item interface{}) (interface{}, error) {
 
-	switch item.(type) {
+	switch vv := item.(type) {
 	case map[string]interface{}:
 
-		arrItem, ok := item.(map[string]interface{})
-		if ok {
-			_, timeTypeOk := arrItem[common.BKTimeTypeParseFlag]
-			if timeTypeOk {
-				delete(arrItem, common.BKTimeTypeParseFlag)
-			}
-
-			for key, value := range arrItem {
-				switch value := value.(type) {
-
-				case []interface{}:
+		arrItem := vv
+		_, timeTypeOk := arrItem[common.BKTimeTypeParseFlag]
+		if timeTypeOk {
+			delete(arrItem, common.BKTimeTypeParseFlag)
+		}
+		for key, value := range arrItem {
+			switch value := value.(type) {
+			case []interface{}:
+				var err error
+				arrItem[key], err = o.convTimeItem(value)
+				if nil != err {
+					return nil, err
+				}
+			case map[string]interface{}:
+				arrItemVal := value
+				for key, value := range arrItemVal {
 					var err error
-					arrItem[key], err = o.convTimeItem(value)
+					arrItemVal[key], err = o.convTimeItem(value)
 					if nil != err {
 						return nil, err
 					}
-				case map[string]interface{}:
-					arrItemVal := value
-					if ok {
-						for key, value := range arrItemVal {
-							var err error
-							arrItemVal[key], err = o.convTimeItem(value)
-							if nil != err {
-								return nil, err
-							}
-						}
-						arrItem[key] = value
+				}
+				arrItem[key] = value
+			default:
+				if timeTypeOk {
+					var err error
+					arrItem[key], err = o.convInterfaceToTime(value)
+					if nil != err {
+						return nil, err
 					}
-
-				default:
-					if timeTypeOk {
-						var err error
-						arrItem[key], err = o.convInterfaceToTime(value)
-						if nil != err {
-							return nil, err
-						}
-					}
-
 				}
 			}
-			item = arrItem
 		}
+		item = arrItem
 	case []interface{}:
 		// 如果是数据，递归转换所有子项
-		arrItem, ok := item.([]interface{})
-		if ok {
-			for index, value := range arrItem {
-				newValue, err := o.convTimeItem(value)
-				if nil != err {
-					return nil, err
+		arrItem := vv
+		for index, value := range arrItem {
+			newValue, err := o.convTimeItem(value)
+			if nil != err {
+				return nil, err
 
-				}
-				arrItem[index] = newValue
 			}
-			item = arrItem
-
+			arrItem[index] = newValue
 		}
-
+		item = arrItem
 	}
 
 	return item, nil

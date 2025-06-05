@@ -17,7 +17,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"time"
 
@@ -136,7 +136,7 @@ func newAuthService(c *authConf) (*authService, error) {
 			return nil, fmt.Errorf("fail to open file(%s), err(%s)", c.resourceFile, err.Error())
 		}
 		defer resourceFile.Close()
-		resource, err := ioutil.ReadAll(resourceFile)
+		resource, err := io.ReadAll(resourceFile)
 		if err != nil {
 			blog.Errorf("fail to read data from resource file(%s), err:%s", resourceFile, err.Error())
 			return nil, err

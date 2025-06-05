@@ -43,7 +43,7 @@ func AddProcAttrGroup(ctx context.Context, db dal.RDB, conf *upgrader.Config) er
 	uniqueFields := []string{common.BKObjIDField, common.BKPropertyGroupIDField, common.BKOwnerIDField}
 	_, _, err := upgrader.Upsert(ctx, db, common.BKTableNamePropertyGroup, doc, "id", uniqueFields, []string{})
 	if err != nil {
-		if db.IsNotFoundError(err) == false {
+		if !db.IsNotFoundError(err) {
 			return fmt.Errorf("upgrade x19_09_03_03, AddProcAttrGroup failed, err: %v", err)
 		}
 	}

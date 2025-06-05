@@ -92,7 +92,7 @@ func addInnerCategory(ctx context.Context, db dal.RDB, conf *upgrader.Config) er
 		parentID := int64(0)
 		if len(category.ParentName) > 0 {
 			parentID, exist = categoryIDMap[category.ParentName]
-			if exist == false {
+			if !exist {
 				return fmt.Errorf("parent [%s] not found", category.ParentName)
 			}
 		}
@@ -115,7 +115,7 @@ func getOrCreateCategory(ctx context.Context, db dal.RDB, name string, parentID 
 	err := db.Table(common.BKTableNameServiceCategory).Find(filter).One(ctx, &category)
 
 	if err != nil {
-		if db.IsNotFoundError(err) == false {
+		if !db.IsNotFoundError(err) {
 			blog.Errorf("find service category failed, filter: %+v, err: %+v", filter, err)
 			return 0, err
 		}

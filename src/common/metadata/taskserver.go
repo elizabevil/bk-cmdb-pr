@@ -103,26 +103,17 @@ type APITaskStatus string
 
 // IsFinished TODO
 func (s APITaskStatus) IsFinished() bool {
-	if s == APITaskStatusSuccess || s == APITAskStatusFail {
-		return true
-	}
-	return false
+	return s == APITaskStatusSuccess || s == APITAskStatusFail
 }
 
 // IsSuccessful TODO
 func (s APITaskStatus) IsSuccessful() bool {
-	if s == APITaskStatusSuccess {
-		return true
-	}
-	return false
+	return s == APITaskStatusSuccess
 }
 
 // IsFailure TODO
 func (s APITaskStatus) IsFailure() bool {
-	if s == APITAskStatusFail {
-		return true
-	}
-	return false
+	return s == APITAskStatusFail
 }
 
 const (

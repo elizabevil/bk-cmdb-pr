@@ -345,7 +345,7 @@ type dbStreamToID struct {
 func (s *Service) gseConfigQueryStreamTo(header http.Header, user string, version snapshotVersion,
 	defErr errors.DefaultCCErrorIf, rid string) (int64, []metadata.GseConfigAddStreamToParams, error) {
 
-	cond := map[string]interface{}{}
+	var cond map[string]interface{}
 	switch version {
 	case oldVersion:
 		cond = map[string]interface{}{"_id": gseOldStreamToIDDBKey}
@@ -408,7 +408,7 @@ func (s *Service) gseConfigAddStreamTo(streamTo *metadata.GseConfigStreamTo, hea
 		return 0, &metadata.RespError{Msg: defErr.CCErrorf(common.CCErrCommMigrateFailed, err.Error())}
 	}
 
-	cond := map[string]interface{}{}
+	var cond map[string]interface{}
 	switch version {
 	case oldVersion:
 		cond = map[string]interface{}{"_id": gseOldStreamToIDDBKey}

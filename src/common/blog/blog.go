@@ -119,10 +119,13 @@ var (
 
 // Debug TODO
 func Debug(args ...interface{}) {
+	if len(args) == 0 {
+		return
+	}
 	if format, ok := (args[0]).(string); ok {
 		glog.InfoDepthf(1, format, args[1:]...)
 	} else {
-		glog.InfoDepth(1, args)
+		glog.InfoDepth(1, args...)
 	}
 }
 

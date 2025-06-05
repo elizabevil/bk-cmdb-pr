@@ -25,7 +25,6 @@ import (
 	"configcenter/src/common/http/rest"
 	"configcenter/src/common/mapstr"
 	"configcenter/src/common/metadata"
-	meta "configcenter/src/common/metadata"
 	"configcenter/src/common/paraparse"
 	"configcenter/src/common/util"
 )
@@ -121,7 +120,7 @@ func (s *Service) CreatePlatBatch(ctx *rest.Contexts) {
 		input.Data[i][common.BKLastEditor] = user
 	}
 
-	instInfo := &meta.CreateManyModelInstance{
+	instInfo := &metadata.CreateManyModelInstance{
 		Datas: input.Data,
 	}
 
@@ -224,7 +223,7 @@ func (s *Service) CreatePlat(ctx *rest.Contexts) {
 	input[common.BKCreator] = user
 	input[common.BKLastEditor] = user
 
-	instInfo := &meta.CreateModelInstance{
+	instInfo := &metadata.CreateModelInstance{
 		Data: mapstr.NewFromMap(input),
 	}
 
@@ -303,7 +302,7 @@ func (s *Service) DeletePlat(ctx *rest.Contexts) {
 		return
 	}
 
-	params := new(meta.QueryInput)
+	params := new(metadata.QueryInput)
 	params.Fields = common.BKHostIDField
 	params.Condition = map[string]interface{}{
 		common.BKCloudIDField: platID,
@@ -340,7 +339,7 @@ func (s *Service) DeletePlat(ctx *rest.Contexts) {
 		return
 	}
 
-	delCond := &meta.DeleteOption{
+	delCond := &metadata.DeleteOption{
 		Condition: mapstr.MapStr{common.BKCloudIDField: platID},
 	}
 
@@ -419,7 +418,7 @@ func (s *Service) UpdatePlat(ctx *rest.Contexts) {
 		toUpdate[common.BKCloudNameField] = input.CloudName
 	}
 
-	updateOption := &meta.UpdateOption{
+	updateOption := &metadata.UpdateOption{
 		Data: toUpdate,
 		Condition: map[string]interface{}{
 			common.BKCloudIDField: platID,
@@ -507,7 +506,7 @@ func (s *Service) UpdateHostCloudAreaField(ctx *rest.Contexts) {
 // addPlatSyncTaskIDs add sync task ids to plat info
 func (s *Service) addPlatSyncTaskIDs(ctx *rest.Contexts, data *[]mapstr.MapStr) error {
 	option := &metadata.SearchCloudOption{
-		Page: meta.BasePage{
+		Page: metadata.BasePage{
 			Limit: common.BKNoLimit,
 		},
 		Fields: []string{common.BKCloudSyncTaskID, common.BKCloudSyncVpcs},

@@ -20,7 +20,6 @@ import (
 	"configcenter/src/common/errors"
 	"configcenter/src/common/http/rest"
 	"configcenter/src/common/metadata"
-	meta "configcenter/src/common/metadata"
 )
 
 // TransferHostModule TODO
@@ -191,7 +190,7 @@ func (s *Service) GetHostModuleRelation(ctx *rest.Contexts) {
 // GetHostRelationsWithMainlineTopoInstance 根据主线拓扑上的模型实例，分页查询主机关系数据
 func (s *Service) GetHostRelationsWithMainlineTopoInstance(ctx *rest.Contexts) {
 
-	option := new(meta.FindHostRelationWtihTopoOpt)
+	option := new(metadata.FindHostRelationWtihTopoOpt)
 	if err := ctx.DecodeInto(option); nil != err {
 		ctx.RespAutoError(err)
 		return
@@ -212,7 +211,7 @@ func (s *Service) GetHostRelationsWithMainlineTopoInstance(ctx *rest.Contexts) {
 		return
 	}
 
-	filter := &meta.HostModuleRelationRequest{
+	filter := &metadata.HostModuleRelationRequest{
 		ApplicationID: option.Business,
 		Page:          option.Page,
 		Fields:        option.Fields,
@@ -233,7 +232,7 @@ func (s *Service) GetHostRelationsWithMainlineTopoInstance(ctx *rest.Contexts) {
 		}
 
 		if len(setList) == 0 {
-			ctx.RespEntity(meta.SearchHost{})
+			ctx.RespEntity(metadata.SearchHost{})
 			return
 		}
 

@@ -229,9 +229,12 @@ func (c *cloudOperation) DeleteDestroyedHostRelated(kit *rest.Kit, option *metad
 		common.LastTimeField:          time.Now(),
 		common.BKLastEditor:           kit.User,
 	}
-	//TODO ?? ineffectual assignment to err
 	err := c.dbProxy.Table(common.BKTableNameBaseHost).Update(kit.Ctx, updateHostCond, updateHostData)
-
+	if err != nil {
+		blog.ErrorJSON("DeleteDestroyedHostRelated failed, updateHostData BaseHost err:%v, filter: %#v,data:%v rid: %s",
+			err, updateHostCond, updateHostData, kit.Rid)
+		return kit.CCError.CCErrorf(common.CCErrCommDBUpdateFailed)
+	}
 	// get all service instance IDs that need to be removed
 	serviceInstanceFilter := map[string]interface{}{
 		common.BKHostIDField: map[string]interface{}{

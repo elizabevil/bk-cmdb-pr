@@ -13,7 +13,7 @@
 package httpclient
 
 import (
-	"io/ioutil"
+	"io"
 	"net"
 	"net/http"
 	"net/http/httputil"
@@ -31,7 +31,7 @@ import (
 // rest-api http请求代理
 func ReqForward(req *restful.Request, url, method string) (string, error) {
 	// blog.Infof("forward %s with header %v", url, req.Request.Header)
-	body, err := ioutil.ReadAll(req.Request.Body)
+	body, err := io.ReadAll(req.Request.Body)
 	if err != nil {
 		return err.Error(), err
 	}

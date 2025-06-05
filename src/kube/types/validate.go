@@ -101,10 +101,6 @@ func ValidateString(data interface{}, param StringSettings) error {
 		return fmt.Errorf("data length(%d) is exceeded max length: %d", len(v), param.MaxLength)
 	}
 
-	if len(param.RegularCheck) < 0 {
-		return nil
-	}
-
 	if !regexp.MustCompile(param.RegularCheck).MatchString(v) {
 		return fmt.Errorf("invalid data %s, regular is %s", v, param.RegularCheck)
 	}

@@ -87,7 +87,7 @@ func (t *txn) AutoRunTxn(ctx context.Context, h http.Header, run func() error, o
 		}
 
 		blog.Warnf("retry transaction, retry count: %d, app code: %s, rid: %s", retryCount, appCode, rid)
-		rand.Seed(time.Now().UnixNano())
+		rand.New(rand.NewSource(time.Now().UnixNano()))
 		time.Sleep(time.Millisecond * time.Duration(rand.Intn(500)+300) * time.Duration(retryCount))
 
 		// start a new transaction to retry

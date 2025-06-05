@@ -262,7 +262,7 @@ func Upgrade(ctx context.Context, db dal.RDB, cache redis.Client, iam *iam.IAM, 
 		blog.Infof("upgrade to version %s success", v.version)
 	}
 
-	if "" == cmdbVersion.InitVersion {
+	if cmdbVersion.InitVersion == "" {
 		cmdbVersion.InitVersion = lastVersion
 		cmdbVersion.InitDistroVersion = ccversion.CCDistroVersion
 		if err := saveVersion(ctx, db, cmdbVersion); err != nil {

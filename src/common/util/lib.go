@@ -139,8 +139,8 @@ func (b *AtomicBool) SetTo(yes bool) {
 	}
 }
 
-//  sort.Sort
-//  slices.Sort
+//  sort.Sort all version
+//  slices.Sort 1.21+
 
 // GenerateRID TODO
 func GenerateRID() string {

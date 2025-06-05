@@ -25,7 +25,7 @@ func removeOldTables(ctx context.Context, db dal.RDB, tableNames []string) error
 		if err != nil {
 			return fmt.Errorf("removeOldTables failed, tableName: %s, err: %+v", tableName, err)
 		}
-		if hasTable == false {
+		if !hasTable {
 			continue
 		}
 		if err := db.DropTable(ctx, tableName); err != nil {

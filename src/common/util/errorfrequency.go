@@ -43,10 +43,7 @@ func (e *errFrequency) IsErrAlwaysAppear(err error) bool {
 	}
 
 	if e.err != nil && e.err.Error() == err.Error() {
-		if time.Now().Unix() >= e.endTime {
-			return true
-		}
-		return false
+		return time.Now().Unix() >= e.endTime
 	}
 
 	e.err = err

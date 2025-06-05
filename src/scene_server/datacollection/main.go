@@ -16,7 +16,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"os"
 	"runtime"
@@ -90,7 +90,7 @@ func sendMock(collectorName string) error {
 
 	if resp.StatusCode >= http.StatusBadRequest {
 		// mock failed.
-		respBody, err := ioutil.ReadAll(resp.Body)
+		respBody, err := io.ReadAll(resp.Body)
 		if err != nil {
 			return fmt.Errorf("send mock message, status code[%d], %+v", resp.StatusCode, err)
 		}

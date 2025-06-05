@@ -373,6 +373,10 @@ func (m *modelAttribute) validAndGetTableAttrHeaderDetail(kit *rest.Kit, header 
 
 	propertyAttr := make(map[string]*metadata.Attribute)
 	var longCharNum int
+	compile, err := regexp.Compile(common.FieldTypeStrictCharRegexp)
+	if err != nil {
+		return nil, kit.CCError.Errorf(common.CCErrCommParamsIsInvalid, err.Error())
+	}
 	for index := range header {
 		// determine whether the underlying type is legal
 		if !metadata.ValidTableFieldBaseType(header[index].PropertyType) {
@@ -401,10 +405,7 @@ func (m *modelAttribute) validAndGetTableAttrHeaderDetail(kit *rest.Kit, header 
 			return nil, kit.CCError.Errorf(common.CCErrCommValExceedMaxFailed, common.AttributeIDMaxLength)
 		}
 
-		match, err := regexp.MatchString(common.FieldTypeStrictCharRegexp, header[index].PropertyID)
-		if err != nil {
-			return nil, err
-		}
+		match := compile.MatchString(header[index].PropertyID)
 
 		if !match {
 			return nil, kit.CCError.Errorf(common.CCErrCommParamsIsInvalid, header[index].PropertyID)
@@ -918,11 +919,11 @@ func (m *modelAttribute) cleanAttributeFieldInInstances(kit *rest.Kit, attrs []m
 
 			collectionName := common.GetInstTableName(object, kit.SupplierAccount)
 			wg.Add(1)
-			go func(collName string, filter types.Filter, fields []string) {
+			go func(collName, object string, filter types.Filter, fields []string) {
 				defer wg.Done()
 				hitError = m.dropColumns(kit, object, collName, filter, fields)
 
-			}(collectionName, cond, fields)
+			}(collectionName, object, cond, fields)
 		}
 	}
 	// wait for all the public object routine is done.

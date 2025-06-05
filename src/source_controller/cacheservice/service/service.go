@@ -31,7 +31,6 @@ import (
 	"configcenter/src/common/webservice/restfulservice"
 	"configcenter/src/source_controller/cacheservice/app/options"
 	"configcenter/src/source_controller/cacheservice/cache"
-	cacheop "configcenter/src/source_controller/cacheservice/cache"
 	"configcenter/src/source_controller/cacheservice/event/bsrelation"
 	"configcenter/src/source_controller/cacheservice/event/flow"
 	"configcenter/src/source_controller/cacheservice/event/identifier"
@@ -112,7 +111,7 @@ func (s *cacheService) SetConfig(cfg options.Config, engine *backbone.Engine, er
 		return dbErr
 	}
 
-	c, cacheErr := cacheop.NewCache(event, loopW, engine.ServiceManageInterface, watchDB)
+	c, cacheErr := cache.NewCache(event, loopW, engine.ServiceManageInterface, watchDB)
 	if cacheErr != nil {
 		blog.Errorf("new cache instance failed, err: %v", cacheErr)
 		return cacheErr

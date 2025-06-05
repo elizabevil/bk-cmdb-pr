@@ -890,13 +890,9 @@ func (sh *searchHost) searchByMainline() errors.CCError {
 		return nil
 	}
 
-	var err error
-	setIDArr := make([]int64, 0)
-	objSetIDArr := make([]int64, 0)
-
 	// search mainline object by cond
 	if len(sh.conds.mainlineCond.Condition) > 0 {
-		objSetIDArr, err = sh.lgc.GetSetIDByObjectCond(sh.kit, sh.hostSearchParam.AppID,
+		objSetIDArr, err := sh.lgc.GetSetIDByObjectCond(sh.kit, sh.hostSearchParam.AppID,
 			sh.conds.mainlineCond.Condition)
 		if err != nil {
 			return err
@@ -925,7 +921,7 @@ func (sh *searchHost) searchByMainline() errors.CCError {
 			Condition:     sh.conds.setCond.Condition,
 			TimeCondition: sh.conds.setCond.TimeCondition,
 		}
-		setIDArr, err = sh.lgc.GetSetIDByCond(sh.kit, cond)
+		setIDArr, err := sh.lgc.GetSetIDByCond(sh.kit, cond)
 		if err != nil {
 			return err
 		}

@@ -173,7 +173,7 @@ func checkDeviceIDPathParam(defErr errors.DefaultCCErrorIf, ID string) (uint64, 
 		blog.Errorf("[NetDevice] update net device with id[%s] to parse the net device id, error: %v", ID, err)
 		return 0, defErr.Errorf(common.CCErrCommParamsNeedInt, common.BKDeviceIDField)
 	}
-	if 0 == netDeviceID {
+	if netDeviceID == 0 {
 		blog.Errorf("[NetDevice] update net device with id[%d] should not be 0", netDeviceID)
 		return 0, defErr.Error(common.CCErrCommHTTPInputInvalid)
 	}

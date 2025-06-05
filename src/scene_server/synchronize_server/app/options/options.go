@@ -64,10 +64,7 @@ type TriggerTime struct {
 
 // IsTiming judge is timing trigger
 func (t TriggerTime) IsTiming() bool {
-	if t.TriggerType != TriggerTimeTypeInterval {
-		return true
-	}
-	return false
+	return t.TriggerType != TriggerTimeTypeInterval
 }
 
 // ConfigItem config item info

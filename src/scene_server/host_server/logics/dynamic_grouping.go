@@ -226,13 +226,9 @@ func (e *HostDynamicGroupExecutor) searchByMainline() error {
 		return nil
 	}
 
-	var err error
-	setIDs := []int64{}
-	objSetIDs := []int64{}
-
 	// search mainline object.
 	if len(e.conds.mainlineCond.Condition) > 0 {
-		objSetIDs, err = e.lgc.GetSetIDByObjectCond(e.kit, e.params.AppID, e.conds.mainlineCond.Condition)
+		objSetIDs, err := e.lgc.GetSetIDByObjectCond(e.kit, e.params.AppID, e.conds.mainlineCond.Condition)
 		if err != nil {
 			return err
 		}
@@ -264,7 +260,7 @@ func (e *HostDynamicGroupExecutor) searchByMainline() error {
 			Condition:     e.conds.setCond.Condition,
 			TimeCondition: e.conds.setCond.TimeCondition,
 		}
-		setIDs, err = e.lgc.GetSetIDByCond(e.kit, cond)
+		setIDs, err := e.lgc.GetSetIDByCond(e.kit, cond)
 		if err != nil {
 			return err
 		}

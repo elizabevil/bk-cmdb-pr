@@ -198,6 +198,7 @@ func (m *modelManager) update(kit *rest.Kit, data mapstr.MapStr, cond universals
 	objName, objNameExist := data[common.BKObjNameField]
 
 	if (objNameExist && len(util.GetStrByInterface(objName)) > 0) || pausedFlag {
+		//TODO ?? the surrounding loop is unconditionally terminated
 		for _, model := range models {
 			if err := m.isExistProcessingTask(kit, model.ID, pausedFlag); err != nil {
 				return 0, err
@@ -229,6 +230,7 @@ func (m *modelManager) update(kit *rest.Kit, data mapstr.MapStr, cond universals
 					common.BKTableNameObjDes, filter, data, err, kit.Rid)
 				return 0, kit.CCError.New(common.CCErrObjectDBOpErrno, err.Error())
 			}
+			//TODO ??  SA4004: the surrounding loop is unconditionally terminated
 			return cnt, nil
 		}
 	}

@@ -37,7 +37,7 @@ func SetModuleServiceTemplateFieldUneditable(ctx context.Context, db dal.RDB, co
 		"editable": false,
 	}
 	if err := db.Table(common.BKTableNameObjAttDes).Update(ctx, filter, doc); err != nil {
-		if db.IsNotFoundError(err) == false {
+		if !db.IsNotFoundError(err) {
 			return fmt.Errorf("upgrade x19_09_03_02, set module service_template_id field uneditable failed, err: %v", err)
 		}
 	}

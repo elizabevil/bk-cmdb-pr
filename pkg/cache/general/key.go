@@ -118,7 +118,7 @@ func (k *Key) IDListLockKey(idListKey string) string {
 
 // WithRandomExpireSeconds generate random redis key expire in seconds
 func (k *Key) WithRandomExpireSeconds() time.Duration {
-	rand.Seed(time.Now().UnixNano())
+	rand.New(rand.NewSource(time.Now().UnixNano()))
 	seconds := rand.Intn(k.expireRangeSeconds[1]-k.expireRangeSeconds[0]) + k.expireRangeSeconds[0]
 	return k.expireSeconds + time.Duration(seconds)*time.Second
 }

@@ -15,7 +15,6 @@ package service
 import (
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"strconv"
 	"strings"
@@ -135,7 +134,6 @@ func (s *service) Do(req *restful.Request, resp *restful.Response) {
 		httpheader.GetUser(req.Request.Header), httpheader.GetAppCode(req.Request.Header), url,
 		httpheader.GetRid(req.Request.Header),
 	)
-	return
 }
 
 func parseResponse(req *restful.Request, resp *restful.Response, body io.ReadCloser, rid string) {
@@ -153,7 +151,7 @@ func parseResponse(req *restful.Request, resp *restful.Response, body io.ReadClo
 	}
 
 	// parse api gateway response, change the format to esb style
-	bodyBytes, err := ioutil.ReadAll(body)
+	bodyBytes, err := io.ReadAll(body)
 	if err != nil {
 		blog.Errorf("read response body failed, err: %v, rid: %s", err, rid)
 		return

@@ -390,7 +390,7 @@ func (s *service) DeleteCluster(ctx *rest.Contexts) {
 	}
 
 	txnErr := s.ClientSet.CoreService().Txn().AutoRunTxn(ctx.Kit.Ctx, ctx.Kit.Header, func() error {
-		var err error = s.Logics.KubeOperation().DeleteCluster(ctx.Kit, option.BizID, option)
+		var err = s.Logics.KubeOperation().DeleteCluster(ctx.Kit, option.BizID, option)
 		if err != nil {
 			blog.Errorf("delete cluster failed, biz: %d, option: %+v, err: %v, rid: %s", option.BizID, option, err,
 				ctx.Kit.Rid)

@@ -80,7 +80,6 @@ func AllGlobalFilter(errFunc func() errors.CCErrorIf) func(req *restful.Request,
 		}
 
 		fchain.ProcessFilter(req, resp)
-		return
 	}
 }
 
@@ -94,7 +93,6 @@ func RequestLogFilter() func(req *restful.Request, resp *restful.Response, fchai
 			req.Request.RequestURI, util.FormatHttpBody(req.Request.URL.Path, body), httpheader.GetRid(header))
 
 		fchain.ProcessFilter(req, resp)
-		return
 	}
 }
 
@@ -108,7 +106,6 @@ func HTTPRequestIDFilter() func(req *restful.Request, resp *restful.Response, fc
 		}
 
 		fchain.ProcessFilter(req, resp)
-		return
 	}
 }
 

@@ -244,7 +244,7 @@ func (c *tcClient) newDescribeInstancesRequest(opt *ccom.InstanceOpt) *cvm.Descr
 
 // setVpcFilters 设置过滤条件
 func (c *tcClient) setVpcFilters(dst *[]*tcVpc.Filter, src []*ccom.Filter) {
-	if src == nil || len(src) == 0 {
+	if len(src) == 0 {
 		return
 	}
 	if dst == nil {
@@ -269,7 +269,7 @@ func (c *tcClient) setVpcLimit(Dstlimit **string, limit int64) {
 
 // setCvmFilters 设置过滤条件
 func (c *tcClient) setCvmFilters(dst *[]*cvm.Filter, src []*ccom.Filter) {
-	if src == nil || len(src) == 0 {
+	if len(src) == 0 {
 		return
 	}
 	if dst == nil {

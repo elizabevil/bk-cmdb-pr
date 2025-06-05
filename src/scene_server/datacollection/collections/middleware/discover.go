@@ -74,7 +74,7 @@ func (d *Discover) Mock() string {
 func (d *Discover) Analyze(msg *string, sourceType string) (bool, error) {
 	err := d.UpdateOrCreateInst(msg)
 	if err != nil {
-		return false, fmt.Errorf("create inst err: %v, raw: %s", err, msg)
+		return false, fmt.Errorf("create inst err: %v, raw: %v", err, msg)
 	}
 	return false, nil
 }

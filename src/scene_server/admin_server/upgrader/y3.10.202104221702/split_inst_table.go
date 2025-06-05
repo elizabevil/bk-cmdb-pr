@@ -48,12 +48,10 @@ func splitTable(ctx context.Context, db dal.RDB, conf *upgrader.Config) (err err
 	instIdxs := instanceDefaultIndexes
 	instAsstIdxs := associationDefaultIndexes
 
-	var objectIDs []string
 	for _, obj := range objs {
 		objInstTable := buildInstTableName(obj.ObjectID, obj.OwnerID)         // instTablePrefix + obj.ObjectID
 		objInstAsstTable := buildInstAsstTableName(obj.ObjectID, obj.OwnerID) // instAsstTablePrefix + obj.ObjectID
 
-		objectIDs = append(objectIDs, obj.ObjectID)
 		if err = createTableFunc(ctx, objInstAsstTable, db); err != nil {
 			blog.Errorf("create obj(%s) inst asst table error. err: %s", obj.ObjectID, err.Error())
 			return
@@ -451,7 +449,7 @@ func toDBUniqueIdx(idx objectUnique, attrIDMap map[int64]Attribute) (types.Index
 		dbType := convFieldTypeToDBType(attr.PropertyType)
 		if dbType == "" {
 			blog.ErrorJSON("build unique index property id: %s type: %s not support.", key.Kind, attr.PropertyType)
-			return dbIdx, fmt.Errorf("build unique index property(%s) type(%s) not support.",
+			return dbIdx, fmt.Errorf("build unique index property(%s) type(%s) not support",
 				key.Kind, attr.PropertyType)
 		}
 		dbIdx.Keys = append(dbIdx.Keys, primitive.E{

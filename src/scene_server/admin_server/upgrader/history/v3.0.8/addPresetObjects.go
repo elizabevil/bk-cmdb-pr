@@ -206,7 +206,7 @@ func getObjAttDescData(ownerID string) []*Attribute {
 	for _, r := range predataRows {
 		r.OwnerID = ownerID
 		r.IsPre = true
-		if false != r.IsEditable {
+		if r.IsEditable {
 			r.IsEditable = true
 		}
 		r.IsReadOnly = false
@@ -217,7 +217,7 @@ func getObjAttDescData(ownerID string) []*Attribute {
 	}
 	for _, r := range dataRows {
 		r.OwnerID = ownerID
-		if false != r.IsEditable {
+		if r.IsEditable {
 			r.IsEditable = true
 		}
 		r.IsReadOnly = false

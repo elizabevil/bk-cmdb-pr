@@ -103,9 +103,7 @@ func (f *Exception) Destruct() {
 
 		sort.Strings(fileNames)
 		lenFileNames := len(fileNames)
-		if lenFileNames > f.fileCount {
 
-		}
 		deleleFileCnt := lenFileNames - f.fileCount
 		for idx := 0; idx < deleleFileCnt; idx++ {
 			os.Remove(fileNames[idx])

@@ -175,7 +175,7 @@ func (m *mongoCondition) merge(sourceCond *mongoCondition) *mongoCondition {
 			m.embed[sourceEmbedName] = sourceCond
 			continue
 		}
-
+		//TODO ?? never used
 		targetEmbedCond = targetEmbedCond.merge(sourceCond)
 	}
 

@@ -40,7 +40,7 @@ func addProcNetworkProxyGroup(ctx context.Context, db dal.RDB, conf *upgrader.Co
 	uniqueFields := []string{common.BKObjIDField, common.BKPropertyGroupIDField, common.BKOwnerIDField}
 	err := upgrader.Insert(ctx, db, common.BKTableNamePropertyGroup, group, "id", uniqueFields)
 	if err != nil {
-		if db.IsNotFoundError(err) == false {
+		if !db.IsNotFoundError(err) {
 			blog.ErrorJSON("addProcNetworkProxyGroup failed, Insert err: %s, group: %#v, ", err, group)
 
 			return err

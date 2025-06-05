@@ -321,7 +321,7 @@ func (b *business) cleanProcessTemplate(kit *rest.Kit, bizID int64) error {
 	idsLen := len(ids)
 	const batchSize = common.BKMaxPageSize
 	for i := 0; i < idsLen; i += batchSize {
-		idsBatch := make([]int64, 0)
+		var idsBatch []int64
 		if (i + batchSize) >= idsLen {
 			idsBatch = ids[i:idsLen]
 		} else {
@@ -398,7 +398,7 @@ func (b *business) cleanSetTemplate(kit *rest.Kit, bizID int64) error {
 	idsLen := len(ids)
 	const batchSize = common.BKMaxPageSize
 	for i := 0; i < idsLen; i += batchSize {
-		idsBatch := make([]int64, 0)
+		var idsBatch []int64
 		if (i + batchSize) >= idsLen {
 			idsBatch = ids[i:idsLen]
 		} else {
@@ -499,7 +499,7 @@ func (b *business) cleanProcess(kit *rest.Kit, bizID int64) error {
 	idsLen := len(ids)
 	const batchSize = common.BKMaxPageSize
 	for i := 0; i < idsLen; i += batchSize {
-		idsBatch := make([]interface{}, 0)
+		var idsBatch []interface{}
 		if (i + batchSize) >= idsLen {
 			idsBatch = ids[i:idsLen]
 		} else {
@@ -578,7 +578,7 @@ func (b *business) cleanServiceInstance(kit *rest.Kit, bizID int64) error {
 	idsLen := len(ids)
 	const batchSize = common.BKMaxPageSize
 	for i := 0; i < idsLen; i += batchSize {
-		idsBatch := make([]int64, 0)
+		var idsBatch []int64
 		if (i + batchSize) >= idsLen {
 			idsBatch = ids[i:idsLen]
 		} else {
@@ -632,7 +632,7 @@ func (b *business) cleanSet(kit *rest.Kit, bizID int64) error {
 	idsLen := len(ids)
 	const batchSize = common.BKMaxPageSize
 	for i := 0; i < idsLen; i += batchSize {
-		idsBatch := make([]int64, 0)
+		var idsBatch []int64
 		if (i + batchSize) >= idsLen {
 			idsBatch = ids[i:idsLen]
 		} else {
@@ -716,7 +716,7 @@ func (b *business) cleanTopoInstAndAsst(kit *rest.Kit, bizID int64, obj string) 
 	idsLen := len(ids)
 	const batchSize = common.BKMaxPageSize
 	for i := 0; i < idsLen; i += batchSize {
-		idsBatch := make([]interface{}, 0)
+		var idsBatch []interface{}
 		if (i + batchSize) >= idsLen {
 			idsBatch = ids[i:idsLen]
 		} else {

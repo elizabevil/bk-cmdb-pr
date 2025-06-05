@@ -73,7 +73,7 @@ func (option UpdateSetTemplateOption) Validate(errProxy ccErr.DefaultCCErrorIf) 
 
 	if len(option.Name) > 0 {
 		var err error
-		option.Name, err = valid.ValidTopoNameField(option.Name, "name", errProxy)
+		_, err = valid.ValidTopoNameField(option.Name, "name", errProxy)
 		if err != nil {
 			return "name", err
 		}

@@ -24,7 +24,6 @@ import (
 )
 
 func initInnerChart(ctx context.Context, db dal.RDB, conf *upgrader.Config) error {
-	idArr := make([]uint64, 0)
 	idArr, err := db.NextSequences(ctx, common.BKTableNameChartConfig, len(metadata.InnerChartsArr))
 	if err != nil {
 		return fmt.Errorf("get next sequences failed, tableName: %s, err: %+v", common.BKTableNameChartConfig, err)

@@ -587,7 +587,7 @@ func initCommonSearchFilter(field string, ids []int64) *metadata.SearchInstanceF
 
 // fullTextSearchForInstanceCond composition query instance condition.
 func fullTextSearchForInstanceCond(objectID string, ids []int64) *metadata.SearchInstanceFilter {
-	input := &metadata.SearchInstanceFilter{}
+	var input *metadata.SearchInstanceFilter
 	switch objectID {
 	case common.BKInnerObjIDBizSet:
 		input = initCommonSearchFilter(common.BKBizSetIDField, ids)
@@ -824,7 +824,6 @@ func (s *Service) FullTextSearch(ctx *rest.Contexts) {
 	}
 
 	ctx.RespEntity(response)
-	return
 }
 
 func (s *Service) getObjAttrs(kit *rest.Kit, hits []SearchResult) (*AttrResult, error) {
@@ -900,7 +899,6 @@ func (sr *SearchResult) setHit(ctx context.Context, searchHit *elastic.SearchHit
 	}
 
 	sr.dealHighlight(sourceTmp, searchHit.Highlight, bkBizId, rawString)
-	return
 }
 
 // dealHighlight 此函数会处理掉一些不需要展示出来的内部关系id，防止高亮出一些用户原本不希望高亮的字段
@@ -967,5 +965,4 @@ func (sr *SearchResult) dealHighlight(source map[string]interface{}, highlight e
 	}
 	highlight[metadata.TablePropertyName] = util.StrArrayUnique(tables)
 	sr.Highlight = highlight
-	return
 }

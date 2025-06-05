@@ -16,7 +16,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strconv"
 
@@ -54,7 +54,7 @@ type Contexts struct {
 
 // DecodeInto TODO
 func (c *Contexts) DecodeInto(to interface{}) error {
-	body, err := ioutil.ReadAll(c.Request.Request.Body)
+	body, err := io.ReadAll(c.Request.Request.Body)
 	if err != nil {
 		blog.ErrorfDepthf(1, "rid: %s, read request body failed, err: %v", c.Kit.Rid, err)
 		return c.Kit.CCError.Error(common.CCErrCommHTTPReadBodyFailed)
@@ -267,7 +267,7 @@ func (c *Contexts) RespWithError(err error, errCode int, format string, args ...
 		c.resp.WriteHeader(c.respStatusCode)
 	}
 	blog.ErrorfDepthf(1, "code: %s, user: %s, rid: %s, %s, err: %v", httpheader.GetAppCode(c.Kit.Header), c.Kit.User,
-		c.Kit.Rid, fmt.Sprintf(format, args), err)
+		c.Kit.Rid, fmt.Sprintf(format, args...), err)
 
 	var code int
 	var errMsg string
@@ -377,7 +377,7 @@ func (c *Contexts) RespErrorCodeOnly(errCode int, format string, args ...interfa
 		c.resp.WriteHeader(c.respStatusCode)
 	}
 	blog.ErrorfDepthf(1, "code: %s, user: %s, %s, rid: %s", httpheader.GetAppCode(c.Kit.Header), c.Kit.User,
-		fmt.Sprintf(format, args), c.Kit.Rid)
+		fmt.Sprintf(format, args...), c.Kit.Rid)
 
 	c.resp.Header().Set("Content-Type", "application/json")
 	httpheader.AddRid(c.resp.Header(), c.Kit.Rid)

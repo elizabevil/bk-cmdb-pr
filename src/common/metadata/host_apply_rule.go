@@ -448,8 +448,8 @@ type MultipleHostApplyResult struct {
 
 // ErrorContainer TODO
 type ErrorContainer struct {
-	ErrCode int    `json:"error_code" json:"error_code" bson:"error_code" mapstructure:"error_code"`
-	ErrMsg  string `json:"error_message" json:"error_message" bson:"error_message" mapstructure:"error_message"`
+	ErrCode int    `json:"error_code" bson:"error_code" mapstructure:"error_code"`
+	ErrMsg  string `json:"error_message" bson:"error_message" mapstructure:"error_message"`
 }
 
 // SetError TODO

@@ -251,7 +251,7 @@ func (s *service) dealProcessRunningTasks(kit *rest.Kit, option *metadata.FieldT
 		if info.Status == metadata.APITaskStatusExecute {
 			blog.Errorf("unbinding failed, sync task(%s) is running, template ID: %d, objID: %s, rid: %d")
 			return kit.CCError.Errorf(common.CCErrTaskCreateConflict,
-				fmt.Sprintf("template ID: %d, objID: %s", option.ID, option.ObjectID))
+				fmt.Sprintf("template ID: %d, objID: %v", option.ID, option.ObjectID))
 		}
 		taskID = info.TaskID
 	}
@@ -618,11 +618,6 @@ func (s *service) UpdateFieldTemplate(ctx *rest.Contexts) {
 	if err != nil {
 		blog.Errorf("find template failed, cond: %v, err: %v, rid: %s", cond, err, ctx.Kit.Rid)
 		ctx.RespAutoError(err)
-		return
-	}
-
-	if dbTmpl == nil {
-		ctx.RespEntity(nil)
 		return
 	}
 

@@ -1009,7 +1009,7 @@ func (attribute *Attribute) validTable(ctx context.Context, val interface{}, key
 func (attribute *Attribute) validTableValue(ctx context.Context, val interface{}, subAttrMap map[string]SubAttribute,
 	rid string) error {
 
-	valMapArr := make([]mapstr.MapStr, 0)
+	var valMapArr []mapstr.MapStr
 	switch t := val.(type) {
 	case []interface{}:
 		valMapArr = make([]mapstr.MapStr, len(t))

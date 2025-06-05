@@ -14,6 +14,7 @@ package metadata
 
 import (
 	"fmt"
+	"net/http"
 	"regexp"
 
 	"configcenter/src/common/util"
@@ -41,7 +42,9 @@ func (r LimiterRule) Verify() error {
 		return fmt.Errorf("one of appcode, user, ip, url, method must be set")
 	}
 	if r.Method != "" {
-		if util.Normalize(r.Method) != "POST" && util.Normalize(r.Method) != "GET" && util.Normalize(r.Method) != "PUT" && util.Normalize(r.Method) != "DELETE" {
+		switch util.Normalize(r.Method) {
+		case http.MethodPost, http.MethodGet, http.MethodPut, http.MethodDelete:
+		default:
 			return fmt.Errorf("method must be one of POST,GET,PUT,DELETE")
 		}
 	}

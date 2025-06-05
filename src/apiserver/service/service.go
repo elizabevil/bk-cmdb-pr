@@ -180,8 +180,6 @@ func (s *service) RespError(request *restful.Request, resp *restful.Response, ht
 		blog.Errorf("response request[url: %s] failed, err: %v, rid: %s", request.Request.RequestURI, err,
 			httpheader.GetRid(request.Request.Header))
 	}
-
-	return
 }
 
 func (s *service) metricsRegister() {

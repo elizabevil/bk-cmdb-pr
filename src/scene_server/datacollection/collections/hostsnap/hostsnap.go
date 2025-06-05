@@ -355,7 +355,8 @@ func (h *HostSnap) Analyze(msg *string, sourceType string) (bool, error) {
 
 	outerIP := elements[2].String()
 
-	setter, raw := make(map[string]interface{}), ""
+	raw := ""
+	var setter map[string]interface{}
 
 	if val.Get("data.apiVer").String() >= "v1.0" {
 		setter, raw = parseV10Setter(&val, &hostInfo{innerIPv4: innerIP, outerIPv4: outerIP,
@@ -1199,7 +1200,7 @@ func getIPsFromMsg(val *gjson.Result, agentID string, rid string) ([]string, []s
 	//        }
 	//    ]
 
-	interfaces := make([]gjson.Result, 0)
+	var interfaces []gjson.Result
 	if val.Get("data.apiVer").Exists() && val.Get("data.apiVer").String() >= "v1.0" {
 		interfaces = val.Get("data.net.interface.#.addrs").Array()
 	} else {

@@ -40,6 +40,7 @@ func (ps *ProcServer) ListServiceCategory(ctx *rest.Contexts) {
 	if result == nil {
 		blog.Errorf("ListServiceCategory result unexpected nil, rid: %s", ctx.Kit.Rid)
 		ctx.RespAutoError(ctx.Kit.CCError.CCError(common.CCErrProcGetServiceCategoryFailed))
+		return
 	}
 	data := metadata.MultipleServiceCategory{
 		Count: result.Count,

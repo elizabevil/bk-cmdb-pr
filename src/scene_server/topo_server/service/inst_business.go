@@ -16,7 +16,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"reflect"
-	"slices"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -445,7 +445,9 @@ func (s *Service) SearchReducedBusinessList(ctx *rest.Contexts) {
 				return
 			}
 			// sort for prepare to find business with page.
-			slices.Sort(appList)
+			sort.Slice(appList, func(i, j int) bool {
+				return appList[i] < appList[j] // 升序
+			})
 			// user can only find business that is already authorized.
 			query.Condition[common.BKAppIDField] = mapstr.MapStr{common.BKDBIN: appList}
 		}
@@ -725,7 +727,9 @@ func (s *Service) SearchBusiness(ctx *rest.Contexts) {
 				}
 
 				// sort for prepare to find business with page.
-				slices.Sort(appList)
+				sort.Slice(appList, func(i, j int) bool {
+					return appList[i] < appList[j] // 升序
+				})
 				// user can only find business that is already authorized.
 				searchCond.Condition[common.BKAppIDField] = mapstr.MapStr{common.BKDBIN: appList}
 			}

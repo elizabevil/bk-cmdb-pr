@@ -14,7 +14,7 @@ package service
 
 import (
 	"fmt"
-	"slices"
+	"sort"
 	"strconv"
 
 	acMeta "configcenter/src/ac/meta"
@@ -236,8 +236,9 @@ func (s *Service) findDistinctHostInfo(ctx *rest.Contexts, distinctHostCond *met
 		blog.Errorf("get hostIDs failed, err: %v, input: %#v, rid: %s", err, distinctHostCond, ctx.Kit.Rid)
 		return nil, err
 	}
-	slices.Sort(allHostIDs)
-
+	sort.Slice(allHostIDs, func(i, j int) bool {
+		return allHostIDs[i] < allHostIDs[j] // 升序
+	})
 	// get hostIDs according from page info
 	hostCnt := len(allHostIDs)
 	startIndex := searchHostCond.Page.Start
@@ -969,7 +970,6 @@ func (s *Service) ListHostDetailAndTopology(ctx *rest.Contexts) {
 		}
 	}
 	ctx.RespEntityWithCount(int64(hosts.Count), hostTopo)
-	return
 }
 
 // CountTopoNodeHosts TODO

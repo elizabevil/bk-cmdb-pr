@@ -15,7 +15,7 @@ package model
 import (
 	"fmt"
 	"regexp"
-	"slices"
+	"sort"
 	"unicode/utf8"
 
 	"configcenter/pkg/filter"
@@ -312,6 +312,10 @@ func (a *attribute) validAndGetTableAttrHeaderDetail(kit *rest.Kit, header []met
 	}
 	propertyAttr := make(map[string]*metadata.Attribute)
 	var longCharNum int
+	strictCharRegexpCompile, err := regexp.Compile(common.FieldTypeStrictCharRegexp)
+	if err != nil {
+		return nil, err
+	}
 	for index := range header {
 		// determine whether the underlying type is legal
 		if !metadata.ValidTableFieldBaseType(header[index].PropertyType) {
@@ -341,10 +345,7 @@ func (a *attribute) validAndGetTableAttrHeaderDetail(kit *rest.Kit, header []met
 					"model_attr_bk_property_id"), common.AttributeIDMaxLength)
 		}
 
-		match, err := regexp.MatchString(common.FieldTypeStrictCharRegexp, header[index].PropertyID)
-		if err != nil {
-			return nil, err
-		}
+		match := strictCharRegexpCompile.MatchString(header[index].PropertyID)
 
 		if !match {
 			return nil, kit.CCError.Errorf(common.CCErrCommParamsIsInvalid, header[index].PropertyID)
@@ -1674,7 +1675,9 @@ func (a *attribute) upsertObjectAttrBatch(kit *rest.Kit, objID string, attribute
 	for id := range attributes {
 		ids = append(ids, id)
 	}
-	slices.Sort(ids)
+	sort.Slice(ids, func(i, j int) bool {
+		return ids[i] < ids[j]
+	})
 
 	for _, idx := range ids {
 		attr := attributes[idx]

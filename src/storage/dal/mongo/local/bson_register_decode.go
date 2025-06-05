@@ -307,21 +307,16 @@ func EmptyInterfaceDecodeValue(dc bsoncodec.DecodeContext, vr bsonrw.ValueReader
 
 // isInterface is interface
 func isInterface(t reflect.Type) bool {
-	if t.Kind() == reflect.Interface {
-		return true
-	}
-	return false
+	return t.Kind() == reflect.Interface
 }
 
-// documentDecodeUseMapStrInterface Whether to enable bson EmbeddedDocument with bson Unmarshal value of interface to use map[string]interface object parsing
+// documentDecodeUseMapStrInterface Whether to enable bson EmbeddedDocument with
+// bson Unmarshal value of interface to use map[string]interface object parsing
 const documentDecodeUseMapStrInterface = true
 
 // isEmbeddedDocument  is bsontype EmbeddedDocument
 func isEmbeddedDocument(bt bsontype.Type) bool {
-	if bt == bsontype.EmbeddedDocument {
-		return true
-	}
-	return false
+	return bt == bsontype.EmbeddedDocument
 }
 
 // extendEmbeddedDocumentDecoder use map[string]interface decode bson  EmbeddedDocument to map[string]interface

@@ -133,6 +133,7 @@ func runStartFromWatch(c *watchConf) error {
 			return err
 		}
 		server = fmt.Sprintf("%s:%d", svr.RegisterIP, svr.Port)
+		//TODO ??  the surrounding loop is unconditionally terminated
 		break
 	}
 
