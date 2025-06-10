@@ -13,6 +13,12 @@
 package service
 
 import (
+	"fmt"
+	"strconv"
+	"strings"
+	"sync"
+	"sync/atomic"
+
 	"configcenter/src/common"
 	"configcenter/src/common/blog"
 	"configcenter/src/common/errors"
@@ -21,15 +27,12 @@ import (
 	"configcenter/src/common/mapstruct"
 	"configcenter/src/common/metadata"
 	"configcenter/src/common/util"
-	"fmt"
-	"strconv"
-	"strings"
-	"sync"
-	"sync/atomic"
 )
 
 // 解码与校验过程
-func (ps *ProcServer) decodeAndValidateProcesses(kit *rest.Kit, input *metadata.UpdateRawProcessInstanceInput) ([]int64, errors.CCErrorCoder) {
+func (ps *ProcServer) decodeAndValidateProcesses(
+	kit *rest.Kit,
+	input *metadata.UpdateRawProcessInstanceInput) ([]int64, errors.CCErrorCoder) {
 	processIDs := make([]int64, 0, len(input.Raw))
 	input.Processes = make([]metadata.Process, 0, len(input.Raw))
 	var process metadata.Process
@@ -48,7 +51,10 @@ func (ps *ProcServer) decodeAndValidateProcesses(kit *rest.Kit, input *metadata.
 }
 
 // 获取进程关系
-func (ps *ProcServer) listProcessRelations(kit *rest.Kit, bizID int64, processIDs []int64) (*metadata.MultipleProcessInstanceRelation, errors.CCErrorCoder) {
+func (ps *ProcServer) listProcessRelations(
+	kit *rest.Kit,
+	bizID int64,
+	processIDs []int64) (*metadata.MultipleProcessInstanceRelation, errors.CCErrorCoder) {
 	option := &metadata.ListProcessInstanceRelationOption{
 		BusinessID: bizID,
 		ProcessIDs: processIDs,
@@ -63,7 +69,10 @@ func (ps *ProcServer) listProcessRelations(kit *rest.Kit, bizID int64, processID
 }
 
 // 校验 ProcessID 是否存在
-func (ps *ProcServer) validateProcessesExist(kit *rest.Kit, processIDs []int64, relations []metadata.ProcessInstanceRelation) errors.CCErrorCoder {
+func (ps *ProcServer) validateProcessesExist(
+	kit *rest.Kit,
+	processIDs []int64,
+	relations []metadata.ProcessInstanceRelation) errors.CCErrorCoder {
 	foundProcessIDs := make(map[int64]bool)
 	for _, r := range relations {
 		foundProcessIDs[r.ProcessID] = true
@@ -94,7 +103,9 @@ func (ps *ProcServer) extractHostIDs(relations []metadata.ProcessInstanceRelatio
 }
 
 // 获取模板 Map
-func (ps *ProcServer) getProcessTemplates(kit *rest.Kit, relations []metadata.ProcessInstanceRelation) (map[int64]*metadata.ProcessTemplate, errors.CCErrorCoder) {
+func (ps *ProcServer) getProcessTemplates(
+	kit *rest.Kit,
+	relations []metadata.ProcessInstanceRelation) (map[int64]*metadata.ProcessTemplate, errors.CCErrorCoder) {
 	processTemplateMap := make(map[int64]*metadata.ProcessTemplate)
 	for _, relation := range relations {
 		if relation.ProcessTemplateID == common.ServiceTemplateIDNotSet {
@@ -103,7 +114,11 @@ func (ps *ProcServer) getProcessTemplates(kit *rest.Kit, relations []metadata.Pr
 		if _, ok := processTemplateMap[relation.ProcessTemplateID]; ok {
 			continue
 		}
-		template, err := ps.CoreAPI.CoreService().Process().GetProcessTemplate(kit.Ctx, kit.Header, relation.ProcessTemplateID)
+		template, err := ps.CoreAPI.CoreService().Process().GetProcessTemplate(
+			kit.Ctx,
+			kit.Header,
+			relation.ProcessTemplateID,
+		)
 		if err != nil {
 			blog.Errorf("get process template failed, ID: %d, err: %v, rid: %s", relation.ProcessTemplateID, err, kit.Rid)
 			return nil, err
@@ -151,7 +166,12 @@ func (ps *ProcServer) buildProcessUpdateData(
 				blog.Errorf("json Unmarshal process failed, processData: %+v, err: %v, rid: %s", processData, err, kit.Rid)
 				return nil, kit.CCError.CCError(common.CCErrCommJsonDecode)
 			}
-			for _, field := range []string{common.BKProcessIDField, common.MetadataField, common.LastTimeField, common.CreateTimeField} {
+			for _, field := range []string{
+				common.BKProcessIDField,
+				common.MetadataField,
+				common.LastTimeField,
+				common.CreateTimeField,
+			} {
 				delete(processData, field)
 			}
 		} else {
@@ -203,7 +223,8 @@ func (ps *ProcServer) batchUpdateProcessInstances(kit *rest.Kit, dataMap map[int
 			}()
 			err := ps.Logic.UpdateProcessInstance(kit, processID, processData)
 			if err != nil {
-				blog.Errorf("UpdateProcessInstance failed, ID: %d, data: %+v, err: %v, rid: %s", processID, processData, err, kit.Rid)
+				blog.Errorf("UpdateProcessInstance failed, ID: %d, data: %+v, err: %v, rid: %s",
+					processID, processData, err, kit.Rid)
 				firstErr.CompareAndSwap(nil, err)
 			}
 		}(pid, data)

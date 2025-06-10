@@ -1592,9 +1592,13 @@ func (m *modelAttribute) checkUpdate(kit *rest.Kit, data mapstr.MapStr, cond uni
 	// 预定义字段，只能更新分组、分组内排序、单位、提示语和option
 	if hasIsPreProperty {
 		_ = data.ForEach(func(key string, val interface{}) error {
-			if key != metadata.AttributeFieldPropertyGroup && key != metadata.AttributeFieldPropertyIndex &&
-				key != metadata.AttributeFieldUnit && key != metadata.AttributeFieldPlaceHolder &&
-				key != metadata.AttributeFieldOption {
+			switch key {
+			case metadata.AttributeFieldPropertyGroup,
+				metadata.AttributeFieldPropertyIndex,
+				metadata.AttributeFieldUnit,
+				metadata.AttributeFieldPlaceHolder,
+				metadata.AttributeFieldOption:
+			default:
 				data.Remove(key)
 			}
 			return nil

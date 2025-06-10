@@ -157,9 +157,5 @@ func isFileExceedLimit(str string) bool {
 	bytes := []byte(str)
 	length := len(bytes)
 
-	if length > fileLimit {
-		return true
-	}
-
-	return false
+	return length > fileLimit
 }

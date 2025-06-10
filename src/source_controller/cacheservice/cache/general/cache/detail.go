@@ -292,13 +292,11 @@ func (c *Cache) listDetailByUniqueKey(kit *rest.Kit, opt *types.ListDetailByUniq
 	for i, key := range keys {
 		uniqueKeys[i] = c.key.UniqueKey(string(opt.Type), key)
 	}
-
 	results, err := redis.Client().MGet(kit.Ctx, uniqueKeys...).Result()
 	if err != nil {
 		blog.Errorf("list %s unique keys %+v cache failed, err: %v, rid: %s", c.key.Resource(), keys, err, kit.Rid)
 		return nil, err
 	}
-
 	// generate unique key to id map and find the unique keys that need to be refreshed
 	keyIDKeyMap := make(map[string]string)
 	idKeys := make([]string, 0)
@@ -309,22 +307,18 @@ func (c *Cache) listDetailByUniqueKey(kit *rest.Kit, opt *types.ListDetailByUniq
 			needRefreshRedisKeys = append(needRefreshRedisKeys, uniqueKeys[idx])
 			continue
 		}
-
 		idKey, ok := res.(string)
 		if !ok {
 			blog.Errorf("%s unique key %s id key(%+v) is invalid, rid: %s", c.key.Resource(), keys[idx], res, kit.Rid)
 			continue
 		}
-
 		if idKey == "" {
 			blog.Errorf("%s unique key %s id key is empty, rid: %s", c.key.Resource(), keys[idx], kit.Rid)
 			continue
 		}
-
 		keyIDKeyMap[keys[idx]] = idKey
 		idKeys = append(idKeys, idKey)
 	}
-
 	// list detail by ids from redis
 	idDetailMap := make(map[string]string)
 	keyDetailMap := make(map[string]string)
@@ -337,15 +331,12 @@ func (c *Cache) listDetailByUniqueKey(kit *rest.Kit, opt *types.ListDetailByUniq
 			return nil, err
 		}
 	}
-
 	for key, idKey := range keyIDKeyMap {
 		keyDetailMap[key] = idDetailMap[idKey]
 	}
-
 	if len(needRefreshKeys) == 0 {
 		return keyDetailMap, nil
 	}
-
 	// can not find detail in cache, need refresh the cache
 	getDataOpt := &getDataByKeysOpt{
 		BasicFilter: &types.BasicFilter{SubRes: opt.SubRes, SupplierAccount: kit.SupplierAccount,
@@ -356,10 +347,8 @@ func (c *Cache) listDetailByUniqueKey(kit *rest.Kit, opt *types.ListDetailByUniq
 	if err != nil {
 		return nil, err
 	}
-
 	c.tryRefreshDetail(&tryRefreshDetailOpt{toRefreshKeys: needRefreshRedisKeys, dbData: dbData, fields: opt.Fields,
 		idDetailMap: idDetailMap, uniqueKeyType: opt.Type, keyDetailMap: keyDetailMap}, kit.Rid)
-
 	return keyDetailMap, nil
 }
 

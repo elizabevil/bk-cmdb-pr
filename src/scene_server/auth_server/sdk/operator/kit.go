@@ -26,34 +26,34 @@ func isNumeric(val interface{}) bool {
 }
 
 func toFloat64(val interface{}) float64 {
-	switch val.(type) {
+	switch vall := val.(type) {
 	case int:
-		return float64(val.(int))
+		return float64(vall)
 	case int8:
-		return float64(val.(int8))
+		return float64(vall)
 	case int16:
-		return float64(val.(int16))
+		return float64(vall)
 	case int32:
-		return float64(val.(int32))
+		return float64(vall)
 	case int64:
-		return float64(val.(int64))
+		return float64(vall)
 	case uint:
-		return float64(val.(uint))
+		return float64(vall)
 	case uint8:
-		return float64(val.(uint8))
+		return float64(vall)
 	case uint16:
-		return float64(val.(uint16))
+		return float64(vall)
 	case uint32:
-		return float64(val.(uint32))
+		return float64(vall)
 	case uint64:
-		return float64(val.(uint64))
+		return float64(vall)
 	case json.Number:
 		val, _ := val.(json.Number).Float64()
 		return val
 	case float64:
-		return val.(float64)
+		return vall
 	case float32:
-		return val.(float64)
+		return float64(vall)
 	default:
 		panic(fmt.Sprintf("unsupported type, value: %v", val))
 

@@ -228,13 +228,14 @@ func (cc *ConfCenter) listenFileChange(configcenterPath string, filePath string)
 			blog.Infof("write configure to center %s success", configcenterPath)
 		}
 	})
-	if fileName == types.CCConfigureRedis {
+	switch fileName {
+	case types.CCConfigureRedis:
 		redisViper = v
-	} else if fileName == types.CCConfigureMongo {
+	case types.CCConfigureMongo:
 		mongodbViper = v
-	} else if fileName == types.CCConfigureCommon {
+	case types.CCConfigureCommon:
 		commonViper = v
-	} else if fileName == types.CCConfigureExtra {
+	case types.CCConfigureExtra:
 		extraViper = v
 	}
 }

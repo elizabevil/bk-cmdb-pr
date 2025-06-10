@@ -541,11 +541,8 @@ func (e *HostDynamicGroupExecutor) getHostIDs(moduleHostConfig metadata.Distinct
 	e.total = len(respHostIDs)
 
 	// 当有根据主机实例内容查询的时候的时候，无法在程序中完成分页
-	hasHostCond := false
-	if len(e.params.Ipv4Ip.Data) > 0 || len(e.params.Ipv6Ip.Data) > 0 || len(e.conds.hostCond.Condition) > 0 ||
-		e.conds.hostCond.TimeCondition != nil {
-		hasHostCond = true
-	}
+	hasHostCond := len(e.params.Ipv4Ip.Data) > 0 || len(e.params.Ipv6Ip.Data) > 0 || len(e.conds.hostCond.Condition) > 0 ||
+		e.conds.hostCond.TimeCondition != nil
 
 	if !hasHostCond && e.params.Page.Limit > 0 {
 		start := e.params.Page.Start

@@ -39,7 +39,7 @@ type ObjQueryInput struct {
 // ConvTime 将查询条件中字段包含cc_type key ，子节点变为time.Time
 func (o *ObjQueryInput) ConvTime() error {
 	conds, ok := o.Condition.(map[string]interface{})
-	if true != ok && nil != conds {
+	if !ok && nil != conds {
 		return nil
 	}
 	for key, item := range conds {
@@ -55,77 +55,66 @@ func (o *ObjQueryInput) ConvTime() error {
 
 // convTimeItem 转义具体的某一项,将查询条件中字段包含cc_time_type
 func (o *ObjQueryInput) convTimeItem(item interface{}) (interface{}, error) {
-
-	switch item.(type) {
+	switch item := item.(type) {
 	case map[string]interface{}:
+		arrItem := item
+		_, timeTypeOk := arrItem[common.BKTimeTypeParseFlag]
+		if timeTypeOk {
+			delete(arrItem, common.BKTimeTypeParseFlag)
+		}
 
-		arrItem, ok := item.(map[string]interface{})
-		if true == ok {
-			_, timeTypeOk := arrItem[common.BKTimeTypeParseFlag]
-			if timeTypeOk {
-				delete(arrItem, common.BKTimeTypeParseFlag)
-			}
+		for key, value := range arrItem {
+			switch value := value.(type) {
 
-			for key, value := range arrItem {
-				switch value.(type) {
-
-				case []interface{}:
-					var err error
-					arrItem[key], err = o.convTimeItem(value)
+			case []interface{}:
+				var err error
+				arrItem[key], err = o.convTimeItem(value)
+				if nil != err {
+					return nil, err
+				}
+			case map[string]interface{}:
+				arrItemVal := value
+				var err error
+				for key, value := range arrItemVal {
+					arrItemVal[key], err = o.convTimeItem(value)
 					if nil != err {
 						return nil, err
 					}
-				case map[string]interface{}:
-					arrItemVal, ok := value.(map[string]interface{})
-					if ok {
-						for key, value := range arrItemVal {
-							var err error
-							arrItemVal[key], err = o.convTimeItem(value)
-							if nil != err {
-								return nil, err
-							}
-						}
-						arrItem[key] = value
-					}
-
-				default:
-					if timeTypeOk {
-						var err error
-						arrItem[key], err = o.convInterfaceToTime(value)
-						if nil != err {
-							return nil, err
-						}
-					}
-
 				}
+				arrItem[key] = value
+
+			default:
+				if timeTypeOk {
+					var err error
+					arrItem[key], err = o.convInterfaceToTime(value)
+					if nil != err {
+						return nil, err
+					}
+				}
+
 			}
-			item = arrItem
 		}
+		item = arrItem
 	case []interface{}:
 		// 如果是数据，递归转换所有子项
-		arrItem, ok := item.([]interface{})
-		if true == ok {
-			for index, value := range arrItem {
-				newValue, err := o.convTimeItem(value)
-				if nil != err {
-					return nil, err
-
-				}
-				arrItem[index] = newValue
+		arrItem := item
+		for index, value := range arrItem {
+			newValue, err := o.convTimeItem(value)
+			if nil != err {
+				return nil, err
 			}
-			item = arrItem
-
+			arrItem[index] = newValue
 		}
-
+		item = arrItem
 	}
 
 	return item, nil
 }
 
 func (O *ObjQueryInput) convInterfaceToTime(val interface{}) (interface{}, error) {
-	switch val.(type) {
+	switch val := val.(type) {
 	case string:
-		ts, err := timeparser.TimeParser(val.(string))
+		ts, err := timeparser.TimeParser(val)
 		if nil != err {
 			return nil, err
 		}

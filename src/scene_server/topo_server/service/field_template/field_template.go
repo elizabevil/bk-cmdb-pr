@@ -185,8 +185,7 @@ func (s *service) FieldTemplateBindObject(ctx *rest.Contexts) {
 		return
 	}
 
-	objIDs := make([]int64, 0)
-	objIDs = util.IntArrayUnique(opt.ObjectIDs)
+	objIDs := util.IntArrayUnique(opt.ObjectIDs)
 
 	if authResp, authorized := s.authorizeObjsBindFieldTemplate(ctx.Kit, opt.ID, objIDs); !authorized {
 		ctx.RespNoAuth(authResp)

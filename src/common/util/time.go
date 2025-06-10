@@ -48,7 +48,7 @@ func TimeStrToUnixSecondDefault(str string) int64 {
 // ConvParamsTime TODO
 func ConvParamsTime(data interface{}) interface{} {
 	conds, ok := data.(map[string]interface{})
-	if true != ok && nil != conds {
+	if !ok && nil != conds {
 		return data
 	}
 	convItem, _ := convTimeItem(data)
@@ -58,80 +58,76 @@ func ConvParamsTime(data interface{}) interface{} {
 
 func convTimeItem(item interface{}) (interface{}, error) {
 
-	switch item.(type) {
+	switch itemx := item.(type) {
 	case map[string]interface{}:
-		arrItem, ok := item.(map[string]interface{})
-		if true == ok {
+		arrItem := itemx
 
-			for key, value := range arrItem {
-				var timeTypeOk = false
-				for _, convTimeKey := range convTimeFields {
-					if key == convTimeKey {
-						timeTypeOk = true
-						break
-					}
-				}
-				// 如果当前不需要转换，递归转
-				if !timeTypeOk {
-					arrItem[key], _ = convTimeItem(value)
-					continue
-				}
-
-				switch value.(type) {
-				case []interface{}:
-					arr := value.([]interface{})
-					for index, tsValue := range arr {
-						ts, err := convInterfaceToTime(tsValue)
-						if err != nil {
-							continue
-						}
-						arr[index] = ts
-					}
-					arrItem[key] = arr
-				case map[string]interface{}:
-					arr := value.(map[string]interface{})
-					for mapKey, mapVal := range arr {
-						ts, err := convInterfaceToTime(mapVal)
-						if err != nil {
-							continue
-						}
-						arr[mapKey] = ts
-					}
-					arrItem[key] = arr
-				case string:
-					ts, err := convInterfaceToTime(value)
-					if nil == err {
-						arrItem[key] = ts
-					}
-
+		for key, value := range arrItem {
+			var timeTypeOk = false
+			for _, convTimeKey := range convTimeFields {
+				if key == convTimeKey {
+					timeTypeOk = true
+					break
 				}
 			}
-			item = arrItem
+			// 如果当前不需要转换，递归转
+			if !timeTypeOk {
+				arrItem[key], _ = convTimeItem(value)
+				continue
+			}
+
+			switch value := value.(type) {
+			case []interface{}:
+				arr := value
+				for index, tsValue := range arr {
+					ts, err := convInterfaceToTime(tsValue)
+					if err != nil {
+						continue
+					}
+					arr[index] = ts
+				}
+				arrItem[key] = arr
+			case map[string]interface{}:
+				arr := value
+				for mapKey, mapVal := range arr {
+					ts, err := convInterfaceToTime(mapVal)
+					if err != nil {
+						continue
+					}
+					arr[mapKey] = ts
+				}
+				arrItem[key] = arr
+			case string:
+				ts, err := convInterfaceToTime(value)
+				if nil == err {
+					arrItem[key] = ts
+				}
+
+			}
 		}
+		item = arrItem
 	case []interface{}:
 		// 如果是数据，递归转换所有子项
-		arrItem, ok := item.([]interface{})
-		if true == ok {
-			for index, value := range arrItem {
-				newValue, err := convTimeItem(value)
-				if err != nil {
-					return nil, err
+		arrItem := itemx
+		for index, value := range arrItem {
+			newValue, err := convTimeItem(value)
+			if err != nil {
+				return nil, err
 
-				}
-				arrItem[index] = newValue
 			}
-			item = arrItem
-
+			arrItem[index] = newValue
 		}
+		item = arrItem
+
 	}
 
 	return item, nil
 }
 
 func convInterfaceToTime(val interface{}) (interface{}, error) {
-	switch val.(type) {
+	switch val := val.(type) {
 	case []interface{}:
-		arrVal, _ := val.([]interface{})
+		arrVal := val
 		var ret []interface{}
 		for _, itemVal := range arrVal {
 			ts, err := convItemToTime(itemVal)
@@ -139,7 +135,6 @@ func convInterfaceToTime(val interface{}) (interface{}, error) {
 				ret = append(ret, itemVal)
 			} else {
 				ret = append(ret, ts)
-
 			}
 		}
 		return ret, nil
@@ -150,9 +145,9 @@ func convInterfaceToTime(val interface{}) (interface{}, error) {
 }
 
 func convItemToTime(val interface{}) (interface{}, error) {
-	switch val.(type) {
+	switch val := val.(type) {
 	case string:
-		ts, err := timeparser.TimeParser(val.(string))
+		ts, err := timeparser.TimeParser(val)
 		if nil != err {
 			return nil, err
 		}
@@ -179,7 +174,7 @@ var validPeriod = regexp.MustCompile("^\\d*[DHMS]$") // period regexp to check p
 // eg. 0H, 000H, 0002H, 32M，34S...
 // examples of no matched:  1.4H, -2H, +2H ...
 func FormatPeriod(period string) (string, error) {
-	if common.Infinite == period || "" == period {
+	if common.Infinite == period || period == "" {
 		return common.Infinite, nil
 	}
 
@@ -191,7 +186,7 @@ func FormatPeriod(period string) (string, error) {
 	if nil != err {
 		return "", err
 	}
-	if 0 == num {
+	if num == 0 {
 		return common.Infinite, nil
 	}
 

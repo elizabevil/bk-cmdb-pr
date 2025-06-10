@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"math/big"
 	"net"
+	"net/netip"
 	"reflect"
 	"strings"
 )
@@ -86,6 +87,18 @@ func convertIPv6ToFullAddr(ipv6 string) (string, error) {
 	}
 
 	return strings.Join(part, ":"), nil
+}
+
+// ConvertIPv6ToStandardFormat2 convert ipv6 address to standard format
+func ConvertIPv6ToStandardFormat2(address string) (string, error) {
+	addr, err := netip.ParseAddr(address)
+	if err != nil {
+		return "", err
+	}
+	if addr.Is4In6() || addr.Is6() {
+		return addr.StringExpanded(), nil
+	}
+	return "", fmt.Errorf("address %s is ipv4", address)
 }
 
 // ConvertIPv6ToStandardFormat convert ipv6 address to standard format
@@ -190,9 +203,9 @@ func ConvertIpv6ToFullWord(field string, value interface{}) (interface{}, error)
 		// each element in the array or slice should be of the same basic type.
 		for i := 0; i < length; i++ {
 			item := v.Index(i).Interface()
-			switch item.(type) {
+			switch item := item.(type) {
 			case string:
-				v, err := ConvertIPv6ToStandardFormat(item.(string))
+				v, err := ConvertIPv6ToStandardFormat(item)
 				if err != nil {
 					return nil, err
 				}

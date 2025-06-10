@@ -91,34 +91,34 @@ func GetInt32ByInterface(a interface{}) (int32, error) {
 func GetInt64ByInterface(a interface{}) (int64, error) {
 	var id int64 = 0
 	var err error
-	switch a.(type) {
+	switch a := a.(type) {
 	case int:
-		id = int64(a.(int))
+		id = int64(a)
 	case int8:
-		return int64(a.(int8)), nil
+		return int64(a), nil
 	case int16:
-		return int64(a.(int16)), nil
+		return int64(a), nil
 	case int32:
-		id = int64(a.(int32))
+		id = int64(a)
 	case int64:
-		id = a.(int64)
+		id = a
 	case uint:
-		id = int64(a.(uint))
+		id = int64(a)
 	case uint8:
-		return int64(a.(uint8)), nil
+		return int64(a), nil
 	case uint16:
-		return int64(a.(uint16)), nil
+		return int64(a), nil
 	case uint32:
-		id = int64(a.(uint32))
+		id = int64(a)
 	case uint64:
-		id = int64(a.(uint64))
+		id = int64(a)
 	case json.Number:
-		id, err = a.(json.Number).Int64()
+		id, err = a.Int64()
 	case float64:
-		tmpID := a.(float64)
+		tmpID := a
 		id = int64(tmpID)
 	case float32:
-		tmpID := a.(float32)
+		tmpID := a
 		id = int64(tmpID)
 	default:
 		err = errors.New("not numeric")
@@ -166,29 +166,29 @@ func GetFloat64ByInterface(a interface{}) (float64, error) {
 // GetMapInterfaceByInterface get map interface by interface
 func GetMapInterfaceByInterface(data interface{}) ([]interface{}, error) {
 	values := make([]interface{}, 0)
-	switch data.(type) {
+	switch data := data.(type) {
 	case []int:
-		vs, _ := data.([]int)
+		vs := data
 		for _, v := range vs {
 			values = append(values, v)
 		}
 	case []int32:
-		vs, _ := data.([]int32)
+		vs := data
 		for _, v := range vs {
 			values = append(values, v)
 		}
 	case []int64:
-		vs, _ := data.([]int64)
+		vs := data
 		for _, v := range vs {
 			values = append(values, v)
 		}
 	case []string:
-		vs, _ := data.([]string)
+		vs := data
 		for _, v := range vs {
 			values = append(values, v)
 		}
 	case []interface{}:
-		values = data.([]interface{})
+		values = data
 	default:
 		return nil, errors.New("params value can not be empty")
 	}
@@ -270,7 +270,7 @@ func ConvertToInterfaceSlice(value interface{}) []interface{} {
 
 // SplitStrField    split string field, remove empty string
 func SplitStrField(str, sep string) []string {
-	if "" == str {
+	if str == "" {
 		return nil
 	}
 	return strings.Split(str, sep)

@@ -153,7 +153,7 @@ func (c *awsClient) GetInstances(region string, opt *ccom.InstanceOpt) (*metadat
 	totalCnt := int64(len(instances))
 	// 如果查到的不是全量，则去获取实例总数
 	if !isAll {
-		instOpt := &ccom.InstanceOpt{ccom.BaseOpt{
+		instOpt := &ccom.InstanceOpt{BaseOpt: ccom.BaseOpt{
 			Limit: ccom.MaxLimit,
 		}}
 		totalCnt, err = c.GetInstancesTotalCnt(region, instOpt)
@@ -234,10 +234,8 @@ func (c *awsClient) getInstances(region string, opt *ccom.InstanceOpt) ([]*metad
 			return nil, false, ccom.ErrorLoopCnt
 		}
 	}
-	isAll := false
-	if nextToken == nil || *nextToken == "" {
-		isAll = true
-	}
+	isAll := nextToken == nil || *nextToken == ""
+
 	return instances, isAll, nil
 }
 

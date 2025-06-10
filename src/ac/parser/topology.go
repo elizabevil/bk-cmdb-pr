@@ -423,68 +423,9 @@ func (ps *parseStream) businessSet() *parseStream {
 		return ps
 	}
 
-	if ps.hitPattern(findBizSetTopoPattern, http.MethodPost) {
-		bizSetIDVal, err := ps.RequestCtx.getValueFromBody("bk_biz_set_id")
-		if err != nil {
-			ps.err = err
-			return ps
-		}
-
-		bizSetID := bizSetIDVal.Int()
-		if bizSetID <= 0 {
-			ps.err = errors.New("invalid biz set id")
-			return ps
-		}
-
-		ps.Attribute.Resources = []meta.ResourceAttribute{
-			{
-				Basic: meta.Basic{
-					Type:       meta.BizSet,
-					Action:     meta.AccessBizSet,
-					InstanceID: bizSetID,
-				},
-			},
-		}
-		return ps
-	}
-
-	// find many business set list for the user with any business set resources
-	if ps.hitPattern(findmanyBusinessSetPattern, http.MethodPost) {
-		ps.Attribute.Resources = []meta.ResourceAttribute{
-			{
-				Basic: meta.Basic{
-					Type:   meta.BizSet,
-					Action: meta.SkipAction,
-				},
-			},
-		}
-		return ps
-	}
-
-	// NOTE: find many business set for front-end use alone.
-	if ps.hitPattern(findSimplifiedBusinessSetListPattern, http.MethodGet) {
-		ps.Attribute.Resources = []meta.ResourceAttribute{
-			{
-				Basic: meta.Basic{
-					Type:   meta.BizSet,
-					Action: meta.SkipAction,
-				},
-			},
-		}
-		return ps
-	}
-
-	// find reduced business set list for the user with any business set resources
-	if ps.hitPattern(findReducedBusinessSetListPattern, http.MethodGet) {
-		ps.Attribute.Resources = []meta.ResourceAttribute{
-			{
-				Basic: meta.Basic{
-					Type:   meta.BizSet,
-					Action: meta.SkipAction,
-				},
-			},
-		}
-		return ps
+	stream, done := ps.businessSet_find()
+	if done {
+		return stream
 	}
 
 	// create business set, this is not a normalize api.
@@ -614,6 +555,73 @@ func (ps *parseStream) businessSet() *parseStream {
 	}
 
 	return ps
+}
+
+func (ps *parseStream) businessSet_find() (*parseStream, bool) {
+	if ps.hitPattern(findBizSetTopoPattern, http.MethodPost) {
+		bizSetIDVal, err := ps.RequestCtx.getValueFromBody("bk_biz_set_id")
+		if err != nil {
+			ps.err = err
+			return ps, true
+		}
+
+		bizSetID := bizSetIDVal.Int()
+		if bizSetID <= 0 {
+			ps.err = errors.New("invalid biz set id")
+			return ps, true
+		}
+
+		ps.Attribute.Resources = []meta.ResourceAttribute{
+			{
+				Basic: meta.Basic{
+					Type:       meta.BizSet,
+					Action:     meta.AccessBizSet,
+					InstanceID: bizSetID,
+				},
+			},
+		}
+		return ps, true
+	}
+
+	// find many business set list for the user with any business set resources
+	if ps.hitPattern(findmanyBusinessSetPattern, http.MethodPost) {
+		ps.Attribute.Resources = []meta.ResourceAttribute{
+			{
+				Basic: meta.Basic{
+					Type:   meta.BizSet,
+					Action: meta.SkipAction,
+				},
+			},
+		}
+		return ps, true
+	}
+
+	// NOTE: find many business set for front-end use alone.
+	if ps.hitPattern(findSimplifiedBusinessSetListPattern, http.MethodGet) {
+		ps.Attribute.Resources = []meta.ResourceAttribute{
+			{
+				Basic: meta.Basic{
+					Type:   meta.BizSet,
+					Action: meta.SkipAction,
+				},
+			},
+		}
+		return ps, true
+	}
+
+	// find reduced business set list for the user with any business set resources
+	if ps.hitPattern(findReducedBusinessSetListPattern, http.MethodGet) {
+		ps.Attribute.Resources = []meta.ResourceAttribute{
+			{
+				Basic: meta.Basic{
+					Type:   meta.BizSet,
+					Action: meta.SkipAction,
+				},
+			},
+		}
+		return ps, true
+	}
+	return nil, false
 }
 
 var (
@@ -972,23 +980,32 @@ func (ps *parseStream) objectModule() *parseStream {
 		return ps
 	}
 
+	stream, done := ps.objectModule_find()
+	if done {
+		return stream
+	}
+
+	return ps
+}
+
+func (ps *parseStream) objectModule_find() (*parseStream, bool) {
 	// find module operation.
 	if ps.hitRegexp(findModuleRegexp, http.MethodPost) {
 		if len(ps.RequestCtx.Elements) != 7 {
 			ps.err = errors.New("find module, but got invalid url")
-			return ps
+			return ps, true
 		}
 
 		bizID, err := strconv.ParseInt(ps.RequestCtx.Elements[5], 10, 64)
 		if err != nil {
 			ps.err = fmt.Errorf("find module, but got invalid business id %s", ps.RequestCtx.Elements[5])
-			return ps
+			return ps, true
 		}
 
 		setID, err := strconv.ParseInt(ps.RequestCtx.Elements[6], 10, 64)
 		if err != nil {
 			ps.err = fmt.Errorf("find module, but got invalid set id %s", ps.RequestCtx.Elements[6])
-			return ps
+			return ps, true
 		}
 		ps.Attribute.Resources = []meta.ResourceAttribute{
 			{
@@ -1005,14 +1022,14 @@ func (ps *parseStream) objectModule() *parseStream {
 				},
 			},
 		}
-		return ps
+		return ps, true
 	}
 
 	// find module by service template.
 	if ps.hitRegexp(findModuleByServiceTemplateRegexp, http.MethodPost) {
 		if len(ps.RequestCtx.Elements) != 7 {
 			ps.err = errors.New("find module by service template id, but got invalid url")
-			return ps
+			return ps, true
 		}
 		var bizIDStr string
 		match := findModuleByServiceTemplateRegexp.FindStringSubmatch(ps.RequestCtx.URI)
@@ -1026,7 +1043,7 @@ func (ps *parseStream) objectModule() *parseStream {
 		if err != nil {
 			ps.err = fmt.Errorf("find module, but parse bk_biz_id failed, bizIDStr: %s, uri: %s, err: %+v", bizIDStr,
 				ps.RequestCtx.URI, err)
-			return ps
+			return ps, true
 		}
 
 		ps.Attribute.Resources = []meta.ResourceAttribute{
@@ -1039,20 +1056,20 @@ func (ps *parseStream) objectModule() *parseStream {
 				Layers: []meta.Item{},
 			},
 		}
-		return ps
+		return ps, true
 	}
 
 	// find modules by condition in one biz
 	if ps.hitRegexp(findMouduleByConditionRegexp, http.MethodPost) {
 		if len(ps.RequestCtx.Elements) != 6 {
 			ps.err = errors.New("find module batch, but got invalid url")
-			return ps
+			return ps, true
 		}
 
 		bizID, err := strconv.ParseInt(ps.RequestCtx.Elements[5], 10, 64)
 		if err != nil {
 			ps.err = fmt.Errorf("update module batch, but got invalid biz id %s", ps.RequestCtx.Elements[5])
-			return ps
+			return ps, true
 		}
 
 		ps.Attribute.Resources = []meta.ResourceAttribute{
@@ -1065,20 +1082,20 @@ func (ps *parseStream) objectModule() *parseStream {
 				Layers: []meta.Item{},
 			},
 		}
-		return ps
+		return ps, true
 	}
 
 	// find module batch in one biz
 	if ps.hitRegexp(findMouduleBatchRegexp, http.MethodPost) {
 		if len(ps.RequestCtx.Elements) != 6 {
 			ps.err = errors.New("find module batch, but got invalid url")
-			return ps
+			return ps, true
 		}
 
 		bizID, err := strconv.ParseInt(ps.RequestCtx.Elements[5], 10, 64)
 		if err != nil {
 			ps.err = fmt.Errorf("find module batch, but got invalid biz id %s", ps.RequestCtx.Elements[5])
-			return ps
+			return ps, true
 		}
 
 		ps.Attribute.Resources = []meta.ResourceAttribute{
@@ -1091,19 +1108,19 @@ func (ps *parseStream) objectModule() *parseStream {
 				Layers: []meta.Item{},
 			},
 		}
-		return ps
+		return ps, true
 	}
 
 	// find module with relation in one biz
 	if ps.hitRegexp(findMouduleWithRelationRegexp, http.MethodPost) {
 		if len(ps.RequestCtx.Elements) != 7 {
 			ps.err = errors.New("find module with relation, but got invalid url")
-			return ps
+			return ps, true
 		}
 		bizID, err := strconv.ParseInt(ps.RequestCtx.Elements[6], 10, 64)
 		if err != nil {
 			ps.err = fmt.Errorf("find module with relation, but got invalid biz id %s", ps.RequestCtx.Elements[6])
-			return ps
+			return ps, true
 		}
 
 		ps.Attribute.Resources = []meta.ResourceAttribute{
@@ -1116,10 +1133,9 @@ func (ps *parseStream) objectModule() *parseStream {
 				Layers: []meta.Item{},
 			},
 		}
-		return ps
+		return ps, true
 	}
-
-	return ps
+	return nil, false
 }
 
 var (
@@ -1272,17 +1288,26 @@ func (ps *parseStream) objectSet() *parseStream {
 		return ps
 	}
 
+	stream, done := ps.objectSet_find()
+	if done {
+		return stream
+	}
+
+	return ps
+}
+
+func (ps *parseStream) objectSet_find() (*parseStream, bool) {
 	// find set operation.
 	if ps.hitRegexp(findSetRegexp, http.MethodPost) {
 		if len(ps.RequestCtx.Elements) != 6 {
 			ps.err = errors.New("find set, but got invalid url")
-			return ps
+			return ps, true
 		}
 
 		bizID, err := strconv.ParseInt(ps.RequestCtx.Elements[5], 10, 64)
 		if err != nil {
 			ps.err = fmt.Errorf("find set, but got invalid business id %s", ps.RequestCtx.Elements[5])
-			return ps
+			return ps, true
 		}
 		ps.Attribute.Resources = []meta.ResourceAttribute{
 			{
@@ -1293,20 +1318,20 @@ func (ps *parseStream) objectSet() *parseStream {
 				},
 			},
 		}
-		return ps
+		return ps, true
 	}
 
 	// find set operation.
 	if ps.hitRegexp(findSetBatchRegexp, http.MethodPost) {
 		if len(ps.RequestCtx.Elements) != 6 {
 			ps.err = errors.New("find set batch, but got invalid url")
-			return ps
+			return ps, true
 		}
 
 		bizID, err := strconv.ParseInt(ps.RequestCtx.Elements[5], 10, 64)
 		if err != nil {
 			ps.err = fmt.Errorf("find set batch, but got invalid business id %s", ps.RequestCtx.Elements[5])
-			return ps
+			return ps, true
 		}
 
 		ps.Attribute.Resources = []meta.ResourceAttribute{
@@ -1318,10 +1343,9 @@ func (ps *parseStream) objectSet() *parseStream {
 				},
 			},
 		}
-		return ps
+		return ps, true
 	}
-
-	return ps
+	return nil, false
 }
 
 var (

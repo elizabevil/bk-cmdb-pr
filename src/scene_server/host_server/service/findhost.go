@@ -400,11 +400,12 @@ func (s *Service) FindHostsByTopo(ctx *rest.Contexts) {
 		ApplicationIDArr: []int64{bizID},
 	}
 
-	if option.ObjID == common.BKInnerObjIDSet {
+	switch option.ObjID {
+	case common.BKInnerObjIDSet:
 		distinctHostCond.SetIDArr = []int64{option.InstID}
-	} else if option.ObjID == common.BKInnerObjIDModule {
+	case common.BKInnerObjIDModule:
 		distinctHostCond.ModuleIDArr = []int64{option.InstID}
-	} else {
+	default:
 		setIDArr, err := s.Logic.GetSetIDsByTopo(ctx.Kit, option.ObjID, []int64{option.InstID})
 		if err != nil {
 			blog.Errorf("find hosts by topo failed, get set ID by topo err: %v, objID: %s, instID: %d, rid: %s",
@@ -1046,7 +1047,7 @@ func (s *Service) countTopoNodeHosts(ctx *rest.Contexts, bizID int64,
 			HostCount: 0,
 		}
 		moduleIDMap, ok := nodeModuleIDMap[topoNode.String()]
-		if ok == false {
+		if !ok {
 			hostCounts = append(hostCounts, hostCount)
 			continue
 		}

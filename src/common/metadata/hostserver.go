@@ -422,7 +422,9 @@ func (option ListHostsParameter) Validate() (string, error) {
 	}
 
 	if option.HostPropertyFilter != nil {
-		if key, err := option.HostPropertyFilter.Validate(&querybuilder.RuleOption{NeedSameSliceElementType: true}); err != nil {
+		if key, err := option.HostPropertyFilter.Validate(
+			&querybuilder.RuleOption{NeedSameSliceElementType: true},
+		); err != nil {
 			return fmt.Sprintf("host_property_filter.%s", key), err
 		}
 		if option.HostPropertyFilter.GetDeep() > querybuilder.MaxDeep {
@@ -456,7 +458,9 @@ func (option ListHostsWithNoBizParameter) Validate() (string, error) {
 	}
 
 	if option.HostPropertyFilter != nil {
-		if key, err := option.HostPropertyFilter.Validate(&querybuilder.RuleOption{NeedSameSliceElementType: true}); err != nil {
+		if key, err := option.HostPropertyFilter.Validate(
+			&querybuilder.RuleOption{NeedSameSliceElementType: true},
+		); err != nil {
 			return fmt.Sprintf("host_property_filter.%s", key), err
 		}
 		if option.HostPropertyFilter.GetDeep() > querybuilder.MaxDeep {
@@ -548,7 +552,9 @@ func (option *ListHostsDetailAndTopoOption) Validate() *errors.RawErrorInfo {
 	}
 
 	if option.HostPropertyFilter != nil {
-		if key, err := option.HostPropertyFilter.Validate(&querybuilder.RuleOption{NeedSameSliceElementType: true}); err != nil {
+		if key, err := option.HostPropertyFilter.Validate(
+			&querybuilder.RuleOption{NeedSameSliceElementType: true},
+		); err != nil {
 			return &errors.RawErrorInfo{
 				ErrCode: common.CCErrCommParamsInvalid,
 				Args:    []interface{}{"host_property_filter." + key},
@@ -602,7 +608,9 @@ func (option ListHosts) Validate() (errKey string, err error) {
 	}
 
 	if option.HostPropertyFilter != nil {
-		if key, err := option.HostPropertyFilter.Validate(&querybuilder.RuleOption{NeedSameSliceElementType: true}); err != nil {
+		if key, err := option.HostPropertyFilter.Validate(
+			&querybuilder.RuleOption{NeedSameSliceElementType: true},
+		); err != nil {
 			return fmt.Sprintf("host_property_filter.%s", key), err
 		}
 		if option.HostPropertyFilter.GetDeep() > querybuilder.MaxDeep {
@@ -710,12 +718,12 @@ type Module struct {
 func (sh SearchHost) ExtractHostIDs() *[]int64 {
 	hostIDArray := make([]int64, 0)
 	for _, h := range sh.Info {
-		if _, exist := h["host"]; exist == false {
+		if _, exist := h["host"]; !exist {
 			blog.ErrorJSON("unexpected error, host: %s don't have host field.", h)
 			continue
 		}
 		hostID, exist := h["host"].(mapstr.MapStr)[common.BKHostIDField]
-		if exist == false {
+		if !exist {
 			blog.ErrorJSON("unexpected error, host: %s don't have host.bk_host_id field.", h)
 			continue
 		}

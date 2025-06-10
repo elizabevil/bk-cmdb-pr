@@ -251,75 +251,68 @@ func (o *QueryInput) ConvTime() error {
 // convTimeItem cc_time_type
 func (o *QueryInput) convTimeItem(item interface{}) (interface{}, error) {
 
-	switch item.(type) {
+	switch itemx := item.(type) {
 	case map[string]interface{}:
 
-		arrItem, ok := item.(map[string]interface{})
-		if true == ok {
-			_, timeTypeOk := arrItem[common.BKTimeTypeParseFlag]
-			if timeTypeOk {
-				delete(arrItem, common.BKTimeTypeParseFlag)
-			}
+		arrItem := itemx
+		_, timeTypeOk := arrItem[common.BKTimeTypeParseFlag]
+		if timeTypeOk {
+			delete(arrItem, common.BKTimeTypeParseFlag)
+		}
 
-			for key, value := range arrItem {
-				switch value.(type) {
+		for key, value := range arrItem {
+			switch value := value.(type) {
 
-				case []interface{}:
-					var err error
-					arrItem[key], err = o.convTimeItem(value)
+			case []interface{}:
+				var err error
+				arrItem[key], err = o.convTimeItem(value)
+				if nil != err {
+					return nil, err
+				}
+			case map[string]interface{}:
+				arrItemVal := value
+				var err error
+				for key, value := range arrItemVal {
+					arrItemVal[key], err = o.convTimeItem(value)
 					if nil != err {
 						return nil, err
 					}
-				case map[string]interface{}:
-					arrItemVal, ok := value.(map[string]interface{})
-					if ok {
-						for key, value := range arrItemVal {
-							var err error
-							arrItemVal[key], err = o.convTimeItem(value)
-							if nil != err {
-								return nil, err
-							}
-						}
-						arrItem[key] = value
-					}
-
-				default:
-					if timeTypeOk {
-						var err error
-						arrItem[key], err = o.convInterfaceToTime(value)
-						if nil != err {
-							return nil, err
-						}
-					}
-
 				}
+				arrItem[key] = value
+
+			default:
+				if timeTypeOk {
+					var err error
+					arrItem[key], err = o.convInterfaceToTime(value)
+					if nil != err {
+						return nil, err
+					}
+				}
+
 			}
-			item = arrItem
 		}
+		item = arrItem
+
 	case []interface{}:
-		arrItem, ok := item.([]interface{})
-		if true == ok {
-			for index, value := range arrItem {
-				newValue, err := o.convTimeItem(value)
-				if nil != err {
-					return nil, err
+		arrItem := itemx
+		for index, value := range arrItem {
+			newValue, err := o.convTimeItem(value)
+			if nil != err {
+				return nil, err
 
-				}
-				arrItem[index] = newValue
 			}
-			item = arrItem
-
+			arrItem[index] = newValue
 		}
-
+		item = arrItem
 	}
 
 	return item, nil
 }
 
 func (o *QueryInput) convInterfaceToTime(val interface{}) (interface{}, error) {
-	switch val.(type) {
+	switch val := val.(type) {
 	case string:
-		ts, err := timeparser.TimeParserInLocation(val.(string), time.Local)
+		ts, err := timeparser.TimeParserInLocation(val, time.Local)
 		if nil != err {
 			return nil, err
 		}

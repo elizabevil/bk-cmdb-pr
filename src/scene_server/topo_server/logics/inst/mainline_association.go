@@ -276,7 +276,7 @@ func (assoc *association) SearchMainlineAssociationInstTopo(kit *rest.Kit, objID
 	}
 	objects, err := assoc.clientSet.CoreService().Model().ReadModel(kit.Ctx, kit.Header, queryCond)
 	if err != nil {
-		blog.Errorf("search mainline objects(%s) failed, err: %V, rid: %s", objectIDs, err, kit.Rid)
+		blog.Errorf("search mainline objects(%s) failed, err: %v, rid: %s", objectIDs, err, kit.Rid)
 		return nil, err
 	}
 
@@ -413,9 +413,10 @@ func (assoc *association) searchMainlineObjInstForTopo(kit *rest.Kit, objID stri
 
 	filter.Fields = []string{common.GetInstIDField(objID), common.GetInstNameField(objID),
 		common.BKDefaultField, common.BKParentIDField, common.BKAppIDField}
-	if objID == common.BKInnerObjIDSet {
+	switch objID {
+	case common.BKInnerObjIDSet:
 		filter.Fields = append(filter.Fields, common.BKSetTemplateIDField)
-	} else if objID == common.BKInnerObjIDModule {
+	case common.BKInnerObjIDModule:
 		filter.Fields = append(filter.Fields, []string{common.BKServiceTemplateIDField, common.BKSetTemplateIDField,
 			common.HostApplyEnabledField}...)
 	}

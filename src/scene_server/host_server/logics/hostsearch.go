@@ -210,15 +210,16 @@ func (sh *searchHost) ParseCondition() error {
 			return err
 		}
 
-		if object.ObjectID == common.BKInnerObjIDHost {
+		switch object.ObjectID {
+		case common.BKInnerObjIDHost:
 			sh.conds.hostCond = object
-		} else if object.ObjectID == common.BKInnerObjIDSet {
+		case common.BKInnerObjIDSet:
 			sh.conds.setCond = object
 			sh.topoShowSection.set = true
-		} else if object.ObjectID == common.BKInnerObjIDModule {
+		case common.BKInnerObjIDModule:
 			sh.conds.moduleCond = object
 			sh.topoShowSection.module = true
-		} else if object.ObjectID == common.BKInnerObjIDApp {
+		case common.BKInnerObjIDApp:
 			sh.conds.appCond = object
 			// 只有关于biz的条件大于0才被视为通过业务进行查询主机，
 			// 因为不通过业务进行查询主机也需要返回主机的业务信息，
@@ -226,11 +227,11 @@ func (sh *searchHost) ParseCondition() error {
 			if len(object.Condition) > 0 {
 				sh.topoShowSection.app = true
 			}
-		} else if object.ObjectID == common.BKInnerObjIDObject {
+		case common.BKInnerObjIDObject:
 			sh.conds.mainlineCond = object
-		} else if object.ObjectID == common.BKInnerObjIDPlat {
+		case common.BKInnerObjIDPlat:
 			sh.conds.platCond = object
-		} else {
+		default:
 			sh.conds.objectCondMap[object.ObjectID] = object.Condition
 		}
 	}

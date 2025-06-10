@@ -243,7 +243,8 @@ func (r AtomRule) validateValue(option *RuleOption) error {
 		return validateNumericType(r.Value)
 	case OperatorDatetimeLess, OperatorDatetimeLessOrEqual, OperatorDatetimeGreater, OperatorDatetimeGreaterOrEqual:
 		return validateDatetimeStringType(r.Value)
-	case OperatorBeginsWith, OperatorNotBeginsWith, OperatorContains, OperatorNotContains, OperatorsEndsWith, OperatorNotEndsWith:
+	case OperatorBeginsWith, OperatorNotBeginsWith, OperatorContains,
+		OperatorNotContains, OperatorsEndsWith, OperatorNotEndsWith:
 		return validateNotEmptyStringType(r.Value)
 	case OperatorIsEmpty, OperatorIsNotEmpty:
 		return nil
@@ -537,7 +538,7 @@ func (r CombinedRule) Match(matcher Matcher) bool {
 	switch r.Condition {
 	case ConditionAnd:
 		for _, rule := range r.Rules {
-			if rule.Match(matcher) == false {
+			if !rule.Match(matcher) {
 				return false
 			}
 		}

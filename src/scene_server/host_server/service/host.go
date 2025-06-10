@@ -1174,18 +1174,23 @@ func (s *Service) CloneHostProperty(ctx *rest.Contexts) {
 		return
 	}
 
+	hasOrgIP := len(input.OrgIP) != 0
+	hasDstIP := len(input.DstIP) != 0
+	hasOrgID := input.OrgID > 0
+	hasDstID := input.DstID > 0
+
 	// can only use ip or id for one.
-	if (len(input.OrgIP) != 0 || len(input.DstIP) != 0) && (input.OrgID > 0 || input.DstID > 0) {
+	if (hasOrgIP || hasDstIP) && (hasOrgID || hasDstID) {
 		ctx.RespErrorCodeOnly(common.CCErrCommParamsIsInvalid, "invalid org/dst ip or id")
 		return
 	}
 
-	if (len(input.OrgIP) == 0 && len(input.DstIP) == 0) && (input.OrgID <= 0 && input.DstID <= 0) {
+	if (!hasOrgIP && !hasDstIP) && (!hasOrgID && !hasDstID) {
 		ctx.RespErrorCodeOnly(common.CCErrCommParamsIsInvalid, "invalid org/dst ip or id")
 		return
 	}
 
-	if (len(input.OrgIP) != 0 || len(input.DstIP) != 0) && (len(input.OrgIP) == 0 || len(input.DstIP) == 0) {
+	if (hasOrgIP || hasDstIP) && (len(input.OrgIP) == 0 || len(input.DstIP) == 0) {
 		ctx.RespErrorCodeOnly(common.CCErrCommParamsIsInvalid, "no parameter")
 		return
 	}
@@ -1195,17 +1200,17 @@ func (s *Service) CloneHostProperty(ctx *rest.Contexts) {
 		return
 	}
 
-	if (input.OrgID > 0 || input.DstID > 0) && (input.OrgID <= 0 || input.DstID <= 0) {
+	if (hasOrgID || hasDstID) && (input.OrgID <= 0 || input.DstID <= 0) {
 		ctx.RespErrorCodeOnly(common.CCErrCommParamsIsInvalid, "invalid org/dst id")
 		return
 	}
 
-	if (len(input.OrgIP) != 0 && len(input.DstIP) != 0) && (input.OrgIP == input.DstIP) {
+	if (hasOrgIP && hasDstIP) && (input.OrgIP == input.DstIP) {
 		ctx.RespEntity(nil)
 		return
 	}
 
-	if (input.OrgID > 0 && input.DstID > 0) && (input.OrgID == input.DstID) {
+	if (hasOrgID && hasDstID) && (input.OrgID == input.DstID) {
 		ctx.RespEntity(nil)
 		return
 	}
