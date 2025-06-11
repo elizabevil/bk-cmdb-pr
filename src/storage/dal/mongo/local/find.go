@@ -27,6 +27,7 @@ import (
 	"configcenter/src/common"
 	"configcenter/src/common/blog"
 	"configcenter/src/common/metadata"
+	"configcenter/src/common/util"
 	"configcenter/src/storage/dal/types"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -105,12 +106,14 @@ func (f *Find) Limit(limit uint64) types.Find {
 
 // All 查询多个
 func (f *Find) All(ctx context.Context, result interface{}) error {
-	mtc.collectOperCount(f.collName, findOper)
+	tenantID := util.GetStrByInterface(ctx.Value(common.ContextRequestTenantField))
+
+	mtc.collectOperCount(f.collName, findOper, tenantID)
 
 	rid := ctx.Value(common.ContextRequestIDField)
 	start := time.Now()
 	defer func() {
-		mtc.collectOperDuration(f.collName, findOper, time.Since(start))
+		mtc.collectOperDuration(f.collName, findOper, time.Since(start), tenantID)
 	}()
 
 	err := validHostType(f.collName, f.projection, result, rid)
@@ -129,7 +132,7 @@ func (f *Find) All(ctx context.Context, result interface{}) error {
 	return f.tm.AutoRunWithTxn(ctx, f.cli.Client(), func(ctx context.Context) error {
 		cursor, err := f.cli.Database().Collection(f.collName, opt).Find(ctx, f.filter, findOpts)
 		if err != nil {
-			mtc.collectErrorCount(f.collName, findOper)
+			mtc.collectErrorCount(f.collName, findOper, tenantID)
 			return err
 		}
 		return cursor.All(ctx, result)
@@ -138,12 +141,14 @@ func (f *Find) All(ctx context.Context, result interface{}) error {
 
 // List 查询多个数据， 当分页中start值为零的时候返回满足条件总行数
 func (f *Find) List(ctx context.Context, result interface{}) (int64, error) {
-	mtc.collectOperCount(f.collName, findOper)
+	tenantID := util.GetStrByInterface(ctx.Value(common.ContextRequestTenantField))
+
+	mtc.collectOperCount(f.collName, findOper, tenantID)
 
 	rid := ctx.Value(common.ContextRequestIDField)
 	start := time.Now()
 	defer func() {
-		mtc.collectOperDuration(f.collName, findOper, time.Since(start))
+		mtc.collectOperDuration(f.collName, findOper, time.Since(start), tenantID)
 	}()
 
 	err := validHostType(f.collName, f.projection, result, rid)
@@ -170,7 +175,7 @@ func (f *Find) List(ctx context.Context, result interface{}) (int64, error) {
 		}
 		cursor, err := f.cli.Database().Collection(f.collName, opt).Find(ctx, f.filter, findOpts)
 		if err != nil {
-			mtc.collectErrorCount(f.collName, findOper)
+			mtc.collectErrorCount(f.collName, findOper, tenantID)
 			return err
 		}
 		return cursor.All(ctx, result)
@@ -181,12 +186,13 @@ func (f *Find) List(ctx context.Context, result interface{}) (int64, error) {
 
 // One 查询一个
 func (f *Find) One(ctx context.Context, result interface{}) error {
-	mtc.collectOperCount(f.collName, findOper)
+	tenantID := util.GetStrByInterface(ctx.Value(common.ContextRequestTenantField))
+	mtc.collectOperCount(f.collName, findOper, tenantID)
 
 	start := time.Now()
 	rid := ctx.Value(common.ContextRequestIDField)
 	defer func() {
-		mtc.collectOperDuration(f.collName, findOper, time.Since(start))
+		mtc.collectOperDuration(f.collName, findOper, time.Since(start), tenantID)
 	}()
 
 	err := validHostType(f.collName, f.projection, result, rid)
@@ -205,7 +211,7 @@ func (f *Find) One(ctx context.Context, result interface{}) error {
 	return f.tm.AutoRunWithTxn(ctx, f.cli.Client(), func(ctx context.Context) error {
 		cursor, err := f.cli.Database().Collection(f.collName, opt).Find(ctx, f.filter, findOpts)
 		if err != nil {
-			mtc.collectErrorCount(f.collName, findOper)
+			mtc.collectErrorCount(f.collName, findOper, tenantID)
 			return err
 		}
 
@@ -220,11 +226,13 @@ func (f *Find) One(ctx context.Context, result interface{}) error {
 
 // Count 统计数量(非事务)
 func (f *Find) Count(ctx context.Context) (uint64, error) {
-	mtc.collectOperCount(f.collName, countOper)
+	tenantID := util.GetStrByInterface(ctx.Value(common.ContextRequestTenantField))
+
+	mtc.collectOperCount(f.collName, countOper, tenantID)
 
 	start := time.Now()
 	defer func() {
-		mtc.collectOperDuration(f.collName, countOper, time.Since(start))
+		mtc.collectOperDuration(f.collName, countOper, time.Since(start), tenantID)
 	}()
 
 	if f.filter == nil {
@@ -241,7 +249,7 @@ func (f *Find) Count(ctx context.Context) (uint64, error) {
 		// not use transaction.
 		cnt, err := f.cli.Database().Collection(f.collName, opt).CountDocuments(ctx, f.filter)
 		if err != nil {
-			mtc.collectErrorCount(f.collName, countOper)
+			mtc.collectErrorCount(f.collName, countOper, tenantID)
 			return 0, err
 		}
 
@@ -254,7 +262,7 @@ func (f *Find) Count(ctx context.Context) (uint64, error) {
 		// automatically and do read/write retry if policy is set.
 		// mongo.CmdbReleaseSession(ctx, session)
 		if err != nil {
-			mtc.collectErrorCount(f.collName, countOper)
+			mtc.collectErrorCount(f.collName, countOper, tenantID)
 			return 0, err
 		}
 		return uint64(cnt), nil

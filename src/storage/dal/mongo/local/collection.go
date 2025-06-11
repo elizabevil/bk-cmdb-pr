@@ -62,11 +62,12 @@ func (c *Collection) Find(filter types.Filter, opts ...*types.FindOpts) types.Fi
 
 // Insert 插入数据, docs 可以为 单个数据 或者 多个数据
 func (c *Collection) Insert(ctx context.Context, docs interface{}) error {
-	mtc.collectOperCount(c.collName, insertOper)
+	tenantID := util.GetStrByInterface(ctx.Value(common.ContextRequestTenantField))
+	mtc.collectOperCount(c.collName, insertOper, tenantID)
 
 	start := time.Now()
 	defer func() {
-		mtc.collectOperDuration(c.collName, insertOper, time.Since(start))
+		mtc.collectOperDuration(c.collName, insertOper, time.Since(start), tenantID)
 	}()
 
 	rows := util.ConvertToInterfaceSlice(docs)
@@ -78,7 +79,7 @@ func (c *Collection) Insert(ctx context.Context, docs interface{}) error {
 	return c.tm.AutoRunWithTxn(ctx, c.cli.Client(), func(ctx context.Context) error {
 		_, err := c.cli.Database().Collection(c.collName).InsertMany(ctx, rows)
 		if err != nil {
-			mtc.collectErrorCount(c.collName, insertOper)
+			mtc.collectErrorCount(c.collName, insertOper, tenantID)
 			return err
 		}
 
@@ -88,10 +89,11 @@ func (c *Collection) Insert(ctx context.Context, docs interface{}) error {
 
 // Update 更新数据
 func (c *Collection) Update(ctx context.Context, filter types.Filter, doc interface{}) error {
-	mtc.collectOperCount(c.collName, updateOper)
+	tenantID := util.GetStrByInterface(ctx.Value(common.ContextRequestTenantField))
+	mtc.collectOperCount(c.collName, updateOper, tenantID)
 	start := time.Now()
 	defer func() {
-		mtc.collectOperDuration(c.collName, updateOper, time.Since(start))
+		mtc.collectOperDuration(c.collName, updateOper, time.Since(start), tenantID)
 	}()
 
 	if filter == nil {
@@ -107,7 +109,7 @@ func (c *Collection) Update(ctx context.Context, filter types.Filter, doc interf
 	return c.tm.AutoRunWithTxn(ctx, c.cli.Client(), func(ctx context.Context) error {
 		_, err := c.cli.Database().Collection(c.collName).UpdateMany(ctx, filter, data)
 		if err != nil {
-			mtc.collectErrorCount(c.collName, updateOper)
+			mtc.collectErrorCount(c.collName, updateOper, tenantID)
 			return err
 		}
 		return nil
@@ -116,10 +118,11 @@ func (c *Collection) Update(ctx context.Context, filter types.Filter, doc interf
 
 // UpdateMany 更新数据, 返回修改成功的条数
 func (c *Collection) UpdateMany(ctx context.Context, filter types.Filter, doc interface{}) (uint64, error) {
-	mtc.collectOperCount(c.collName, updateOper)
+	tenantID := util.GetStrByInterface(ctx.Value(common.ContextRequestTenantField))
+	mtc.collectOperCount(c.collName, updateOper, tenantID)
 	start := time.Now()
 	defer func() {
-		mtc.collectOperDuration(c.collName, updateOper, time.Since(start))
+		mtc.collectOperDuration(c.collName, updateOper, time.Since(start), tenantID)
 	}()
 
 	if filter == nil {
@@ -136,7 +139,7 @@ func (c *Collection) UpdateMany(ctx context.Context, filter types.Filter, doc in
 	err = c.tm.AutoRunWithTxn(ctx, c.cli.Client(), func(ctx context.Context) error {
 		updateRet, err := c.cli.Database().Collection(c.collName).UpdateMany(ctx, filter, data)
 		if err != nil {
-			mtc.collectErrorCount(c.collName, updateOper)
+			mtc.collectErrorCount(c.collName, updateOper, tenantID)
 			return err
 		}
 		modifiedCount = uint64(updateRet.ModifiedCount)
@@ -148,11 +151,12 @@ func (c *Collection) UpdateMany(ctx context.Context, filter types.Filter, doc in
 // Upsert 数据存在更新数据，否则新加数据。
 // 注意：该接口非原子操作，可能存在插入多条相同数据的风险。
 func (c *Collection) Upsert(ctx context.Context, filter types.Filter, doc interface{}) error {
-	mtc.collectOperCount(c.collName, upsertOper)
+	tenantID := util.GetStrByInterface(ctx.Value(common.ContextRequestTenantField))
+	mtc.collectOperCount(c.collName, upsertOper, tenantID)
 
 	start := time.Now()
 	defer func() {
-		mtc.collectOperDuration(c.collName, upsertOper, time.Since(start))
+		mtc.collectOperDuration(c.collName, upsertOper, time.Since(start), tenantID)
 	}()
 
 	filter, err := c.addTenantID(filter)
@@ -174,7 +178,7 @@ func (c *Collection) Upsert(ctx context.Context, filter types.Filter, doc interf
 	return c.tm.AutoRunWithTxn(ctx, c.cli.Client(), func(ctx context.Context) error {
 		_, err := c.cli.Database().Collection(c.collName).UpdateOne(ctx, filter, data, replaceOpt)
 		if err != nil {
-			mtc.collectErrorCount(c.collName, upsertOper)
+			mtc.collectErrorCount(c.collName, upsertOper, tenantID)
 			return err
 		}
 		return nil
@@ -184,11 +188,12 @@ func (c *Collection) Upsert(ctx context.Context, filter types.Filter, doc interf
 
 // UpdateMultiModel 根据不同的操作符去更新数据
 func (c *Collection) UpdateMultiModel(ctx context.Context, filter types.Filter, updateModel ...types.ModeUpdate) error {
-	mtc.collectOperCount(c.collName, updateOper)
+	tenantID := util.GetStrByInterface(ctx.Value(common.ContextRequestTenantField))
+	mtc.collectOperCount(c.collName, updateOper, tenantID)
 
 	start := time.Now()
 	defer func() {
-		mtc.collectOperDuration(c.collName, updateOper, time.Since(start))
+		mtc.collectOperDuration(c.collName, updateOper, time.Since(start), tenantID)
 	}()
 
 	filter, err := c.addTenantID(filter)
@@ -207,7 +212,7 @@ func (c *Collection) UpdateMultiModel(ctx context.Context, filter types.Filter, 
 	return c.tm.AutoRunWithTxn(ctx, c.cli.Client(), func(ctx context.Context) error {
 		_, err := c.cli.Database().Collection(c.collName).UpdateMany(ctx, filter, data)
 		if err != nil {
-			mtc.collectErrorCount(c.collName, updateOper)
+			mtc.collectErrorCount(c.collName, updateOper, tenantID)
 			return err
 		}
 		return nil
@@ -228,11 +233,12 @@ func (c *Collection) Delete(ctx context.Context, filter types.Filter) error {
 // DeleteMany TODO
 // Delete 删除数据， 返回删除的行数
 func (c *Collection) DeleteMany(ctx context.Context, filter types.Filter) (uint64, error) {
-	mtc.collectOperCount(c.collName, deleteOper)
+	tenantID := util.GetStrByInterface(ctx.Value(common.ContextRequestTenantField))
+	mtc.collectOperCount(c.collName, deleteOper, tenantID)
 
 	start := time.Now()
 	defer func() {
-		mtc.collectOperDuration(c.collName, deleteOper, time.Since(start))
+		mtc.collectOperDuration(c.collName, deleteOper, time.Since(start), tenantID)
 	}()
 
 	filter, err := c.addTenantID(filter)
@@ -244,7 +250,7 @@ func (c *Collection) DeleteMany(ctx context.Context, filter types.Filter) (uint6
 	err = c.tm.AutoRunWithTxn(ctx, c.cli.Client(), func(ctx context.Context) error {
 		deleteRet, err := c.cli.Database().Collection(c.collName).DeleteMany(ctx, filter)
 		if err != nil {
-			mtc.collectErrorCount(c.collName, deleteOper)
+			mtc.collectErrorCount(c.collName, deleteOper, tenantID)
 			return err
 		}
 
@@ -257,7 +263,8 @@ func (c *Collection) DeleteMany(ctx context.Context, filter types.Filter) (uint6
 
 // BatchCreateIndexes 批量创建索引
 func (c *Collection) BatchCreateIndexes(ctx context.Context, indexes []types.Index) error {
-	mtc.collectOperCount(c.collName, indexCreateOper)
+	tenantID := util.GetStrByInterface(ctx.Value(common.ContextRequestTenantField))
+	mtc.collectOperCount(c.collName, indexCreateOper, tenantID)
 
 	createIndexInfos := make([]mongo.IndexModel, len(indexes))
 	for idx, index := range indexes {
@@ -272,7 +279,7 @@ func (c *Collection) BatchCreateIndexes(ctx context.Context, indexes []types.Ind
 	indexView := c.cli.Database().Collection(c.collName).Indexes()
 	_, err := indexView.CreateMany(ctx, createIndexInfos)
 	if err != nil {
-		mtc.collectErrorCount(c.collName, indexCreateOper)
+		mtc.collectErrorCount(c.collName, indexCreateOper, tenantID)
 		// ignore the following case
 		// 1.the new index is exactly the same as the existing one
 		// 2.the new index has same keys with the existing one, but its name is different
@@ -287,7 +294,8 @@ func (c *Collection) BatchCreateIndexes(ctx context.Context, indexes []types.Ind
 
 // CreateIndex 创建索引
 func (c *Collection) CreateIndex(ctx context.Context, index types.Index) error {
-	mtc.collectOperCount(c.collName, indexCreateOper)
+	tenantID := util.GetStrByInterface(ctx.Value(common.ContextRequestTenantField))
+	mtc.collectOperCount(c.collName, indexCreateOper, tenantID)
 
 	createIndexInfo, err := buildIndex(index)
 	if err != nil {
@@ -297,7 +305,7 @@ func (c *Collection) CreateIndex(ctx context.Context, index types.Index) error {
 	indexView := c.cli.Database().Collection(c.collName).Indexes()
 	_, err = indexView.CreateOne(ctx, createIndexInfo)
 	if err != nil {
-		mtc.collectErrorCount(c.collName, indexCreateOper)
+		mtc.collectErrorCount(c.collName, indexCreateOper, tenantID)
 		// ignore the following case
 		// 1.the new index is exactly the same as the existing one
 		// 2.the new index has same keys with the existing one, but its name is different
@@ -342,14 +350,15 @@ func buildIndex(index types.Index) (mongo.IndexModel, error) {
 
 // DropIndex remove index by name
 func (c *Collection) DropIndex(ctx context.Context, indexName string) error {
-	mtc.collectOperCount(c.collName, indexDropOper)
+	tenantID := util.GetStrByInterface(ctx.Value(common.ContextRequestTenantField))
+	mtc.collectOperCount(c.collName, indexDropOper, tenantID)
 	indexView := c.cli.Database().Collection(c.collName).Indexes()
 	_, err := indexView.DropOne(ctx, indexName)
 	if err != nil {
 		if strings.Contains(err.Error(), "IndexNotFound") {
 			return nil
 		}
-		mtc.collectErrorCount(c.collName, indexDropOper)
+		mtc.collectErrorCount(c.collName, indexDropOper, tenantID)
 		return err
 	}
 	return nil
@@ -375,11 +384,12 @@ func (c *Collection) Indexes(ctx context.Context) ([]types.Index, error) {
 
 // AddColumn add a new column for the collection
 func (c *Collection) AddColumn(ctx context.Context, column string, value interface{}) error {
-	mtc.collectOperCount(c.collName, columnOper)
+	tenantID := util.GetStrByInterface(ctx.Value(common.ContextRequestTenantField))
+	mtc.collectOperCount(c.collName, columnOper, tenantID)
 
 	start := time.Now()
 	defer func() {
-		mtc.collectOperDuration(c.collName, columnOper, time.Since(start))
+		mtc.collectOperDuration(c.collName, columnOper, time.Since(start), tenantID)
 	}()
 
 	selector := dtype.Document{column: dtype.Document{"$exists": false}}
@@ -391,7 +401,7 @@ func (c *Collection) AddColumn(ctx context.Context, column string, value interfa
 	return c.tm.AutoRunWithTxn(ctx, c.cli.Client(), func(ctx context.Context) error {
 		_, err := c.cli.Database().Collection(c.collName).UpdateMany(ctx, tenantSelector, datac)
 		if err != nil {
-			mtc.collectErrorCount(c.collName, columnOper)
+			mtc.collectErrorCount(c.collName, columnOper, tenantID)
 			return err
 		}
 		return nil
@@ -400,14 +410,15 @@ func (c *Collection) AddColumn(ctx context.Context, column string, value interfa
 
 // RenameColumn rename a column for the collection
 func (c *Collection) RenameColumn(ctx context.Context, filter types.Filter, oldName, newColumn string) error {
-	mtc.collectOperCount(c.collName, columnOper)
+	tenantID := util.GetStrByInterface(ctx.Value(common.ContextRequestTenantField))
+	mtc.collectOperCount(c.collName, columnOper, tenantID)
 	if filter == nil {
 		filter = dtype.Document{}
 	}
 
 	start := time.Now()
 	defer func() {
-		mtc.collectOperDuration(c.collName, columnOper, time.Since(start))
+		mtc.collectOperDuration(c.collName, columnOper, time.Since(start), tenantID)
 	}()
 
 	filter, err := c.addTenantID(filter)
@@ -419,7 +430,7 @@ func (c *Collection) RenameColumn(ctx context.Context, filter types.Filter, oldN
 	return c.tm.AutoRunWithTxn(ctx, c.cli.Client(), func(ctx context.Context) error {
 		_, err := c.cli.Database().Collection(c.collName).UpdateMany(ctx, filter, datac)
 		if err != nil {
-			mtc.collectErrorCount(c.collName, columnOper)
+			mtc.collectErrorCount(c.collName, columnOper, tenantID)
 			return err
 		}
 
@@ -429,11 +440,12 @@ func (c *Collection) RenameColumn(ctx context.Context, filter types.Filter, oldN
 
 // DropColumn remove a column by the name
 func (c *Collection) DropColumn(ctx context.Context, field string) error {
-	mtc.collectOperCount(c.collName, columnOper)
+	tenantID := util.GetStrByInterface(ctx.Value(common.ContextRequestTenantField))
+	mtc.collectOperCount(c.collName, columnOper, tenantID)
 
 	start := time.Now()
 	defer func() {
-		mtc.collectOperDuration(c.collName, columnOper, time.Since(start))
+		mtc.collectOperDuration(c.collName, columnOper, time.Since(start), tenantID)
 	}()
 
 	filter, err := c.addTenantID(dtype.Document{})
@@ -445,7 +457,7 @@ func (c *Collection) DropColumn(ctx context.Context, field string) error {
 	return c.tm.AutoRunWithTxn(ctx, c.cli.Client(), func(ctx context.Context) error {
 		_, err := c.cli.Database().Collection(c.collName).UpdateMany(ctx, filter, datac)
 		if err != nil {
-			mtc.collectErrorCount(c.collName, columnOper)
+			mtc.collectErrorCount(c.collName, columnOper, tenantID)
 			return err
 		}
 
@@ -455,11 +467,12 @@ func (c *Collection) DropColumn(ctx context.Context, field string) error {
 
 // DropColumns remove many columns by the name
 func (c *Collection) DropColumns(ctx context.Context, filter types.Filter, fields []string) error {
-	mtc.collectOperCount(c.collName, columnOper)
+	tenantID := util.GetStrByInterface(ctx.Value(common.ContextRequestTenantField))
+	mtc.collectOperCount(c.collName, columnOper, tenantID)
 
 	start := time.Now()
 	defer func() {
-		mtc.collectOperDuration(c.collName, columnOper, time.Since(start))
+		mtc.collectOperDuration(c.collName, columnOper, time.Since(start), tenantID)
 	}()
 
 	filter, err := c.addTenantID(filter)
@@ -476,7 +489,7 @@ func (c *Collection) DropColumns(ctx context.Context, filter types.Filter, field
 	return c.tm.AutoRunWithTxn(ctx, c.cli.Client(), func(ctx context.Context) error {
 		_, err := c.cli.Database().Collection(c.collName).UpdateMany(ctx, filter, datac)
 		if err != nil {
-			mtc.collectErrorCount(c.collName, columnOper)
+			mtc.collectErrorCount(c.collName, columnOper, tenantID)
 			return err
 		}
 
@@ -486,11 +499,12 @@ func (c *Collection) DropColumns(ctx context.Context, filter types.Filter, field
 
 // DropDocsColumn remove a column by the name for doc use filter
 func (c *Collection) DropDocsColumn(ctx context.Context, field string, filter types.Filter) error {
-	mtc.collectOperCount(c.collName, columnOper)
+	tenantID := util.GetStrByInterface(ctx.Value(common.ContextRequestTenantField))
+	mtc.collectOperCount(c.collName, columnOper, tenantID)
 
 	start := time.Now()
 	defer func() {
-		mtc.collectOperDuration(c.collName, columnOper, time.Since(start))
+		mtc.collectOperDuration(c.collName, columnOper, time.Since(start), tenantID)
 	}()
 
 	// 查询条件为空时候，mongodb 不返回数据
@@ -506,7 +520,7 @@ func (c *Collection) DropDocsColumn(ctx context.Context, field string, filter ty
 	return c.tm.AutoRunWithTxn(ctx, c.cli.Client(), func(ctx context.Context) error {
 		_, err := c.cli.Database().Collection(c.collName).UpdateMany(ctx, filter, datac)
 		if err != nil {
-			mtc.collectErrorCount(c.collName, columnOper)
+			mtc.collectErrorCount(c.collName, columnOper, tenantID)
 			return err
 		}
 
@@ -518,11 +532,12 @@ func (c *Collection) DropDocsColumn(ctx context.Context, field string, filter ty
 func (c *Collection) AggregateAll(ctx context.Context, pipeline interface{}, result interface{},
 	opts ...*types.AggregateOpts) error {
 
-	mtc.collectOperCount(c.collName, aggregateOper)
+	tenantID := util.GetStrByInterface(ctx.Value(common.ContextRequestTenantField))
+	mtc.collectOperCount(c.collName, aggregateOper, tenantID)
 
 	start := time.Now()
 	defer func() {
-		mtc.collectOperDuration(c.collName, aggregateOper, time.Since(start))
+		mtc.collectOperDuration(c.collName, aggregateOper, time.Since(start), tenantID)
 	}()
 
 	pipeline, err := c.addTenantIDToPipe(pipeline)
@@ -545,7 +560,7 @@ func (c *Collection) AggregateAll(ctx context.Context, pipeline interface{}, res
 	return c.tm.AutoRunWithTxn(ctx, c.cli.Client(), func(ctx context.Context) error {
 		cursor, err := c.cli.Database().Collection(c.collName, opt).Aggregate(ctx, pipeline, aggregateOption)
 		if err != nil {
-			mtc.collectErrorCount(c.collName, aggregateOper)
+			mtc.collectErrorCount(c.collName, aggregateOper, tenantID)
 			return err
 		}
 		defer cursor.Close(ctx)
@@ -556,11 +571,12 @@ func (c *Collection) AggregateAll(ctx context.Context, pipeline interface{}, res
 
 // AggregateOne aggregate one operation
 func (c *Collection) AggregateOne(ctx context.Context, pipeline interface{}, result interface{}) error {
-	mtc.collectOperCount(c.collName, aggregateOper)
+	tenantID := util.GetStrByInterface(ctx.Value(common.ContextRequestTenantField))
+	mtc.collectOperCount(c.collName, aggregateOper, tenantID)
 
 	start := time.Now()
 	defer func() {
-		mtc.collectOperDuration(c.collName, aggregateOper, time.Since(start))
+		mtc.collectOperDuration(c.collName, aggregateOper, time.Since(start), tenantID)
 	}()
 
 	pipeline, err := c.addTenantIDToPipe(pipeline)
@@ -573,7 +589,7 @@ func (c *Collection) AggregateOne(ctx context.Context, pipeline interface{}, res
 	return c.tm.AutoRunWithTxn(ctx, c.cli.Client(), func(ctx context.Context) error {
 		cursor, err := c.cli.Database().Collection(c.collName, opt).Aggregate(ctx, pipeline)
 		if err != nil {
-			mtc.collectErrorCount(c.collName, aggregateOper)
+			mtc.collectErrorCount(c.collName, aggregateOper, tenantID)
 			return err
 		}
 
@@ -590,11 +606,12 @@ func (c *Collection) AggregateOne(ctx context.Context, pipeline interface{}, res
 // field the field for which to return distinct values.
 // filter query that specifies the documents from which to retrieve the distinct values.
 func (c *Collection) Distinct(ctx context.Context, field string, filter types.Filter) ([]interface{}, error) {
-	mtc.collectOperCount(c.collName, distinctOper)
+	tenantID := util.GetStrByInterface(ctx.Value(common.ContextRequestTenantField))
+	mtc.collectOperCount(c.collName, distinctOper, tenantID)
 
 	start := time.Now()
 	defer func() {
-		mtc.collectOperDuration(c.collName, distinctOper, time.Since(start))
+		mtc.collectOperDuration(c.collName, distinctOper, time.Since(start), tenantID)
 	}()
 
 	if filter == nil {
@@ -611,7 +628,7 @@ func (c *Collection) Distinct(ctx context.Context, field string, filter types.Fi
 		var err error
 		results, err = c.cli.Database().Collection(c.collName, opt).Distinct(ctx, field, filter)
 		if err != nil {
-			mtc.collectErrorCount(c.collName, distinctOper)
+			mtc.collectErrorCount(c.collName, distinctOper, tenantID)
 			return err
 		}
 

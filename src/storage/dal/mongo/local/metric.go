@@ -33,7 +33,7 @@ func initMongoMetric() {
 			Subsystem: "mongo",
 			Name:      "total_operate_count",
 			Help:      "the total operate count with mongodb",
-		}, []string{"collection", "operation"})
+		}, []string{"collection", "operation", metrics.LabelTenantId})
 		metrics.Register().MustRegister(mtc.totalOperCount)
 
 		mtc.totalErrorCount = prometheus.NewCounterVec(prometheus.CounterOpts{
@@ -41,7 +41,7 @@ func initMongoMetric() {
 			Subsystem: "mongo",
 			Name:      "total_error_count",
 			Help:      "the total operate error count with mongodb",
-		}, []string{"collection", "operation"})
+		}, []string{"collection", "operation", metrics.LabelTenantId})
 		metrics.Register().MustRegister(mtc.totalErrorCount)
 
 		mtc.operDuration = prometheus.NewHistogramVec(prometheus.HistogramOpts{
@@ -50,7 +50,7 @@ func initMongoMetric() {
 			Name:      "operate_duration_seconds",
 			Help:      "the cost second duration with one mongodb operation",
 			Buckets:   []float64{0.02, 0.04, 0.06, 0.08, 0.1, 0.3, 0.5, 0.7, 1, 5, 10, 20, 30, 60},
-		}, []string{"collection", "operation"})
+		}, []string{"collection", "operation", metrics.LabelTenantId})
 		metrics.Register().MustRegister(mtc.operDuration)
 	})
 }
@@ -80,35 +80,36 @@ type mongoMetric struct {
 	operDuration *prometheus.HistogramVec
 }
 
-func (m *mongoMetric) collectOperCount(collection string, operation oper) {
+func (m *mongoMetric) collectOperCount(collection string, operation oper, tenantID string) {
 	if m == nil {
 		return
 	}
-
 	m.totalOperCount.With(prometheus.Labels{
-		"collection": collection,
-		"operation":  string(operation),
+		"collection":          collection,
+		"operation":           string(operation),
+		metrics.LabelTenantId: tenantID,
 	}).Inc()
 }
 
-func (m *mongoMetric) collectErrorCount(collection string, operation oper) {
+func (m *mongoMetric) collectErrorCount(collection string, operation oper, tenantID string) {
 	if m == nil {
 		return
 	}
-
 	m.totalErrorCount.With(prometheus.Labels{
-		"collection": collection,
-		"operation":  string(operation),
+		"collection":          collection,
+		"operation":           string(operation),
+		metrics.LabelTenantId: tenantID,
 	}).Inc()
 }
 
-func (m *mongoMetric) collectOperDuration(collection string, operation oper, duration time.Duration) {
+func (m *mongoMetric) collectOperDuration(collection string, operation oper, duration time.Duration, tenantID string) {
 	if m == nil {
 		return
 	}
 
 	m.operDuration.With(prometheus.Labels{
-		"collection": collection,
-		"operation":  string(operation),
+		"collection":          collection,
+		"operation":           string(operation),
+		metrics.LabelTenantId: tenantID,
 	}).Observe(duration.Seconds())
 }

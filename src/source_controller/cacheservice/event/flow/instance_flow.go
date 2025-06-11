@@ -217,7 +217,7 @@ func (f *InstanceFlow) parseEvents(dbInfo *types.DBInfo, ids []uint64, eventMap 
 		hitConflict := false
 		for _, e := range events {
 			// collect event's basic metrics
-			f.metrics.CollectBasic(e)
+			f.metrics.CollectBasic(e, e.TenantID)
 
 			idIdx := oidIndexMap[e.Oid+e.Collection]
 			tenantID, chainNode, detail, retry, err := f.parseEvent(dbInfo.DB, key, e, ids[idIdx], rid)
