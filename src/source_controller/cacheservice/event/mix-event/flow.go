@@ -198,7 +198,7 @@ func (f *MixEventFlow) handleEvents(dbInfo *types.DBInfo, events []*types.Event,
 	cursorMap := make(map[string]struct{})
 	for index, e := range events {
 		// collect event's basic metrics
-		f.metrics.CollectBasic(e)
+		f.metrics.CollectBasic(e, e.TenantID)
 		oids = append(oids, e.ID())
 
 		tenantID, chainNode, detailBytes, retry, err := f.parseEvent(e, eventIDs[index], rid)

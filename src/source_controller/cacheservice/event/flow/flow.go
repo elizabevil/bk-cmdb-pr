@@ -232,7 +232,7 @@ func (f *Flow) parseEvents(dbInfo *types.DBInfo, es []*types.Event, rid string) 
 
 	for index, e := range es {
 		// collect event's basic metrics
-		f.metrics.CollectBasic(e)
+		f.metrics.CollectBasic(e, e.TenantID)
 
 		tenant, chainNode, detail, retry, err := f.parseEvent(dbInfo.DB, f.key, e, ids[index], rid)
 		if err != nil {
