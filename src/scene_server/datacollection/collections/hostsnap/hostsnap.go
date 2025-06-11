@@ -325,16 +325,16 @@ func (h *HostSnap) getHostDetail(header http.Header, rid, agentID, msg, sourceTy
 // timestamp of this message is earlier than the data in cmdb, it will be discarded directly.
 
 // Analyze analyze host snap
-func (h *HostSnap) Analyze(msg *string, sourceType string) (bool, error) {
+func (h *HostSnap) Analyze(msg *string, sourceType string) (string, bool, error) {
 	if msg == nil {
-		return false, errors.New("message nil")
+		return "", false, errors.New("message nil")
 	}
 
 	kit := rest.NewKit()
 	agentID, ipv4, ipv6, cloudID, dataID, val, err := getBaseInfoFromCollectorsMsg(msg, kit.Rid)
 	if err != nil {
 		blog.Errorf("parse base info failed, msg: %s, err: %v, rid: %s", *msg, err, kit.Rid)
-		return false, err
+		return "", false, err
 	}
 
 	tenantID, isExist := h.tenantDataIDMap.GetTenantByDataID(dataID)
@@ -342,7 +342,7 @@ func (h *HostSnap) Analyze(msg *string, sourceType string) (bool, error) {
 		tenantID, err = h.CoreAPI.CoreService().System().GetTenantBySnapDataID(h.ctx, kit.Header, dataID)
 		if err != nil {
 			blog.Errorf("get tenant by snap data id failed, data id: %d, err: %v, rid: %s", dataID, err, kit.Rid)
-			return false, err
+			return tenantID, false, err
 		}
 		h.tenantDataIDMap.SetTenantDataID(dataID, tenantID)
 	}
@@ -353,12 +353,12 @@ func (h *HostSnap) Analyze(msg *string, sourceType string) (bool, error) {
 	host, err := h.getHostDetail(kit.Header, kit.Rid, agentID, *msg, sourceType, ipv4, cloudID)
 	if err != nil {
 		blog.Errorf("get host detail failed, agentID: %s, ips: %v, err: %v, rid: %s", agentID, ipv4, err, kit.Rid)
-		return false, err
+		return tenantID, false, err
 	}
 
 	if host == "" {
 		blog.Errorf("get host detail failed, agentID: %s, ips: %v, err: %v, rid: %s", agentID, ipv4, err, kit.Rid)
-		return false, errors.New("get host detail failed")
+		return tenantID, false, errors.New("get host detail failed")
 	}
 
 	fields := []string{common.BKHostIDField, common.BKHostInnerIPField, common.BKHostOuterIPField,
@@ -366,20 +366,20 @@ func (h *HostSnap) Analyze(msg *string, sourceType string) (bool, error) {
 	elements := gjson.GetMany(host, fields...)
 
 	if err := checkMsgInfoValid(kit.Rid, agentID, host, elements); err != nil {
-		return false, err
+		return tenantID, false, err
 	}
 	hostID := elements[0].Int()
 	innerIP := elements[1].String()
 
 	if h.skipMsg(val, innerIP, kit.Rid, hostID, cloudID) {
-		return false, nil
+		return tenantID, false, nil
 	}
 
 	updateIPv4, updateIPv6, err := getIPv4AndIPv6UpdateData(elements[3].String(), ipv4, ipv6)
 	if err != nil {
 		blog.Errorf("get host ipv4 and ipv6 update data failed, agentID: %s, ipv4: %v, ipv6: %v, err: %v, rid: %s",
 			agentID, ipv4, ipv6, err, kit.Rid)
-		return false, err
+		return tenantID, false, err
 	}
 
 	outerIP := elements[2].String()
@@ -389,7 +389,7 @@ func (h *HostSnap) Analyze(msg *string, sourceType string) (bool, error) {
 
 	// no need to update
 	if !needToUpdate(raw, host, elements[3].String()) {
-		return false, nil
+		return tenantID, false, nil
 	}
 
 	// limit the request from the new collection plug-in
@@ -402,9 +402,9 @@ func (h *HostSnap) Analyze(msg *string, sourceType string) (bool, error) {
 
 	txnErr := h.updateHostWithColletorMsg(kit.Header, kit.Rid, hostOption)
 	if txnErr != nil {
-		return true, txnErr
+		return tenantID, true, txnErr
 	}
-	return false, nil
+	return tenantID, false, nil
 }
 
 func getIPv4AndIPv6UpdateData(addressing string, ipv4 []string, ipv6 []string) ([]string, []string, error) {

@@ -105,12 +105,13 @@ func (f *Find) Limit(limit uint64) types.Find {
 
 // All 查询多个
 func (f *Find) All(ctx context.Context, result interface{}) error {
-	mtc.collectOperCount(f.collName, findOper)
+
+	mtc.collectOperCount(f.collName, findOper, f.tenant)
 
 	rid := ctx.Value(common.ContextRequestIDField)
 	start := time.Now()
 	defer func() {
-		mtc.collectOperDuration(f.collName, findOper, time.Since(start))
+		mtc.collectOperDuration(f.collName, findOper, time.Since(start), f.tenant)
 	}()
 
 	err := validHostType(f.collName, f.projection, result, rid)
@@ -129,7 +130,7 @@ func (f *Find) All(ctx context.Context, result interface{}) error {
 	return f.tm.AutoRunWithTxn(ctx, f.cli.Client(), func(ctx context.Context) error {
 		cursor, err := f.cli.Database().Collection(f.collName, opt).Find(ctx, f.filter, findOpts)
 		if err != nil {
-			mtc.collectErrorCount(f.collName, findOper)
+			mtc.collectErrorCount(f.collName, findOper, f.tenant)
 			return err
 		}
 		return cursor.All(ctx, result)
@@ -138,12 +139,13 @@ func (f *Find) All(ctx context.Context, result interface{}) error {
 
 // List 查询多个数据， 当分页中start值为零的时候返回满足条件总行数
 func (f *Find) List(ctx context.Context, result interface{}) (int64, error) {
-	mtc.collectOperCount(f.collName, findOper)
+
+	mtc.collectOperCount(f.collName, findOper, f.tenant)
 
 	rid := ctx.Value(common.ContextRequestIDField)
 	start := time.Now()
 	defer func() {
-		mtc.collectOperDuration(f.collName, findOper, time.Since(start))
+		mtc.collectOperDuration(f.collName, findOper, time.Since(start), f.tenant)
 	}()
 
 	err := validHostType(f.collName, f.projection, result, rid)
@@ -170,7 +172,7 @@ func (f *Find) List(ctx context.Context, result interface{}) (int64, error) {
 		}
 		cursor, err := f.cli.Database().Collection(f.collName, opt).Find(ctx, f.filter, findOpts)
 		if err != nil {
-			mtc.collectErrorCount(f.collName, findOper)
+			mtc.collectErrorCount(f.collName, findOper, f.tenant)
 			return err
 		}
 		return cursor.All(ctx, result)
@@ -181,12 +183,12 @@ func (f *Find) List(ctx context.Context, result interface{}) (int64, error) {
 
 // One 查询一个
 func (f *Find) One(ctx context.Context, result interface{}) error {
-	mtc.collectOperCount(f.collName, findOper)
+	mtc.collectOperCount(f.collName, findOper, f.tenant)
 
 	start := time.Now()
 	rid := ctx.Value(common.ContextRequestIDField)
 	defer func() {
-		mtc.collectOperDuration(f.collName, findOper, time.Since(start))
+		mtc.collectOperDuration(f.collName, findOper, time.Since(start), f.tenant)
 	}()
 
 	err := validHostType(f.collName, f.projection, result, rid)
@@ -205,7 +207,7 @@ func (f *Find) One(ctx context.Context, result interface{}) error {
 	return f.tm.AutoRunWithTxn(ctx, f.cli.Client(), func(ctx context.Context) error {
 		cursor, err := f.cli.Database().Collection(f.collName, opt).Find(ctx, f.filter, findOpts)
 		if err != nil {
-			mtc.collectErrorCount(f.collName, findOper)
+			mtc.collectErrorCount(f.collName, findOper, f.tenant)
 			return err
 		}
 
@@ -220,11 +222,12 @@ func (f *Find) One(ctx context.Context, result interface{}) error {
 
 // Count 统计数量(非事务)
 func (f *Find) Count(ctx context.Context) (uint64, error) {
-	mtc.collectOperCount(f.collName, countOper)
+
+	mtc.collectOperCount(f.collName, countOper, f.tenant)
 
 	start := time.Now()
 	defer func() {
-		mtc.collectOperDuration(f.collName, countOper, time.Since(start))
+		mtc.collectOperDuration(f.collName, countOper, time.Since(start), f.tenant)
 	}()
 
 	if f.filter == nil {
@@ -241,7 +244,7 @@ func (f *Find) Count(ctx context.Context) (uint64, error) {
 		// not use transaction.
 		cnt, err := f.cli.Database().Collection(f.collName, opt).CountDocuments(ctx, f.filter)
 		if err != nil {
-			mtc.collectErrorCount(f.collName, countOper)
+			mtc.collectErrorCount(f.collName, countOper, f.tenant)
 			return 0, err
 		}
 
@@ -254,7 +257,7 @@ func (f *Find) Count(ctx context.Context) (uint64, error) {
 		// automatically and do read/write retry if policy is set.
 		// mongo.CmdbReleaseSession(ctx, session)
 		if err != nil {
-			mtc.collectErrorCount(f.collName, countOper)
+			mtc.collectErrorCount(f.collName, countOper, f.tenant)
 			return 0, err
 		}
 		return uint64(cnt), nil

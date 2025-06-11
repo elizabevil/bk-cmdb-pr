@@ -195,8 +195,9 @@ func (s *service) routeNeedAuthAPI(ws *restful.WebService, errFunc func() errors
 // collectErrorMetric collect error request metric for apiServer
 func (s *service) collectErrorMetric(request *restful.Request) {
 	s.errorRequestTotal.With(prometheus.Labels{
-		metrics.LabelAppCode: httpheader.GetAppCode(request.Request.Header),
-		metrics.LabelHandler: request.Request.RequestURI,
+		metrics.LabelAppCode:  httpheader.GetAppCode(request.Request.Header),
+		metrics.LabelHandler:  request.Request.RequestURI,
+		metrics.LabelTenantId: httpheader.GetTenantID(request.Request.Header),
 	}).Inc()
 }
 
@@ -218,7 +219,7 @@ func (s *service) metricsRegister() {
 			Name: "cmdb_api_total_response_error_count",
 			Help: "total number of error request for apiServer.",
 		},
-		[]string{metrics.LabelHandler, metrics.LabelAppCode},
+		[]string{metrics.LabelHandler, metrics.LabelAppCode, metrics.LabelTenantId},
 	)
 	s.engine.Metric().Registry().MustRegister(s.errorRequestTotal)
 
@@ -227,7 +228,7 @@ func (s *service) metricsRegister() {
 			Name: "cmdb_api_total_limiter_error_count",
 			Help: "total number of rate limiting errors for apiServer.",
 		},
-		[]string{metrics.LabelHandler, metrics.LabelAppCode},
+		[]string{metrics.LabelHandler, metrics.LabelAppCode, metrics.LabelTenantId},
 	)
 	s.engine.Metric().Registry().MustRegister(s.errorLimiterTotal)
 }

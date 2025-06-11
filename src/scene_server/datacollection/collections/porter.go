@@ -20,10 +20,12 @@ import (
 	"sync"
 	"time"
 
+	"configcenter/pkg/tenant/tools"
 	"configcenter/src/common"
 	"configcenter/src/common/backbone"
 	"configcenter/src/common/blog"
 	"configcenter/src/common/metadata"
+	"configcenter/src/common/metrics"
 	"configcenter/src/storage/dal/redis"
 
 	goredis "github.com/go-redis/redis/v7"
@@ -189,7 +191,7 @@ func (p *SimplePorter) registerMetrics() {
 			Name: fmt.Sprintf("%s_%s_analyze_total", metricsNamespacePrefix, p.name),
 			Help: "total number of analyzed message.",
 		},
-		[]string{"status"},
+		[]string{"status", metrics.LabelTenantId},
 	)
 	p.registry.MustRegister(p.analyzeTotal)
 
@@ -244,13 +246,13 @@ func (p *SimplePorter) AddMessage(message *string) error {
 func (p *SimplePorter) handleCollectorMsg(msg *string, sourceType string) {
 
 	cost := time.Now()
-	if _, err := p.analyzer.Analyze(msg, sourceType); err != nil {
+	if tenantID, _, err := p.analyzer.Analyze(msg, sourceType); err != nil {
 		blog.Errorf("SimplePorter[%s], analyze message failed, %+v", p.name, err)
 		// metrics stats for analyze failed.
-		p.analyzeTotal.WithLabelValues("failed").Inc()
+		p.analyzeTotal.WithLabelValues("failed", tenantID).Inc()
 	} else {
 		// metrics stats for analyze success.
-		p.analyzeTotal.WithLabelValues("success").Inc()
+		p.analyzeTotal.WithLabelValues("success", tenantID).Inc()
 	}
 
 	// metrics stats for analyze duration.
@@ -515,10 +517,11 @@ func (p *SimplePorter) debug() {
 		p.receiveTimeoutTotal.Write(pbmetric)
 		receiveTimeoutTotalNum := pbmetric.GetCounter().GetValue()
 
+		tenantID := tools.GetDefaultTenant() // for debug
 		// debug analyzeTotalFailedNum.
 		pbmetric = &dto.Metric{}
 		analyzeTotalFailedNum := float64(0)
-		if counter, err := p.analyzeTotal.GetMetricWithLabelValues("failed"); err == nil {
+		if counter, err := p.analyzeTotal.GetMetricWithLabelValues("failed", tenantID); err == nil {
 			counter.Write(pbmetric)
 			analyzeTotalFailedNum = pbmetric.GetCounter().GetValue()
 		}
@@ -526,7 +529,7 @@ func (p *SimplePorter) debug() {
 		// debug analyzeTotalSuccNum.
 		pbmetric = &dto.Metric{}
 		analyzeTotalSuccNum := float64(0)
-		if counter, err := p.analyzeTotal.GetMetricWithLabelValues("success"); err == nil {
+		if counter, err := p.analyzeTotal.GetMetricWithLabelValues("success", tenantID); err == nil {
 			counter.Write(pbmetric)
 			analyzeTotalSuccNum = pbmetric.GetCounter().GetValue()
 		}

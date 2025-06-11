@@ -31,7 +31,7 @@ func InitialMetrics(collection string, subSys string) *EventMetrics {
 		Name:        "total_event_count",
 		Help:        "the total event count which we handled with this resources",
 		ConstLabels: labels,
-	}, []string{"action"})
+	}, []string{"action", metrics.LabelTenantId})
 	metrics.Register().MustRegister(m.totalEventCount)
 
 	m.lastEventTime = prometheus.NewGaugeVec(prometheus.GaugeOpts{
@@ -40,7 +40,7 @@ func InitialMetrics(collection string, subSys string) *EventMetrics {
 		Name:        "last_event_unix_time_seconds",
 		Help:        "records the time that event occurs at unix time seconds",
 		ConstLabels: labels,
-	}, []string{})
+	}, []string{metrics.LabelTenantId})
 	metrics.Register().MustRegister(m.lastEventTime)
 
 	m.eventLagDurations = prometheus.NewHistogramVec(prometheus.HistogramOpts{
@@ -50,7 +50,7 @@ func InitialMetrics(collection string, subSys string) *EventMetrics {
 		Help:        "the lags(seconds) of the event between it occurs and we received it",
 		ConstLabels: labels,
 		Buckets:     []float64{0.02, 0.04, 0.06, 0.08, 0.1, 0.3, 0.5, 0.7, 1, 5, 10, 20, 30, 60, 120},
-	}, []string{"action"})
+	}, []string{"action", metrics.LabelTenantId})
 	metrics.Register().MustRegister(m.eventLagDurations)
 
 	m.lastEventLagDuration = prometheus.NewGaugeVec(prometheus.GaugeOpts{
@@ -59,7 +59,7 @@ func InitialMetrics(collection string, subSys string) *EventMetrics {
 		Name:        "last_event_lag_seconds",
 		Help:        "record the last event's lag duration in seconds",
 		ConstLabels: labels,
-	}, []string{})
+	}, []string{metrics.LabelTenantId})
 	metrics.Register().MustRegister(m.lastEventLagDuration)
 
 	m.cycleDurations = prometheus.NewHistogramVec(prometheus.HistogramOpts{
@@ -116,22 +116,25 @@ type EventMetrics struct {
 // CollectBasic collect the basic event's metrics
 func (em *EventMetrics) CollectBasic(e *types.Event) {
 	// increase event's total count with operate type
-	em.totalEventCount.With(prometheus.Labels{"action": string(e.OperationType)}).Inc()
+	em.totalEventCount.With(prometheus.Labels{"action": string(e.OperationType), metrics.LabelTenantId: e.TenantID}).Inc()
 
 	// the time when the event is really happens.
 	at := time.Unix(int64(e.ClusterTime.Sec), int64(e.ClusterTime.Nano))
 
 	// unix time in seconds
-	em.lastEventTime.With(prometheus.Labels{}).Set(float64(at.Unix()))
+	em.lastEventTime.With(prometheus.Labels{metrics.LabelTenantId: e.TenantID}).Set(float64(at.Unix()))
 
 	// calculate event lags, in seconds
 	lags := time.Since(at).Seconds()
 
 	// set last lag duration
-	em.lastEventLagDuration.With(prometheus.Labels{}).Set(lags)
+	em.lastEventLagDuration.With(prometheus.Labels{metrics.LabelTenantId: e.TenantID}).Set(lags)
 
 	// add to lags durations
-	em.eventLagDurations.With(prometheus.Labels{"action": string(e.OperationType)}).Observe(lags)
+	em.eventLagDurations.With(prometheus.Labels{
+		"action":              string(e.OperationType),
+		metrics.LabelTenantId: e.TenantID},
+	).Observe(lags)
 }
 
 // CollectCycleDuration TODO

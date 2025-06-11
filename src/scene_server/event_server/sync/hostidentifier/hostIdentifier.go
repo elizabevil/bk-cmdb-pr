@@ -30,6 +30,7 @@ import (
 	"configcenter/src/common/blog"
 	"configcenter/src/common/http/rest"
 	"configcenter/src/common/metadata"
+	"configcenter/src/common/metrics"
 	"configcenter/src/common/util"
 	"configcenter/src/scene_server/event_server/types"
 	"configcenter/src/storage/dal/redis"
@@ -129,7 +130,7 @@ func (h *HostIdentifier) registerMetrics() {
 			Name: fmt.Sprintf("%s_get_agent_status_total", metricsNamespacePrefix),
 			Help: "call gse get agent status api total.",
 		},
-		[]string{"status"},
+		[]string{"status", metrics.LabelTenantId},
 	)
 	h.engine.Metric().Registry().MustRegister(getAgentStatusTotal)
 
@@ -138,7 +139,7 @@ func (h *HostIdentifier) registerMetrics() {
 			Name: fmt.Sprintf("%s_push_file_total", metricsNamespacePrefix),
 			Help: "call gse push file api total.",
 		},
-		[]string{"status"},
+		[]string{"status", metrics.LabelTenantId},
 	)
 	h.engine.Metric().Registry().MustRegister(pushFileTotal)
 
@@ -147,7 +148,7 @@ func (h *HostIdentifier) registerMetrics() {
 			Name: fmt.Sprintf("%s_get_result_total", metricsNamespacePrefix),
 			Help: "call gse get task result api total.",
 		},
-		[]string{"status"},
+		[]string{"status", metrics.LabelTenantId},
 	)
 	h.engine.Metric().Registry().MustRegister(getResultTotal)
 
@@ -156,7 +157,7 @@ func (h *HostIdentifier) registerMetrics() {
 			Name: fmt.Sprintf("%s_host_agent_status_total", metricsNamespacePrefix),
 			Help: "host agent status total.",
 		},
-		[]string{"status"},
+		[]string{"status", metrics.LabelTenantId},
 	)
 	h.engine.Metric().Registry().MustRegister(agentStatusTotal)
 
@@ -165,7 +166,7 @@ func (h *HostIdentifier) registerMetrics() {
 			Name: fmt.Sprintf("%s_host_result_total", metricsNamespacePrefix),
 			Help: "host result total.",
 		},
-		[]string{"status"},
+		[]string{"status", metrics.LabelTenantId},
 	)
 	h.engine.Metric().Registry().MustRegister(hostResultTotal)
 
@@ -324,7 +325,7 @@ func (h *HostIdentifier) watchToSyncHostIdentifier(kit *rest.Kit, events []*Iden
 	}
 
 	// 2、将处于on状态的主机拿出来构造推送信息
-	task, hostInfos := h.getTaskFromEvent(events, resp, kit.Rid)
+	task, hostInfos := h.getTaskFromEvent(events, resp, kit.Rid, kit.TenantID)
 	if task == nil || (len(task.V1Task) == 0 && len(task.V2Task) == 0) {
 		return
 	}
@@ -336,21 +337,21 @@ func (h *HostIdentifier) watchToSyncHostIdentifier(kit *rest.Kit, events []*Iden
 	}
 }
 
-func (h *HostIdentifier) getTaskFromEvent(events []*IdentifierEvent, statusMap map[string]string, rid string) (
+func (h *HostIdentifier) getTaskFromEvent(events []*IdentifierEvent, statusMap map[string]string, rid, tenantID string) (
 	*TaskInfo, []*HostInfo) {
 
 	switch h.apiVersion {
 	case types.V2:
-		return h.getV2Task(events, statusMap, rid)
+		return h.getV2Task(events, statusMap, rid, tenantID)
 
 	case types.V1:
-		return h.getV1Task(events, statusMap, rid)
+		return h.getV1Task(events, statusMap, rid, tenantID)
 	}
 
 	return nil, nil
 }
 
-func (h *HostIdentifier) getV2Task(events []*IdentifierEvent, statusMap map[string]string, rid string) (*TaskInfo,
+func (h *HostIdentifier) getV2Task(events []*IdentifierEvent, statusMap map[string]string, rid, tenantID string) (*TaskInfo,
 	[]*HostInfo) {
 
 	fList := make([]*gse.Task, 0)
@@ -360,7 +361,7 @@ func (h *HostIdentifier) getV2Task(events []*IdentifierEvent, statusMap map[stri
 		if agentID != "" {
 			if statusMap[event.AgentID] != v2ApiAgentOnStatus {
 				blog.Infof("agent status is off, agentID: %s, rid: %s", event.AgentID, rid)
-				h.metric.agentStatusTotal.WithLabelValues("off").Inc()
+				h.metric.agentStatusTotal.WithLabelValues("off", tenantID).Inc()
 				continue
 			}
 		} else {
@@ -377,7 +378,7 @@ func (h *HostIdentifier) getV2Task(events []*IdentifierEvent, statusMap map[stri
 			if !isOn {
 				blog.Infof("agent status is off, hostID: %d, ip: %s, cloudID: %d, rid: %s", event.HostID, event.InnerIP,
 					event.CloudID, rid)
-				h.metric.agentStatusTotal.WithLabelValues("off").Inc()
+				h.metric.agentStatusTotal.WithLabelValues("off", tenantID).Inc()
 				continue
 			}
 		}
@@ -387,7 +388,7 @@ func (h *HostIdentifier) getV2Task(events []*IdentifierEvent, statusMap map[stri
 			continue
 		}
 
-		h.metric.agentStatusTotal.WithLabelValues("on").Inc()
+		h.metric.agentStatusTotal.WithLabelValues("on", tenantID).Inc()
 		blog.Infof("agent status is on, agentID: %s, rid: %s", event.AgentID, rid)
 
 		file := h.buildV2PushFile(event.RawEvent, agentID)
@@ -407,7 +408,7 @@ func (h *HostIdentifier) getV2Task(events []*IdentifierEvent, statusMap map[stri
 	return taskInfo, hostInfos
 }
 
-func (h *HostIdentifier) getV1Task(events []*IdentifierEvent, statusMap map[string]string, rid string) (*TaskInfo,
+func (h *HostIdentifier) getV1Task(events []*IdentifierEvent, statusMap map[string]string, rid, tenantID string) (*TaskInfo,
 	[]*HostInfo) {
 
 	fList := make([]*pushfile.API_FileInfoV2, 0)
@@ -417,11 +418,11 @@ func (h *HostIdentifier) getV1Task(events []*IdentifierEvent, statusMap map[stri
 		if !isOn {
 			blog.Infof("agent status is off, hostID: %d, ip: %s, cloudID: %d, rid: %s",
 				event.HostID, event.InnerIP, event.CloudID, rid)
-			h.metric.agentStatusTotal.WithLabelValues("off").Inc()
+			h.metric.agentStatusTotal.WithLabelValues("off", tenantID).Inc()
 			continue
 		}
 
-		h.metric.agentStatusTotal.WithLabelValues("on").Inc()
+		h.metric.agentStatusTotal.WithLabelValues("on", tenantID).Inc()
 		blog.Infof("agent status is on, hostID: %d, ip: %s, cloudID: %d, rid: %s", event.HostID, hostIP, event.CloudID,
 			rid)
 
@@ -506,7 +507,7 @@ func (h *HostIdentifier) BatchSyncHostIdentifier(kit *rest.Kit, hosts []map[stri
 	}
 
 	// 2、将处于on状态的主机拿出来构造主机身份推送信息
-	hostIDs, hostInfos, hostMap := h.getOnStatusAgent(hosts, resp, kit.Rid)
+	hostIDs, hostInfos, hostMap := h.getOnStatusAgent(hosts, resp, kit.Rid, kit.TenantID)
 	if len(hostIDs) == 0 {
 		return nil, errors.New("the host agent status is off")
 	}
@@ -515,21 +516,21 @@ func (h *HostIdentifier) BatchSyncHostIdentifier(kit *rest.Kit, hosts []map[stri
 	return h.getHostIdentifierAndPush(kit, hostIDs, hostMap, hostInfos, isApi)
 }
 
-func (h *HostIdentifier) getOnStatusAgent(hosts []map[string]interface{}, statusMap map[string]string, rid string) (
+func (h *HostIdentifier) getOnStatusAgent(hosts []map[string]interface{}, statusMap map[string]string, rid, tenantID string) (
 	[]int64, []*HostInfo, map[int64]string) {
 
 	switch h.apiVersion {
 	case types.V2:
-		return h.getV2OnStatusAgent(hosts, statusMap, rid)
+		return h.getV2OnStatusAgent(hosts, statusMap, rid, tenantID)
 
 	case types.V1:
-		return h.getV1OnStatusAgent(hosts, statusMap, rid)
+		return h.getV1OnStatusAgent(hosts, statusMap, rid, tenantID)
 	}
 
 	return nil, nil, nil
 }
 
-func (h *HostIdentifier) getV2OnStatusAgent(hosts []map[string]interface{}, statusMap map[string]string, rid string) (
+func (h *HostIdentifier) getV2OnStatusAgent(hosts []map[string]interface{}, statusMap map[string]string, rid, tenantID string) (
 	[]int64, []*HostInfo, map[int64]string) {
 
 	hostIDs := make([]int64, 0)
@@ -554,7 +555,7 @@ func (h *HostIdentifier) getV2OnStatusAgent(hosts []map[string]interface{}, stat
 		if agentID != "" {
 			if statusMap[agentID] != v2ApiAgentOnStatus {
 				blog.Infof("agent status is off, agentID: %s, hostID: %d, rid: %s", agentID, hostID, rid)
-				h.metric.agentStatusTotal.WithLabelValues("off").Inc()
+				h.metric.agentStatusTotal.WithLabelValues("off", tenantID).Inc()
 				continue
 			}
 		} else {
@@ -570,12 +571,12 @@ func (h *HostIdentifier) getV2OnStatusAgent(hosts []map[string]interface{}, stat
 			if !isOn {
 				blog.Infof("agent status is off, hostID: %d, ip: %s, cloudID: %d, rid: %s", hostID, innerIP, cloudID,
 					rid)
-				h.metric.agentStatusTotal.WithLabelValues("off").Inc()
+				h.metric.agentStatusTotal.WithLabelValues("off", tenantID).Inc()
 				continue
 			}
 		}
 
-		h.metric.agentStatusTotal.WithLabelValues("on").Inc()
+		h.metric.agentStatusTotal.WithLabelValues("on", tenantID).Inc()
 		hostIDs = append(hostIDs, hostID)
 		hostMap[hostID] = agentID
 		addressing := util.GetStrByInterface(hostInfo[common.BKAddressingField])
@@ -591,7 +592,7 @@ func (h *HostIdentifier) getV2OnStatusAgent(hosts []map[string]interface{}, stat
 	return hostIDs, hostInfos, hostMap
 }
 
-func (h *HostIdentifier) getV1OnStatusAgent(hosts []map[string]interface{}, statusMap map[string]string, rid string) (
+func (h *HostIdentifier) getV1OnStatusAgent(hosts []map[string]interface{}, statusMap map[string]string, rid, tenantID string) (
 	[]int64, []*HostInfo, map[int64]string) {
 
 	hostIDs := make([]int64, 0)
@@ -615,11 +616,11 @@ func (h *HostIdentifier) getV1OnStatusAgent(hosts []map[string]interface{}, stat
 		isOn, hostIP := getStatusOnAgentIP(strconv.FormatInt(cloudID, 10), innerIP, statusMap)
 		if !isOn {
 			blog.Infof("agent status is off, hostID: %d, ip: %s, cloudID: %d, rid: %s", hostID, innerIP, cloudID, rid)
-			h.metric.agentStatusTotal.WithLabelValues("off").Inc()
+			h.metric.agentStatusTotal.WithLabelValues("off", tenantID).Inc()
 			continue
 		}
 
-		h.metric.agentStatusTotal.WithLabelValues("on").Inc()
+		h.metric.agentStatusTotal.WithLabelValues("on", tenantID).Inc()
 		hostIDs = append(hostIDs, hostID)
 		hostMap[hostID] = hostIP
 		hostInfos = append(hostInfos, &HostInfo{
@@ -641,28 +642,28 @@ func (h *HostIdentifier) getAgentStatus(kit *rest.Kit, statusReqList []StatusReq
 
 	switch h.apiVersion {
 	case types.V2:
-		result, err := h.getAgentStatusByV2Api(statusReqList, kit.Header)
+		result, err := h.getAgentStatusByV2Api(statusReqList, kit.Header, kit.TenantID)
 		if err != nil {
 			blog.Errorf("get host agent status error, err: %v, rid: %s", err, kit.Rid)
 			return nil, err
 		}
-		h.metric.getAgentStatusTotal.WithLabelValues("success").Inc()
+		h.metric.getAgentStatusTotal.WithLabelValues("success", kit.TenantID).Inc()
 		return result, nil
 
 	case types.V1:
-		result, err := h.getAgentStatusByV1Api(statusReqList, kit.Rid)
+		result, err := h.getAgentStatusByV1Api(statusReqList, kit.Rid, kit.TenantID)
 		if err != nil {
 			blog.Errorf("get host agent status error, err: %v, rid: %s", err, kit.Rid)
 			return nil, err
 		}
-		h.metric.getAgentStatusTotal.WithLabelValues("success").Inc()
+		h.metric.getAgentStatusTotal.WithLabelValues("success", kit.TenantID).Inc()
 		return result, nil
 	}
 
 	return nil, errors.New("can not find api about get agent status")
 }
 
-func (h *HostIdentifier) getAgentStatusByV2Api(statusReqList []StatusReq, header http.Header) (
+func (h *HostIdentifier) getAgentStatusByV2Api(statusReqList []StatusReq, header http.Header, tenantID string) (
 	map[string]string, error) {
 
 	// build agentID request list
@@ -694,7 +695,7 @@ func (h *HostIdentifier) getAgentStatusByV2Api(statusReqList []StatusReq, header
 	for failCount < retryTimes {
 		resp, err = h.gseApiGWClient.ListAgentState(h.ctx, header, req)
 		if err != nil {
-			h.metric.getAgentStatusTotal.WithLabelValues("failed").Inc()
+			h.metric.getAgentStatusTotal.WithLabelValues("failed", tenantID).Inc()
 			failCount++
 			sleepForFail(failCount)
 			continue
@@ -713,7 +714,7 @@ func (h *HostIdentifier) getAgentStatusByV2Api(statusReqList []StatusReq, header
 	return statusMap, nil
 }
 
-func (h *HostIdentifier) getAgentStatusByV1Api(statusReqList []StatusReq, rid string) (map[string]string,
+func (h *HostIdentifier) getAgentStatusByV1Api(statusReqList []StatusReq, rid, tenantID string) (map[string]string,
 	error) {
 
 	req := new(getstatus.AgentStatusRequest)
@@ -730,7 +731,7 @@ func (h *HostIdentifier) getAgentStatusByV1Api(statusReqList []StatusReq, rid st
 		resp, err = h.gseApiServerClient.GetAgentStatus(context.Background(), req)
 		if err != nil {
 			blog.Errorf("get host agent status error, err: %v, rid: %s", err, rid)
-			h.metric.getAgentStatusTotal.WithLabelValues("failed").Inc()
+			h.metric.getAgentStatusTotal.WithLabelValues("failed", tenantID).Inc()
 			failCount++
 			sleepForFail(failCount)
 			continue
@@ -738,7 +739,7 @@ func (h *HostIdentifier) getAgentStatusByV1Api(statusReqList []StatusReq, rid st
 
 		if resp.BkErrorCode != common.CCSuccess {
 			blog.Errorf("get agent status fail, code: %d, msg: %s, rid: %s", resp.BkErrorCode, resp.BkErrorMsg, rid)
-			h.metric.getAgentStatusTotal.WithLabelValues("failed").Inc()
+			h.metric.getAgentStatusTotal.WithLabelValues("failed", tenantID).Inc()
 			failCount++
 			sleepForFail(failCount)
 			continue
