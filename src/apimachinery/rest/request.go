@@ -36,6 +36,7 @@ import (
 	httpheader "configcenter/src/common/http/header"
 	"configcenter/src/common/json"
 	"configcenter/src/common/metadata"
+	"configcenter/src/common/metrics"
 	commonUtil "configcenter/src/common/util"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -392,9 +393,10 @@ func (r *Request) do(client util.HttpClient, req *http.Request, result *Result, 
 	// collect request metrics
 	if r.parent.requestDuration != nil {
 		labels := prometheus.Labels{
-			"handler":     r.subPath,
-			"status_code": strconv.Itoa(result.StatusCode),
-			"dimension":   r.metricDimension,
+			"handler":             r.subPath,
+			"status_code":         strconv.Itoa(result.StatusCode),
+			"dimension":           r.metricDimension,
+			metrics.LabelTenantId: httpheader.GetTenantID(r.headers),
 		}
 
 		r.parent.requestDuration.With(labels).Observe(float64(time.Since(start) / time.Millisecond))

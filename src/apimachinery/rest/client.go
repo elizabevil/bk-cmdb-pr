@@ -17,6 +17,7 @@ import (
 	"time"
 
 	"configcenter/src/apimachinery/util"
+	"configcenter/src/common/metrics"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -62,7 +63,7 @@ func NewRESTClient(c *util.Capability, baseUrl string) ClientInterface {
 			Name:    "cmdb_apimachinary_requests_duration_millisecond",
 			Help:    "third party api request duration millisecond.",
 			Buckets: buckets,
-		}, []string{"handler", "status_code", "dimension"})
+		}, []string{"handler", "status_code", "dimension", metrics.LabelTenantId})
 
 		if err := c.MetricOpts.Register.Register(client.requestDuration); err != nil {
 			if are, ok := err.(prometheus.AlreadyRegisteredError); ok {
