@@ -157,11 +157,11 @@ func (h *HostIdentifier) compareTaskResult(task *Task, taskResultMap map[string]
 		if code != common.CCSuccess {
 			blog.Errorf("push host identifier error, hostInfo: %v, taskID: %s", hostInfo, task.TaskID)
 			failHosts = append(failHosts, hostInfo)
-			h.metric.hostResultTotal.WithLabelValues("failed").Inc()
+			h.metric.hostResultTotal.WithLabelValues("failed", task.TenantID).Inc()
 			continue
 		}
 
-		h.metric.hostResultTotal.WithLabelValues("success").Inc()
+		h.metric.hostResultTotal.WithLabelValues("success", task.TenantID).Inc()
 		blog.V(5).Infof("push identifier to host success, host: %v, taskID: %s", hostInfo, task.TaskID)
 	}
 
@@ -199,7 +199,7 @@ func (h *HostIdentifier) getV2TaskExecutionResultMap(task *Task, header http.Hea
 		resp, err = h.gseApiGWClient.GetTransferFileResult(h.ctx, header, req)
 		if err != nil {
 			blog.Errorf("get task status from gse error, task: %v, err: %v, rid: %s", task, err, rid)
-			h.metric.getResultTotal.WithLabelValues("failed").Inc()
+			h.metric.getResultTotal.WithLabelValues("failed", task.TenantID).Inc()
 			failCount++
 			sleepForFail(failCount)
 			continue
@@ -210,7 +210,7 @@ func (h *HostIdentifier) getV2TaskExecutionResultMap(task *Task, header http.Hea
 		return nil, errors.New("get task push result error")
 	}
 
-	h.metric.getResultTotal.WithLabelValues("success").Inc()
+	h.metric.getResultTotal.WithLabelValues("success", task.TenantID).Inc()
 	return buildV2TaskResultMap(resp.Data.Result), nil
 }
 
@@ -222,7 +222,7 @@ func (h *HostIdentifier) getV1TaskExecutionResultMap(task *Task, rid string) (ma
 		resp, err = h.gseTaskServerClient.GetPushFileRst(h.ctx, task.TaskID)
 		if err != nil {
 			blog.Errorf("get task status from gse error, task: %v, err: %v, rid: %s", task, err, rid)
-			h.metric.getResultTotal.WithLabelValues("failed").Inc()
+			h.metric.getResultTotal.WithLabelValues("failed", task.TenantID).Inc()
 			failCount++
 			sleepForFail(failCount)
 			continue
@@ -231,7 +231,7 @@ func (h *HostIdentifier) getV1TaskExecutionResultMap(task *Task, rid string) (ma
 		if resp.MErrcode != common.CCSuccess {
 			blog.Errorf("get task status from gse fail, task: %v, code: %d, msg: %s, rid: %s", task, resp.MErrcode,
 				resp.MErrmsg, rid)
-			h.metric.getResultTotal.WithLabelValues("failed").Inc()
+			h.metric.getResultTotal.WithLabelValues("failed", task.TenantID).Inc()
 			failCount++
 			sleepForFail(failCount)
 			continue
@@ -242,7 +242,7 @@ func (h *HostIdentifier) getV1TaskExecutionResultMap(task *Task, rid string) (ma
 		return nil, errors.New("get task push result error")
 	}
 
-	h.metric.getResultTotal.WithLabelValues("success").Inc()
+	h.metric.getResultTotal.WithLabelValues("success", task.TenantID).Inc()
 	return buildV1TaskResultMap(resp.MRsp), nil
 }
 
@@ -272,7 +272,7 @@ func (h *HostIdentifier) LaunchTaskForFailedHost() {
 			}
 
 			// 3、将处于on状态的主机拿出来构造推送信息
-			hostIDs, hostInfos, hostMap := h.getOnStatusAgentFromHostInfo(hostInfoArray, resp, kit.Rid)
+			hostIDs, hostInfos, hostMap := h.getOnStatusAgentFromHostInfo(hostInfoArray, resp, kit.Rid, kit.TenantID)
 			if len(hostIDs) == 0 {
 				blog.Warnf("get fail host success, but agent status is off, hostInfos: %v, rid: %s", hostInfoArray,
 					kit.Rid)
@@ -287,21 +287,21 @@ func (h *HostIdentifier) LaunchTaskForFailedHost() {
 	}
 }
 
-func (h *HostIdentifier) getOnStatusAgentFromHostInfo(hosts []*HostInfo, statusMap map[string]string, rid string) (
+func (h *HostIdentifier) getOnStatusAgentFromHostInfo(hosts []*HostInfo, statusMap map[string]string, rid, tenantID string) (
 	[]int64, []*HostInfo, map[int64]string) {
 
 	switch h.apiVersion {
 	case types.V2:
-		return h.getV2OnStatusAgentFromHostInfo(hosts, statusMap, rid)
+		return h.getV2OnStatusAgentFromHostInfo(hosts, statusMap, rid, tenantID)
 
 	case types.V1:
-		return h.getV1OnStatusAgentFromHostInfo(hosts, statusMap, rid)
+		return h.getV1OnStatusAgentFromHostInfo(hosts, statusMap, rid, tenantID)
 	}
 
 	return nil, nil, nil
 }
 
-func (h *HostIdentifier) getV2OnStatusAgentFromHostInfo(hosts []*HostInfo, statusMap map[string]string, rid string) (
+func (h *HostIdentifier) getV2OnStatusAgentFromHostInfo(hosts []*HostInfo, statusMap map[string]string, rid, tenantID string) (
 	[]int64, []*HostInfo, map[int64]string) {
 
 	hostIDs := make([]int64, 0)
@@ -311,11 +311,11 @@ func (h *HostIdentifier) getV2OnStatusAgentFromHostInfo(hosts []*HostInfo, statu
 	for _, hostInfo := range hosts {
 		if statusMap[hostInfo.AgentID] != v2ApiAgentOnStatus {
 			blog.Infof("agent status is off, agentID: %s, hostID: %d, rid: %s", hostInfo.AgentID, hostInfo.HostID, rid)
-			h.metric.agentStatusTotal.WithLabelValues("off").Inc()
+			h.metric.agentStatusTotal.WithLabelValues("off", tenantID).Inc()
 			continue
 		}
 
-		h.metric.agentStatusTotal.WithLabelValues("on").Inc()
+		h.metric.agentStatusTotal.WithLabelValues("on", tenantID).Inc()
 		hostIDs = append(hostIDs, hostInfo.HostID)
 		hostMap[hostInfo.HostID] = hostInfo.AgentID
 		hostInfos = append(hostInfos, hostInfo)
@@ -324,7 +324,7 @@ func (h *HostIdentifier) getV2OnStatusAgentFromHostInfo(hosts []*HostInfo, statu
 	return hostIDs, hostInfos, hostMap
 }
 
-func (h *HostIdentifier) getV1OnStatusAgentFromHostInfo(hosts []*HostInfo, statusMap map[string]string, rid string) (
+func (h *HostIdentifier) getV1OnStatusAgentFromHostInfo(hosts []*HostInfo, statusMap map[string]string, rid, tenantID string) (
 	[]int64, []*HostInfo, map[int64]string) {
 
 	hostIDs := make([]int64, 0)
@@ -339,7 +339,7 @@ func (h *HostIdentifier) getV1OnStatusAgentFromHostInfo(hosts []*HostInfo, statu
 			continue
 		}
 
-		h.metric.agentStatusTotal.WithLabelValues("on").Inc()
+		h.metric.agentStatusTotal.WithLabelValues("on", tenantID).Inc()
 		hostIDs = append(hostIDs, hostInfo.HostID)
 		hostMap[hostInfo.HostID] = hostIP
 		hostInfo.HostInnerIP = hostIP
@@ -412,19 +412,19 @@ func (h *HostIdentifier) pushFile(kit *rest.Kit, hostInfos []*HostInfo, taskInfo
 	var err error
 	switch h.apiVersion {
 	case types.V1:
-		taskID, err = h.pushFileByV1Api(taskInfo.V1Task, kit.Rid)
+		taskID, err = h.pushFileByV1Api(taskInfo.V1Task, kit.Rid, kit.TenantID)
 		if err != nil {
 			return nil, err
 		}
 
 	case types.V2:
-		taskID, err = h.pushFileByV2Api(taskInfo.V2Task, kit.Header, kit.Rid)
+		taskID, err = h.pushFileByV2Api(taskInfo.V2Task, kit.Header, kit.Rid, kit.TenantID)
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	h.metric.pushFileTotal.WithLabelValues("success").Inc()
+	h.metric.pushFileTotal.WithLabelValues("success", kit.TenantID).Inc()
 	blog.V(5).Infof("push host identifier to gse success: taskID: %s, rid: %s", taskID, kit.Rid)
 
 	// 2、构建task放到redis维护的任务队列中
@@ -450,7 +450,7 @@ func (h *HostIdentifier) pushFile(kit *rest.Kit, hostInfos []*HostInfo, taskInfo
 	return task, nil
 }
 
-func (h *HostIdentifier) pushFileByV2Api(task []*gse.Task, header http.Header, rid string) (string,
+func (h *HostIdentifier) pushFileByV2Api(task []*gse.Task, header http.Header, rid, tenantID string) (string,
 	error) {
 
 	if len(task) == 0 {
@@ -470,7 +470,7 @@ func (h *HostIdentifier) pushFileByV2Api(task []*gse.Task, header http.Header, r
 	for failCount < retryTimes {
 		resp, err = h.gseApiGWClient.AsyncPushFile(h.ctx, header, req)
 		if err != nil {
-			h.metric.pushFileTotal.WithLabelValues("failed").Inc()
+			h.metric.pushFileTotal.WithLabelValues("failed", tenantID).Inc()
 			failCount++
 			sleepForFail(failCount)
 			continue
@@ -485,7 +485,7 @@ func (h *HostIdentifier) pushFileByV2Api(task []*gse.Task, header http.Header, r
 	return resp.Data.Result.TaskID, nil
 }
 
-func (h *HostIdentifier) pushFileByV1Api(task []*pushfile.API_FileInfoV2, rid string) (string, error) {
+func (h *HostIdentifier) pushFileByV1Api(task []*pushfile.API_FileInfoV2, rid, tenantID string) (string, error) {
 	if len(task) == 0 {
 		blog.Errorf("push file error, because the task is empty, rid: %s", rid)
 		return "", errors.New("push file error, because the task is empty")
@@ -499,7 +499,7 @@ func (h *HostIdentifier) pushFileByV1Api(task []*pushfile.API_FileInfoV2, rid st
 		resp, err = h.gseTaskServerClient.PushFileV2(context.Background(), task)
 		if err != nil {
 			blog.Errorf("push host identifier to gse error, err: %v, rid: %s", err, rid)
-			h.metric.pushFileTotal.WithLabelValues("failed").Inc()
+			h.metric.pushFileTotal.WithLabelValues("failed", tenantID).Inc()
 			failCount++
 			sleepForFail(failCount)
 			continue
@@ -507,7 +507,7 @@ func (h *HostIdentifier) pushFileByV1Api(task []*pushfile.API_FileInfoV2, rid st
 
 		if resp.MErrcode != common.CCSuccess {
 			blog.Errorf("push host identifier fail, code: %d, msg: %s, rid: %s", resp.MErrcode, resp.MErrmsg, rid)
-			h.metric.pushFileTotal.WithLabelValues("failed").Inc()
+			h.metric.pushFileTotal.WithLabelValues("failed", tenantID).Inc()
 			failCount++
 			sleepForFail(failCount)
 			continue
