@@ -287,8 +287,8 @@ func (h *HostIdentifier) LaunchTaskForFailedHost() {
 	}
 }
 
-func (h *HostIdentifier) getOnStatusAgentFromHostInfo(hosts []*HostInfo, statusMap map[string]string, rid, tenantID string) (
-	[]int64, []*HostInfo, map[int64]string) {
+func (h *HostIdentifier) getOnStatusAgentFromHostInfo(hosts []*HostInfo, statusMap map[string]string,
+	rid, tenantID string) ([]int64, []*HostInfo, map[int64]string) {
 
 	switch h.apiVersion {
 	case types.V2:
@@ -301,8 +301,8 @@ func (h *HostIdentifier) getOnStatusAgentFromHostInfo(hosts []*HostInfo, statusM
 	return nil, nil, nil
 }
 
-func (h *HostIdentifier) getV2OnStatusAgentFromHostInfo(hosts []*HostInfo, statusMap map[string]string, rid, tenantID string) (
-	[]int64, []*HostInfo, map[int64]string) {
+func (h *HostIdentifier) getV2OnStatusAgentFromHostInfo(hosts []*HostInfo, statusMap map[string]string,
+	rid, tenantID string) ([]int64, []*HostInfo, map[int64]string) {
 
 	hostIDs := make([]int64, 0)
 	hostInfos := make([]*HostInfo, 0)
@@ -324,8 +324,8 @@ func (h *HostIdentifier) getV2OnStatusAgentFromHostInfo(hosts []*HostInfo, statu
 	return hostIDs, hostInfos, hostMap
 }
 
-func (h *HostIdentifier) getV1OnStatusAgentFromHostInfo(hosts []*HostInfo, statusMap map[string]string, rid, tenantID string) (
-	[]int64, []*HostInfo, map[int64]string) {
+func (h *HostIdentifier) getV1OnStatusAgentFromHostInfo(hosts []*HostInfo, statusMap map[string]string,
+	rid, tenantID string) ([]int64, []*HostInfo, map[int64]string) {
 
 	hostIDs := make([]int64, 0)
 	// 此map保存hostID和该host处于on的agent的ip的对应关系

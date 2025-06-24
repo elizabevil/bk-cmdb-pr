@@ -344,7 +344,6 @@ func genKubeWorkloadEventMethod(kit *rest.Kit, lgc *logics.Logics) (types.Resour
 	return types.ResourcePullMethod{
 		ListInstance: func(kit *rest.Kit, resourceType iamtypes.TypeID, filter *types.ListInstanceFilter,
 			page types.Page) (*types.ListInstanceResult, error) {
-
 			limit := page.Limit
 			if limit > common.BKMaxPageSize && limit != common.BKNoLimit {
 				return nil, kit.CCError.CCError(common.CCErrCommPageLimitIsExceeded)
@@ -352,7 +351,6 @@ func genKubeWorkloadEventMethod(kit *rest.Kit, lgc *logics.Logics) (types.Resour
 			if limit == 0 {
 				return nil, kit.CCError.CCErrorf(common.CCErrCommParamsNeedSet, "page.limit")
 			}
-
 			// get kube workload kinds that matches the filter
 			kinds := kubeWorkloadKinds
 			if filter != nil {
@@ -369,18 +367,15 @@ func genKubeWorkloadEventMethod(kit *rest.Kit, lgc *logics.Logics) (types.Resour
 					}
 				}
 			}
-
 			// generate iam instance resource by kube workload kinds, do pagination
 			kindsLen := int64(len(kinds))
 			if page.Offset >= kindsLen {
 				return &types.ListInstanceResult{Count: 0, Results: make([]types.InstanceResource, 0)}, nil
 			}
-
 			end := page.Offset + limit
 			if end > kindsLen {
 				end = kindsLen
 			}
-
 			res := make([]types.InstanceResource, 0)
 			for _, kind := range kinds[page.Offset:end] {
 				res = append(res, types.InstanceResource{
@@ -388,7 +383,6 @@ func genKubeWorkloadEventMethod(kit *rest.Kit, lgc *logics.Logics) (types.Resour
 					DisplayName: kind,
 				})
 			}
-
 			return &types.ListInstanceResult{
 				Count:   kindsLen,
 				Results: res,
@@ -396,7 +390,6 @@ func genKubeWorkloadEventMethod(kit *rest.Kit, lgc *logics.Logics) (types.Resour
 		},
 		FetchInstanceInfo: func(kit *rest.Kit, resourceType iamtypes.TypeID, filter *types.FetchInstanceInfoFilter) (
 			[]map[string]interface{}, error) {
-
 			// only support query name field, name field is the same with the id field
 			hasNameField := false
 			for _, attr := range filter.Attrs {
@@ -404,18 +397,15 @@ func genKubeWorkloadEventMethod(kit *rest.Kit, lgc *logics.Logics) (types.Resour
 					hasNameField = true
 				}
 			}
-
 			if !hasNameField {
 				return make([]map[string]interface{}, 0), nil
 			}
-
 			res := make([]map[string]interface{}, 0)
 			for _, id := range filter.IDs {
 				if util.InStrArr(kubeWorkloadKinds, id) {
 					res = append(res, map[string]interface{}{types.NameField: id})
 				}
 			}
-
 			return res, nil
 		},
 		ListInstanceByPolicy: func(kit *rest.Kit, resourceType iamtypes.TypeID,

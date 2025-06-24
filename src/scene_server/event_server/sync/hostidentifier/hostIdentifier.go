@@ -337,8 +337,8 @@ func (h *HostIdentifier) watchToSyncHostIdentifier(kit *rest.Kit, events []*Iden
 	}
 }
 
-func (h *HostIdentifier) getTaskFromEvent(events []*IdentifierEvent, statusMap map[string]string, rid, tenantID string) (
-	*TaskInfo, []*HostInfo) {
+func (h *HostIdentifier) getTaskFromEvent(events []*IdentifierEvent, statusMap map[string]string,
+	rid, tenantID string) (*TaskInfo, []*HostInfo) {
 
 	switch h.apiVersion {
 	case types.V2:
@@ -351,8 +351,8 @@ func (h *HostIdentifier) getTaskFromEvent(events []*IdentifierEvent, statusMap m
 	return nil, nil
 }
 
-func (h *HostIdentifier) getV2Task(events []*IdentifierEvent, statusMap map[string]string, rid, tenantID string) (*TaskInfo,
-	[]*HostInfo) {
+func (h *HostIdentifier) getV2Task(events []*IdentifierEvent, statusMap map[string]string, rid, tenantID string) (
+	*TaskInfo, []*HostInfo) {
 
 	fList := make([]*gse.Task, 0)
 	hostInfos := make([]*HostInfo, 0)
@@ -408,8 +408,8 @@ func (h *HostIdentifier) getV2Task(events []*IdentifierEvent, statusMap map[stri
 	return taskInfo, hostInfos
 }
 
-func (h *HostIdentifier) getV1Task(events []*IdentifierEvent, statusMap map[string]string, rid, tenantID string) (*TaskInfo,
-	[]*HostInfo) {
+func (h *HostIdentifier) getV1Task(events []*IdentifierEvent, statusMap map[string]string, rid, tenantID string) (
+	*TaskInfo, []*HostInfo) {
 
 	fList := make([]*pushfile.API_FileInfoV2, 0)
 	hostInfos := make([]*HostInfo, 0)
@@ -482,8 +482,7 @@ func (h *HostIdentifier) FullSyncHostIdentifier() {
 }
 
 // BatchSyncHostIdentifier batch sync host identifier
-func (h *HostIdentifier) BatchSyncHostIdentifier(kit *rest.Kit, hosts []map[string]interface{}, isApi bool) (*Task,
-	error) {
+func (h *HostIdentifier) BatchSyncHostIdentifier(kit *rest.Kit, hosts []map[string]any, isApi bool) (*Task, error) {
 
 	if len(hosts) == 0 {
 		return nil, errors.New("the hosts count is 0")
@@ -516,8 +515,8 @@ func (h *HostIdentifier) BatchSyncHostIdentifier(kit *rest.Kit, hosts []map[stri
 	return h.getHostIdentifierAndPush(kit, hostIDs, hostMap, hostInfos, isApi)
 }
 
-func (h *HostIdentifier) getOnStatusAgent(hosts []map[string]interface{}, statusMap map[string]string, rid, tenantID string) (
-	[]int64, []*HostInfo, map[int64]string) {
+func (h *HostIdentifier) getOnStatusAgent(hosts []map[string]any, statusMap map[string]string,
+	rid, tenantID string) ([]int64, []*HostInfo, map[int64]string) {
 
 	switch h.apiVersion {
 	case types.V2:
@@ -530,8 +529,8 @@ func (h *HostIdentifier) getOnStatusAgent(hosts []map[string]interface{}, status
 	return nil, nil, nil
 }
 
-func (h *HostIdentifier) getV2OnStatusAgent(hosts []map[string]interface{}, statusMap map[string]string, rid, tenantID string) (
-	[]int64, []*HostInfo, map[int64]string) {
+func (h *HostIdentifier) getV2OnStatusAgent(hosts []map[string]any, statusMap map[string]string,
+	rid, tenantID string) ([]int64, []*HostInfo, map[int64]string) {
 
 	hostIDs := make([]int64, 0)
 	hostInfos := make([]*HostInfo, 0)
@@ -592,8 +591,8 @@ func (h *HostIdentifier) getV2OnStatusAgent(hosts []map[string]interface{}, stat
 	return hostIDs, hostInfos, hostMap
 }
 
-func (h *HostIdentifier) getV1OnStatusAgent(hosts []map[string]interface{}, statusMap map[string]string, rid, tenantID string) (
-	[]int64, []*HostInfo, map[int64]string) {
+func (h *HostIdentifier) getV1OnStatusAgent(hosts []map[string]any, statusMap map[string]string,
+	rid, tenantID string) ([]int64, []*HostInfo, map[int64]string) {
 
 	hostIDs := make([]int64, 0)
 	// 此map保存hostID和该host处于on的agent的ip的对应关系
