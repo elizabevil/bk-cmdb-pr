@@ -279,14 +279,14 @@ func (ps *parseStream) updateBiz() *parseStream {
 		return ps
 	}
 
-	stream, done := ps.updateBiz_updateMany()
+	stream, done := ps.updateManyBizProperty()
 	if done {
 		return stream
 	}
 	return ps
 }
 
-func (ps *parseStream) updateBiz_updateMany() (*parseStream, bool) {
+func (ps *parseStream) updateManyBizProperty() (*parseStream, bool) {
 	// batch update business properties
 	if ps.hitPattern(updatemanyBizPropertyPattern, http.MethodPut) {
 		ps.Attribute.Resources = []meta.ResourceAttribute{{Basic: meta.Basic{

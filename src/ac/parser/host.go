@@ -407,7 +407,7 @@ func (ps *parseStream) host() *parseStream {
 		return ps
 	}
 
-	stream, done := ps.host_findHosts()
+	stream, done := ps.findHosts()
 	if done {
 		return stream
 	}
@@ -432,49 +432,49 @@ func (ps *parseStream) host() *parseStream {
 		return ps
 	}
 
-	stream, done = ps.host_lock()
+	stream, done = ps.lockHosts()
 	if done {
 		return stream
 	}
 
-	stream, done = ps.host_deleteHost()
+	stream, done = ps.deleteHosts()
 	if done {
 		return stream
 	}
 
-	stream, done = ps.host_findHostPattern()
+	stream, done = ps.findHost()
 	if done {
 		return stream
 	}
 
-	stream, done = ps.host_findHostWithPattern()
+	stream, done = ps.findHostWithBiz()
 	if done {
 		return stream
 	}
 
-	stream, done = ps.host_findHostsForPattern()
+	stream, done = ps.findHostsForPattern()
 	if done {
 		return stream
 	}
 
-	stream, done = ps.host_findBizHosts()
+	stream, done = ps.findBizHosts()
 	if done {
 		return stream
 	}
 
-	stream, done = ps.host_updateHost()
+	stream, done = ps.updateHosts()
 	if done {
 		return stream
 	}
 
-	stream, done = ps.host_hostHandler()
+	stream, done = ps.handleHosts()
 	if done {
 		return stream
 	}
 	return ps
 }
 
-func (ps *parseStream) host_hostHandler() (*parseStream, bool) {
+func (ps *parseStream) handleHosts() (*parseStream, bool) {
 	// clone hosts property, but can not get the exactly host id.
 	if ps.hitPattern(cloneHostPropertyBatchPattern, http.MethodPut) {
 		ps.Attribute.Resources = []meta.ResourceAttribute{
@@ -555,7 +555,7 @@ func (ps *parseStream) host_hostHandler() (*parseStream, bool) {
 	return nil, false
 }
 
-func (ps *parseStream) host_updateHost() (*parseStream, bool) {
+func (ps *parseStream) updateHosts() (*parseStream, bool) {
 	// update hosts batch. but can not get the exactly host id.
 	if ps.hitPattern(updateHostInfoBatchPattern, http.MethodPut) {
 		ps.Attribute.Resources = []meta.ResourceAttribute{
@@ -630,7 +630,7 @@ func (ps *parseStream) host_updateHost() (*parseStream, bool) {
 	return nil, false
 }
 
-func (ps *parseStream) host_findBizHosts() (*parseStream, bool) {
+func (ps *parseStream) findBizHosts() (*parseStream, bool) {
 	// find hosts under business specified by path parameter
 	if ps.hitRegexp(findBizHostsRegex, http.MethodPost) {
 		bizID, err := strconv.ParseInt(ps.RequestCtx.Elements[4], 10, 64)
@@ -695,7 +695,7 @@ func (ps *parseStream) host_findBizHosts() (*parseStream, bool) {
 	return nil, false
 }
 
-func (ps *parseStream) host_findHostsForPattern() (*parseStream, bool) {
+func (ps *parseStream) findHostsForPattern() (*parseStream, bool) {
 	// find hosts with for resource pool only for ui.
 	if ps.hitPattern(findHostsForResourcePattern, http.MethodPost) {
 		ps.Attribute.Resources = []meta.ResourceAttribute{
@@ -740,7 +740,7 @@ func (ps *parseStream) host_findHostsForPattern() (*parseStream, bool) {
 	return nil, false
 }
 
-func (ps *parseStream) host_findHostWithPattern() (*parseStream, bool) {
+func (ps *parseStream) findHostWithBiz() (*parseStream, bool) {
 	// find hosts without app id
 	if ps.hitPattern(findBizHostsWithoutAppPattern, http.MethodPost) {
 		ps.Attribute.Resources = []meta.ResourceAttribute{
@@ -795,7 +795,7 @@ func (ps *parseStream) host_findHostWithPattern() (*parseStream, bool) {
 	return nil, false
 }
 
-func (ps *parseStream) host_findHostPattern() (*parseStream, bool) {
+func (ps *parseStream) findHost() (*parseStream, bool) {
 	if ps.hitPattern(findHostTopoRelationPattern, http.MethodPost) {
 		bizID, err := ps.parseBusinessID()
 		if err != nil {
@@ -857,7 +857,7 @@ func (ps *parseStream) host_findHostPattern() (*parseStream, bool) {
 	return nil, false
 }
 
-func (ps *parseStream) host_deleteHost() (*parseStream, bool) {
+func (ps *parseStream) deleteHosts() (*parseStream, bool) {
 	// delete hosts batch operation.
 	if ps.hitPattern(deleteHostBatchPattern, http.MethodDelete) {
 		ps.Attribute.Resources = []meta.ResourceAttribute{
@@ -896,7 +896,7 @@ func (ps *parseStream) host_deleteHost() (*parseStream, bool) {
 	return nil, false
 }
 
-func (ps *parseStream) host_lock() (*parseStream, bool) {
+func (ps *parseStream) lockHosts() (*parseStream, bool) {
 	// host lock authorize filter
 	if ps.hitPattern(lockHostPattern, http.MethodPost) {
 		ps.Attribute.Resources = []meta.ResourceAttribute{
@@ -936,7 +936,7 @@ func (ps *parseStream) host_lock() (*parseStream, bool) {
 	return nil, false
 }
 
-func (ps *parseStream) host_findHosts() (*parseStream, bool) {
+func (ps *parseStream) findHosts() (*parseStream, bool) {
 	if ps.hitRegexp(findHostInstanceObjectPropertiesRegexp, http.MethodGet) {
 		ps.Attribute.Resources = []meta.ResourceAttribute{
 			{
@@ -1014,32 +1014,32 @@ func (ps *parseStream) hostTransfer() *parseStream {
 		return ps
 	}
 
-	stream, done := ps.hostTransfer_addHostsToPattern()
+	stream, done := ps.addHostsPattern()
 	if done {
 		return stream
 	}
 
-	stream, done = ps.hostTransfer_addHostsToResourcePool()
+	stream, done = ps.addHostsToResourcePool()
 	if done {
 		return stream
 	}
 
-	stream, done = ps.hostTransfer_moveToBiz()
+	stream, done = ps.moveHostToBiz()
 	if done {
 		return stream
 	}
 
-	stream, done = ps.hostTransfer_moveResPoolHostToBiz()
+	stream, done = ps.moveResPoolHostToBiz()
 	if done {
 		return stream
 	}
 
-	stream, done = ps.hostTransfer_move()
+	stream, done = ps.moveHost()
 	if done {
 		return stream
 	}
 
-	stream, done = ps.hostTransfer_moveResource()
+	stream, done = ps.moveResourceHostAcrossBiz()
 	if done {
 		return stream
 	}
@@ -1065,7 +1065,7 @@ func (ps *parseStream) hostTransfer() *parseStream {
 	//	return ps
 	// }
 
-	stream, done = ps.hostTransfer_clearServiceInstance()
+	stream, done = ps.clearServiceInstanceHost()
 	if done {
 		return stream
 	}
@@ -1073,7 +1073,7 @@ func (ps *parseStream) hostTransfer() *parseStream {
 	return ps
 }
 
-func (ps *parseStream) hostTransfer_addHostsToResourcePool() (*parseStream, bool) {
+func (ps *parseStream) addHostsToResourcePool() (*parseStream, bool) {
 	// add hosts to resource pool directory
 	if ps.hitPattern(addHostsToResourcePoolPattern, http.MethodPost) {
 		val, err := ps.RequestCtx.getValueFromBody("directory")
@@ -1155,7 +1155,7 @@ func (ps *parseStream) hostTransfer_addHostsToResourcePool() (*parseStream, bool
 	return nil, false
 }
 
-func (ps *parseStream) hostTransfer_addHostsToPattern() (*parseStream, bool) {
+func (ps *parseStream) addHostsPattern() (*parseStream, bool) {
 	// add new hosts to resource pool
 	if ps.hitPattern(addHostsToHostPoolPattern, http.MethodPost) {
 		dirID, err := ps.getResourcePoolDefaultDirID()
@@ -1217,7 +1217,7 @@ func (ps *parseStream) hostTransfer_addHostsToPattern() (*parseStream, bool) {
 	return nil, false
 }
 
-func (ps *parseStream) hostTransfer_moveResource() (*parseStream, bool) {
+func (ps *parseStream) moveResourceHostAcrossBiz() (*parseStream, bool) {
 	// transfer resource hosts to another business.
 	if ps.hitPattern(moveResourceHostAcrossBizPattern, http.MethodPost) {
 
@@ -1274,7 +1274,7 @@ func (ps *parseStream) hostTransfer_moveResource() (*parseStream, bool) {
 	return nil, false
 }
 
-func (ps *parseStream) hostTransfer_clearServiceInstance() (*parseStream, bool) {
+func (ps *parseStream) clearServiceInstanceHost() (*parseStream, bool) {
 	if ps.hitRegexp(transferHostWithAutoClearServiceInstanceRegex, http.MethodPost) ||
 		ps.hitRegexp(transferHostWithAutoClearServiceInstancePreviewRegex, http.MethodPost) {
 
@@ -1326,7 +1326,7 @@ func (ps *parseStream) hostTransfer_clearServiceInstance() (*parseStream, bool) 
 	return nil, false
 }
 
-func (ps *parseStream) hostTransfer_move() (*parseStream, bool) {
+func (ps *parseStream) moveHost() (*parseStream, bool) {
 	// transfer host to another business
 	if ps.hitPattern(moveHostAcrossBizPattern, http.MethodPost) {
 		val, err := ps.RequestCtx.getValueFromBody("src_bk_biz_id")
@@ -1406,7 +1406,7 @@ func (ps *parseStream) hostTransfer_move() (*parseStream, bool) {
 	return nil, false
 }
 
-func (ps *parseStream) hostTransfer_moveToBiz() (*parseStream, bool) {
+func (ps *parseStream) moveHostToBiz() (*parseStream, bool) {
 	// move host to a business recycle module.
 	if ps.hitPattern(moveHostsToBizRecycleModulePattern, http.MethodPost) {
 		bizID, err := ps.parseBusinessID()
@@ -1485,7 +1485,7 @@ func (ps *parseStream) hostTransfer_moveToBiz() (*parseStream, bool) {
 	return nil, false
 }
 
-func (ps *parseStream) hostTransfer_moveResPoolHostToBiz() (*parseStream, bool) {
+func (ps *parseStream) moveResPoolHostToBiz() (*parseStream, bool) {
 	// move resource pool hosts to a business idle module operation.
 	if ps.hitPattern(moveResPoolHostToBizIdleModulePattern, http.MethodPost) {
 		opt := new(hostPool)
