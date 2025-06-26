@@ -58,7 +58,8 @@ func (sm *systemManager) SearchConfigAdmin(kit *rest.Kit) (*metadata.ConfigAdmin
 	ret := struct {
 		Config string `json:"config"`
 	}{}
-	err := mongodb.Client().Table(common.BKTableNameSystem).Find(cond).Fields(common.ConfigAdminValueField).One(kit.Ctx, &ret)
+	err := mongodb.Client().Table(common.BKTableNameSystem).Find(cond).
+		Fields(common.ConfigAdminValueField).One(kit.Ctx, &ret)
 	if err != nil {
 		blog.Errorf("SearchConfigAdmin failed, err: %+v, rid: %s", err, kit.Rid)
 		return nil, kit.CCError.CCError(common.CCErrCommDBSelectFailed)
@@ -82,8 +83,8 @@ func (sm *systemManager) SearchPlatformSettingConfig(kit *rest.Kit) (*metadata.P
 
 	ret := make(map[string]interface{})
 
-	err := mongodb.Client().Table(common.BKTableNameSystem).Find(cond).Fields(common.ConfigAdminValueField).
-		One(kit.Ctx, &ret)
+	err := mongodb.Client().Table(common.BKTableNameSystem).Find(cond).Fields(common.ConfigAdminValueField).One(
+		kit.Ctx, &ret)
 	if err != nil {
 		blog.Errorf("search platform setting failed, err: %v, rid: %s", err, kit.Rid)
 		return nil, kit.CCError.CCError(common.CCErrCommDBSelectFailed)
@@ -99,8 +100,8 @@ func (sm *systemManager) SearchPlatformSettingConfig(kit *rest.Kit) (*metadata.P
 
 	conf := new(metadata.PlatformSettingConfig)
 	if err := json.Unmarshal([]byte(ret[common.ConfigAdminValueField].(string)), conf); err != nil {
-		blog.Errorf("platform setting unmarshal err: %v, config: %v,rid: %s", err,
-			ret[common.ConfigAdminValueField].(string), kit.Rid)
+		blog.Errorf("platform setting unmarshal err: %v, config: %v,rid: %s",
+			err, ret[common.ConfigAdminValueField].(string), kit.Rid)
 		return nil, kit.CCError.CCError(common.CCErrCommJSONUnmarshalFailed)
 	}
 

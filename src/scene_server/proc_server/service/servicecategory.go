@@ -50,7 +50,9 @@ func (ps *ProcServer) ListServiceCategory(ctx *rest.Contexts) {
 	ctx.RespEntity(data)
 }
 
-func (ps *ProcServer) listServiceCategory(ctx *rest.Contexts, withStatistics bool) (*metadata.MultipleServiceCategoryWithStatistics, errors.CCErrorCoder) {
+func (ps *ProcServer) listServiceCategory(ctx *rest.Contexts, withStatistics bool) (
+	*metadata.MultipleServiceCategoryWithStatistics, errors.CCErrorCoder) {
+
 	rid := ctx.Kit.Rid
 	biz := new(metadata.ListServiceCategoryOption)
 	if err := ctx.DecodeInto(biz); err != nil {
@@ -86,7 +88,8 @@ func (ps *ProcServer) listServiceCategory(ctx *rest.Contexts, withStatistics boo
 
 	list, ccErr := ps.CoreAPI.CoreService().Process().ListServiceCategories(ctx.Kit.Ctx, ctx.Kit.Header, listOption)
 	if ccErr != nil {
-		blog.Errorf("CoreService ListServiceCategories failed, listOption: %+v, err: %s, rid: %s", listOption, ccErr.Error(), rid)
+		blog.Errorf("CoreService ListServiceCategories failed, listOption: %+v, err: %s, rid: %s",
+			listOption, ccErr.Error(), rid)
 		return nil, ccErr
 	}
 

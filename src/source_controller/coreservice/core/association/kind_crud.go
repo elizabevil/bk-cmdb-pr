@@ -24,7 +24,9 @@ import (
 	"configcenter/src/storage/driver/mongodb"
 )
 
-func (m *associationKind) isExists(kit *rest.Kit, associationKindID string) (origin *metadata.AssociationKind, exists bool, err error) {
+func (m *associationKind) isExists(kit *rest.Kit, associationKindID string) (
+	origin *metadata.AssociationKind, exists bool, err error) {
+
 	cond := mongo.NewCondition()
 	origin = &metadata.AssociationKind{}
 	cond.Element(&mongo.Eq{Key: common.AssociationKindIDField, Val: associationKindID})
@@ -62,7 +64,8 @@ func (m *associationKind) isPreAssociationKind(kit *rest.Kit, cond metadata.Dele
 	return exists, err
 }
 
-func (m *associationKind) isApplyToObject(kit *rest.Kit, cond metadata.DeleteOption) (cnt uint64, exists bool, err error) {
+func (m *associationKind) isApplyToObject(kit *rest.Kit, cond metadata.DeleteOption) (
+	cnt uint64, exists bool, err error) {
 
 	innerCnt, err := mongodb.Client().Table(common.BKTableNameAsstDes).Find(cond).Count(kit.Ctx)
 	exists = 0 != innerCnt
@@ -85,10 +88,14 @@ func (m *associationKind) save(kit *rest.Kit, associationKind metadata.Associati
 	return id, err
 }
 
-func (m *associationKind) searchAssociationKind(kit *rest.Kit, inputParam metadata.QueryCondition) (results []metadata.AssociationKind, err error) {
+func (m *associationKind) searchAssociationKind(kit *rest.Kit, inputParam metadata.QueryCondition,
+) (results []metadata.AssociationKind, err error) {
+
 	results = []metadata.AssociationKind{}
-	instHandler := mongodb.Client().Table(common.BKTableNameAsstDes).Find(inputParam.Condition).Fields(inputParam.Fields...)
-	err = instHandler.Start(uint64(inputParam.Page.Start)).Limit(uint64(inputParam.Page.Limit)).Sort(inputParam.Page.Sort).All(kit.Ctx, &results)
+	instHandler := mongodb.Client().Table(common.BKTableNameAsstDes).Find(inputParam.Condition).
+		Fields(inputParam.Fields...)
+	err = instHandler.Start(uint64(inputParam.Page.Start)).
+		Limit(uint64(inputParam.Page.Limit)).Sort(inputParam.Page.Sort).All(kit.Ctx, &results)
 
 	return results, err
 }

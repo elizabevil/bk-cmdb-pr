@@ -587,29 +587,10 @@ func (c *Cache) refreshIDList(ctx context.Context, opt *refreshIDListOpt, rid st
 		}
 		total += stepLen
 
-		pip := redis.Client().Pipeline()
-		// because the temp key is a random key, so we set an expiry time so that it can be gc,
-		// but we will reset the expiry time when this key is renamed to a normal key.
-		pip.Expire(tempKey, c.withRandomExpireSeconds(opt.ttl))
-		for _, data := range dbData {
-			id, score, err := c.generateID(data)
-			if err != nil {
-				blog.Errorf("generate %s id from data: %+v failed, err: %v, rid: %s", c.key.Resource(), data, err, rid)
-				continue
-			}
-
-			// write to the temp key
-			pip.ZAdd(tempKey, &rawRedis.Z{
-				Score:  score,
-				Member: id,
-			})
-		}
-
-		if _, err = pip.Exec(); err != nil {
-			blog.Errorf("update temp id list %s failed, err: %v, data: %+v, rid: %s", tempKey, err, dbData, rid)
+		err = c.pipeAdd(tempKey, rid, opt, dbData)
+		if err != nil {
 			return err
 		}
-
 		if stepLen < types.PageSize {
 			break
 		}
@@ -619,7 +600,6 @@ func (c *Cache) refreshIDList(ctx context.Context, opt *refreshIDListOpt, rid st
 			blog.Errorf("parse %s data(%+v) failed, err: %v, rid: %s", c.key.Resource(), dbData[stepLen-1], err, rid)
 			return err
 		}
-
 		listOpt.Page.StartID = info.id
 		listOpt.Page.StartOid = info.oid
 		time.Sleep(50 * time.Millisecond)
@@ -634,7 +614,20 @@ func (c *Cache) refreshIDList(ctx context.Context, opt *refreshIDListOpt, rid st
 	if err != nil {
 		return err
 	}
+	tempOldKey, err := c.pipeSet(tempKey, rid, idListKey, exists, opt)
+	if err != nil {
+		return err
+	}
+	if exists {
+		// remove the old id list key in background
+		go c.deleteIDList(context.Background(), tempOldKey, rid)
+	}
 
+	blog.V(4).Infof("refresh id list key: %s success, count: %d. rid: %s", idListKey, total, rid)
+	return nil
+}
+
+func (c *Cache) pipeSet(tempKey, rid, idListKey string, exists bool, opt *refreshIDListOpt) (string, error) {
 	pipe := redis.Client().Pipeline()
 	tempOldKey := fmt.Sprintf("%s-old", tempKey)
 	if exists {
@@ -649,17 +642,35 @@ func (c *Cache) refreshIDList(ctx context.Context, opt *refreshIDListOpt, rid st
 	// set expire key with unix time seconds now value.
 	pipe.Set(c.key.IDListExpireKey(idListKey), time.Now().Unix(), c.withRandomExpireSeconds(opt.ttl))
 
-	if _, err = pipe.Exec(); err != nil {
+	if _, err := pipe.Exec(); err != nil {
 		blog.Errorf("refresh id list %s with temp key: %s failed, err :%v, rid: %s", idListKey, tempKey, err, rid)
+		return "", err
+	}
+	return tempOldKey, nil
+}
+
+// pipeAdd redis Pipeline
+func (c *Cache) pipeAdd(tempKey, rid string, opt *refreshIDListOpt, dbData []any) error {
+	pip := redis.Client().Pipeline()
+	// because the temp key is a random key, so we set an expiry time so that it can be gc,
+	// but we will reset the expiry time when this key is renamed to a normal key.
+	pip.Expire(tempKey, c.withRandomExpireSeconds(opt.ttl))
+	for _, data := range dbData {
+		id, score, err := c.generateID(data)
+		if err != nil {
+			blog.Errorf("generate %s id from data: %+v failed, err: %v, rid: %s", c.key.Resource(), data, err, rid)
+			continue
+		}
+		// write to the temp key
+		pip.ZAdd(tempKey, &rawRedis.Z{
+			Score:  score,
+			Member: id,
+		})
+	}
+	if _, err := pip.Exec(); err != nil {
+		blog.Errorf("update temp id list %s failed, err: %v, data: %+v, rid: %s", tempKey, err, dbData, rid)
 		return err
 	}
-
-	if exists {
-		// remove the old id list key in background
-		go c.deleteIDList(context.Background(), tempOldKey, rid)
-	}
-
-	blog.V(4).Infof("refresh id list key: %s success, count: %d. rid: %s", idListKey, total, rid)
 	return nil
 }
 

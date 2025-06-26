@@ -188,6 +188,21 @@ func (ps *parseStream) findBiz() *parseStream {
 		}
 		return ps
 	}
+
+	// find resource pool business
+	if ps.hitRegexp(findResourcePoolBusinessRegexp, http.MethodPost) {
+		ps.Attribute.Resources = []meta.ResourceAttribute{
+			{
+				Basic: meta.Basic{
+					Type:   meta.Business,
+					Action: meta.SkipAction,
+				},
+				// we don't know if one or more business is to find, so we assume it's a find many
+				// business operation.
+			},
+		}
+		return ps
+	}
 	return ps
 }
 
@@ -198,13 +213,11 @@ func (ps *parseStream) updateBiz() *parseStream {
 			ps.err = errors.New("invalid update business request uri")
 			return ps
 		}
-
 		bizID, err := strconv.ParseInt(ps.RequestCtx.Elements[4], 10, 64)
 		if err != nil {
 			ps.err = fmt.Errorf("udpate business, but got invalid business id %s", ps.RequestCtx.Elements[4])
 			return ps
 		}
-
 		ps.Attribute.Resources = []meta.ResourceAttribute{{Basic: meta.Basic{
 			Type:       meta.Business,
 			Action:     meta.Update,
@@ -219,13 +232,11 @@ func (ps *parseStream) updateBiz() *parseStream {
 			ps.err = errors.New("invalid update business enable status request uri")
 			return ps
 		}
-
 		bizID, err := strconv.ParseInt(ps.RequestCtx.Elements[6], 10, 64)
 		if err != nil {
 			ps.err = fmt.Errorf("udpate biz enable status, but got invalid biz id %s", ps.RequestCtx.Elements[6])
 			return ps
 		}
-
 		ps.Attribute.Resources = []meta.ResourceAttribute{{Basic: meta.Basic{
 			Type:       meta.Business,
 			Action:     meta.Update,
@@ -240,37 +251,16 @@ func (ps *parseStream) updateBiz() *parseStream {
 			ps.err = errors.New("invalid delete business request uri")
 			return ps
 		}
-
 		bizID, err := strconv.ParseInt(ps.RequestCtx.Elements[4], 10, 64)
 		if err != nil {
 			ps.err = fmt.Errorf("delete business, but got invalid business id %s", ps.RequestCtx.Elements[4])
 			return ps
 		}
-
-		ps.Attribute.Resources = []meta.ResourceAttribute{
-			{
-				Basic: meta.Basic{
-					Type:       meta.Business,
-					Action:     meta.Delete,
-					InstanceID: bizID,
-				},
-			},
-		}
-		return ps
-	}
-
-	// find resource pool business
-	if ps.hitRegexp(findResourcePoolBusinessRegexp, http.MethodPost) {
-		ps.Attribute.Resources = []meta.ResourceAttribute{
-			{
-				Basic: meta.Basic{
-					Type:   meta.Business,
-					Action: meta.SkipAction,
-				},
-				// we don't know if one or more business is to find, so we assume it's a find many
-				// business operation.
-			},
-		}
+		ps.Attribute.Resources = []meta.ResourceAttribute{{Basic: meta.Basic{
+			Type:       meta.Business,
+			Action:     meta.Delete,
+			InstanceID: bizID,
+		}}}
 		return ps
 	}
 
@@ -289,15 +279,23 @@ func (ps *parseStream) updateBiz() *parseStream {
 		return ps
 	}
 
+	stream, done := ps.updateBiz_updateMany()
+	if done {
+		return stream
+	}
+	return ps
+}
+
+func (ps *parseStream) updateBiz_updateMany() (*parseStream, bool) {
 	// batch update business properties
 	if ps.hitPattern(updatemanyBizPropertyPattern, http.MethodPut) {
 		ps.Attribute.Resources = []meta.ResourceAttribute{{Basic: meta.Basic{
 			Type:   meta.Business,
 			Action: meta.SkipAction,
 		}}}
-		return ps
+		return ps, true
 	}
-	return ps
+	return nil, false
 }
 
 const (
