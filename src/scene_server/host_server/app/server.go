@@ -28,6 +28,7 @@ import (
 	"configcenter/src/scene_server/host_server/logics"
 	hostsvc "configcenter/src/scene_server/host_server/service"
 	"configcenter/src/storage/dal/redis"
+	"configcenter/src/tools"
 
 	"github.com/emicklei/go-restful"
 )
@@ -88,6 +89,7 @@ func Run(ctx context.Context, cancel context.CancelFunc, op *options.ServerOptio
 	hostSrv.Core = engine
 	hostSrv.Service = service
 
+	tools.Routes("host", service.WebService())
 	err = backbone.StartServer(ctx, cancel, engine, service.WebService(), true)
 	if err != nil {
 		blog.Errorf("start backbone failed, err: %+v", err)

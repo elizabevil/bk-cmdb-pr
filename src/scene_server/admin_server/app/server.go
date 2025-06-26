@@ -29,6 +29,7 @@ import (
 	svc "configcenter/src/scene_server/admin_server/service"
 	"configcenter/src/storage/dal/mongo/local"
 	"configcenter/src/storage/dal/redis"
+	"configcenter/src/tools"
 )
 
 func Run(ctx context.Context, cancel context.CancelFunc, op *options.ServerOption) error {
@@ -171,6 +172,7 @@ func Run(ctx context.Context, cancel context.CancelFunc, op *options.ServerOptio
 		}
 		break
 	}
+	tools.Routes("admin", service.WebService())
 	err = backbone.StartServer(ctx, cancel, engine, service.WebService(), true)
 	if err != nil {
 		return err

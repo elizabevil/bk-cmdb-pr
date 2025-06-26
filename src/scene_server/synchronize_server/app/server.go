@@ -21,6 +21,8 @@ import (
 	"configcenter/src/common"
 	"configcenter/src/common/backbone"
 	cc "configcenter/src/common/backbone/configcenter"
+	"configcenter/src/tools"
+
 	//"configcenter/src/common/blog"
 	"configcenter/src/common/types"
 	"configcenter/src/scene_server/synchronize_server/app/options"
@@ -71,6 +73,7 @@ func Run(ctx context.Context, cancel context.CancelFunc, op *options.ServerOptio
 	}
 	service.SetSynchronizeServer(synchronizeClientInst)
 	go synchronSrv.Service.InitBackground()
+	tools.Routes("sync", service.WebService())
 	err = backbone.StartServer(ctx, cancel, engine, service.WebService(), true)
 	if err != nil {
 		return err

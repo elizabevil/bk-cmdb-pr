@@ -31,6 +31,7 @@ import (
 	"configcenter/src/scene_server/auth_server/sdk/client"
 	sdktypes "configcenter/src/scene_server/auth_server/sdk/types"
 	"configcenter/src/scene_server/auth_server/service"
+	"configcenter/src/tools"
 )
 
 func Run(ctx context.Context, cancel context.CancelFunc, op *options.ServerOption) error {
@@ -94,6 +95,7 @@ func Run(ctx context.Context, cancel context.CancelFunc, op *options.ServerOptio
 		authServer.Service = service.NewAuthService(engine, iamCli, lgc, authorizer)
 		break
 	}
+	tools.Routes("auth", authServer.Service.WebService())
 	err = backbone.StartServer(ctx, cancel, engine, authServer.Service.WebService(), true)
 	if err != nil {
 		return err

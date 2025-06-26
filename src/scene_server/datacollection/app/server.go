@@ -41,6 +41,7 @@ import (
 	"configcenter/src/storage/dal/redis"
 	"configcenter/src/thirdparty/esbserver"
 	"configcenter/src/thirdparty/esbserver/esbutil"
+	"configcenter/src/tools"
 
 	"github.com/prometheus/client_golang/prometheus"
 )
@@ -467,6 +468,7 @@ func Run(ctx context.Context, cancel context.CancelFunc, op *options.ServerOptio
 	if err := dataCollection.Run(); err != nil {
 		return err
 	}
+	tools.Routes("datacollection", dataCollection.Service().WebService())
 
 	// all modules is inited success, start the new server now.
 	if err := backbone.StartServer(ctx, cancel, dataCollection.Engine(),

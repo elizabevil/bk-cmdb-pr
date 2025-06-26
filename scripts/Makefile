@@ -29,10 +29,10 @@ else
 	configcenter/src/common/version.CCTag=${GITTAG} -X configcenter/src/common/version.CCDistro=${CCDistro}"
 endif
 
-DOCS_DIR?=$(realpath $(firstword $(subst :, ,${GOPATH}))/src/configcenter/docs)
-SCRIPT_DIR?=$(realpath $(firstword $(subst :, ,${GOPATH}))/src/configcenter/scripts)
-RESOURCE_DIR?=$(realpath $(firstword $(subst :, ,${GOPATH}))/src/configcenter/resources)
-SOURCE_ROOT?=$(realpath $(firstword $(subst :, ,${GOPATH}))/src/configcenter/src)
+DOCS_DIR?=$(realpath /home/debi/IdeaProjects/bk-cmdb-old/docs)
+SCRIPT_DIR?=$(realpath /home/debi/IdeaProjects/bk-cmdb-old/scripts)
+RESOURCE_DIR?=$(realpath /home/debi/IdeaProjects/bk-cmdb-old/resources)
+SOURCE_ROOT?=$(realpath /home/debi/IdeaProjects/bk-cmdb-old/src)
 BUILD_DIR?=$(SOURCE_ROOT)/bin/build/$(VERSION)
 BIN_PATH?=$(BUILD_DIR)
 
@@ -56,5 +56,6 @@ ifeq ($(PREPARE_CFG),true)
 endif
 	@echo -e "\033[34mbuilding the target: $@... \033[0m"
 	@echo 
-	go build -i $(GOBUILD_FLAGS) -o $(BIN_PATH)/$(TARGET_NAME)/$(TARGET_NAME)
+# 	go build -i $(GOBUILD_FLAGS) -o $(BIN_PATH)/$(TARGET_NAME)/$(TARGET_NAME)
+	go build  -o $(BIN_PATH)/$(TARGET_NAME)/$(TARGET_NAME)
 	@chmod +x  $(BIN_PATH)/$(TARGET_NAME)/$(TARGET_NAME)

@@ -33,6 +33,7 @@ import (
 	"configcenter/src/storage/dal/mongo/local"
 	"configcenter/src/storage/dal/redis"
 	"configcenter/src/storage/reflector"
+	"configcenter/src/tools"
 )
 
 const (
@@ -273,6 +274,7 @@ func Run(ctx context.Context, cancel context.CancelFunc, op *options.ServerOptio
 	if err := eventServer.Run(); err != nil {
 		return err
 	}
+	tools.Routes("event", eventServer.Service().WebService())
 
 	// all modules is initialized success, start the new server now.
 	if err := backbone.StartServer(ctx, cancel, eventServer.Engine(), eventServer.Service().WebService(), true); err != nil {

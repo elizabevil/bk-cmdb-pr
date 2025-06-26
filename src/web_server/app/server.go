@@ -25,6 +25,7 @@ import (
 	"configcenter/src/common/resource/esb"
 	"configcenter/src/common/types"
 	"configcenter/src/storage/dal/redis"
+	"configcenter/src/tools"
 	"configcenter/src/web_server/app/options"
 	"configcenter/src/web_server/logics"
 	websvc "configcenter/src/web_server/service"
@@ -104,6 +105,7 @@ func Run(ctx context.Context, cancel context.CancelFunc, op *options.ServerOptio
 	service.Logics = &logics.Logics{Engine: engine}
 	service.Config = &webSvr.Config
 
+	tools.RoutesX("web", service.WebService())
 	err = backbone.StartServer(ctx, cancel, engine, service.WebService(), false)
 	if err != nil {
 		return err
@@ -165,7 +167,7 @@ func (w *WebServer) onServerConfigUpdate(previous, current cc.ProcessConfig) {
 
 }
 
-//Stop the ccapi server
+// Stop the ccapi server
 func (ccWeb *WebServer) Stop() error {
 	return nil
 }

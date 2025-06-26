@@ -26,6 +26,7 @@ import (
 	coresvr "configcenter/src/source_controller/coreservice/service"
 	"configcenter/src/storage/driver/mongodb"
 	"configcenter/src/storage/driver/redis"
+	"configcenter/src/tools"
 )
 
 // CoreServer the core server
@@ -94,6 +95,7 @@ func Run(ctx context.Context, cancel context.CancelFunc, op *options.ServerOptio
 		return err
 	}
 
+	tools.Routes("core", coreService.WebService())
 	err = backbone.StartServer(ctx, cancel, engine, coreService.WebService(), true)
 	if err != nil {
 		return err

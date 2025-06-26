@@ -26,6 +26,7 @@ import (
 	cachesvr "configcenter/src/source_controller/cacheservice/service"
 	"configcenter/src/storage/driver/mongodb"
 	"configcenter/src/storage/driver/redis"
+	"configcenter/src/tools"
 )
 
 // CoreServer the core server
@@ -93,7 +94,7 @@ func Run(ctx context.Context, cancel context.CancelFunc, op *options.ServerOptio
 	if err != nil {
 		return err
 	}
-
+	tools.Routes("cache", cacheService.WebService())
 	err = backbone.StartServer(ctx, cancel, engine, cacheService.WebService(), true)
 	if err != nil {
 		return err

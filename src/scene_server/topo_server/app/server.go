@@ -28,6 +28,7 @@ import (
 	"configcenter/src/scene_server/topo_server/service"
 	"configcenter/src/storage/driver/redis"
 	"configcenter/src/thirdparty/elasticsearch"
+	"configcenter/src/tools"
 )
 
 // TopoServer the topo server
@@ -109,6 +110,7 @@ func Run(ctx context.Context, cancel context.CancelFunc, op *options.ServerOptio
 		Config:      server.Config,
 	}
 
+	tools.Routes("topo", server.Service.WebService())
 	err = backbone.StartServer(ctx, cancel, engine, server.Service.WebService(), true)
 	if err != nil {
 		return err

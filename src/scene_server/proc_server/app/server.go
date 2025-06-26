@@ -27,6 +27,7 @@ import (
 	"configcenter/src/scene_server/proc_server/service"
 	"configcenter/src/thirdparty/esbserver"
 	"configcenter/src/thirdparty/esbserver/esbutil"
+	"configcenter/src/tools"
 )
 
 func Run(ctx context.Context, cancel context.CancelFunc, op *options.ServerOption) error {
@@ -79,6 +80,7 @@ func Run(ctx context.Context, cancel context.CancelFunc, op *options.ServerOptio
 		Engine: procSvr.Engine,
 	}
 
+	tools.Routes("procSvr", procSvr.WebService())
 	err = backbone.StartServer(ctx, cancel, engine, procSvr.WebService(), true)
 	if err != nil {
 		return err

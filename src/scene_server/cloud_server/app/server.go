@@ -32,6 +32,7 @@ import (
 	"configcenter/src/scene_server/cloud_server/logics"
 	svc "configcenter/src/scene_server/cloud_server/service"
 	"configcenter/src/thirdparty/secrets"
+	"configcenter/src/tools"
 )
 
 func Run(ctx context.Context, cancel context.CancelFunc, op *options.ServerOption) error {
@@ -112,6 +113,7 @@ func Run(ctx context.Context, cancel context.CancelFunc, op *options.ServerOptio
 		return fmt.Errorf("ProcessTask failed: %v", err)
 	}
 
+	tools.Routes("cloud", service.WebService())
 	err = backbone.StartServer(ctx, cancel, engine, service.WebService(), true)
 	if err != nil {
 		return err

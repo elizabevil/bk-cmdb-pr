@@ -2,8 +2,8 @@
 IMAGE?=image_placeholder
 NPM?=npm
 
-include $(realpath $(firstword $(subst :, ,${GOPATH}))/src/configcenter/scripts/Makefile)
-
+# include $(realpath /home/debi/IdeaProjects/bk-cmdb-old/scripts/Makefile)
+SCRIPT_DIR=/home/debi/IdeaProjects/bk-cmdb-old/scripts
 .PHONY:default
 default:
 	@echo ""

@@ -24,6 +24,7 @@ import (
 	"configcenter/src/common/blog"
 	"configcenter/src/common/types"
 	"configcenter/src/storage/dal/redis"
+	"configcenter/src/tools"
 
 	"github.com/emicklei/go-restful"
 )
@@ -80,6 +81,7 @@ func Run(ctx context.Context, cancel context.CancelFunc, op *options.ServerOptio
 	}
 	apiSvr.Core = engine
 
+	tools.Routes("apiserver", ctnr)
 	err = backbone.StartServer(ctx, cancel, engine, ctnr, false)
 	if err != nil {
 		return err
@@ -102,4 +104,3 @@ func (h *APIServer) onApiServerConfigUpdate(previous, current cc.ProcessConfig) 
 }
 
 const waitForSeconds = 180
-

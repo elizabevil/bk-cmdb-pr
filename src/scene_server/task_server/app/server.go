@@ -27,6 +27,7 @@ import (
 	"configcenter/src/scene_server/task_server/logics"
 	tasksvc "configcenter/src/scene_server/task_server/service"
 	"configcenter/src/storage/dal/redis"
+	"configcenter/src/tools"
 
 	"github.com/emicklei/go-restful"
 )
@@ -101,7 +102,7 @@ func Run(ctx context.Context, cancel context.CancelFunc, op *options.ServerOptio
 
 	// cron job delete history task
 	go taskSrv.Service.TimerDeleteHistoryTask(ctx)
-
+	tools.Routes("task", service.WebService())
 	if err := backbone.StartServer(ctx, cancel, engine, service.WebService(), true); err != nil {
 		blog.Errorf("start backbone failed, err: %+v", err)
 		return err

@@ -24,6 +24,7 @@ import (
 	"configcenter/src/common/types"
 	"configcenter/src/scene_server/operation_server/app/options"
 	"configcenter/src/scene_server/operation_server/service"
+	"configcenter/src/tools"
 )
 
 func Run(ctx context.Context, cancel context.CancelFunc, op *options.ServerOption) error {
@@ -65,6 +66,7 @@ func Run(ctx context.Context, cancel context.CancelFunc, op *options.ServerOptio
 	operationSvr.Engine = engine
 
 	go operationSvr.InitFunc()
+	tools.Routes("operation", operationSvr.WebService())
 	if err := backbone.StartServer(ctx, cancel, engine, operationSvr.WebService(), true); err != nil {
 		return err
 	}
