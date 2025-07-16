@@ -1340,6 +1340,24 @@ func GetAllProcessPropertyFields() []string {
 	return fields
 }
 
+// processTemplateProperty encapsulated judgment
+func processTemplateProperty[T comparable](asDefaultValue *bool, templateValue, instanceValue *T,
+	process map[string]any, key string) bool {
+
+	if !IsAsDefaultValue(asDefaultValue) {
+		return false
+	}
+	if templateValue == nil && instanceValue != nil {
+		process[key] = nil
+		return true
+	} else if (templateValue != nil && instanceValue == nil) ||
+		(instanceValue != nil && (*templateValue != *instanceValue)) {
+		process[key] = *templateValue
+		return true
+	}
+	return false
+}
+
 // ExtractChangeInfo get changes that will be applied to process instance
 func (pt *ProcessTemplate) ExtractChangeInfo(i *Process, host map[string]interface{}) (mapstr.MapStr, bool, error) {
 	t := pt.Property
@@ -1349,226 +1367,40 @@ func (pt *ProcessTemplate) ExtractChangeInfo(i *Process, host map[string]interfa
 	}
 
 	process := make(mapstr.MapStr)
-	if IsAsDefaultValue(t.ProcNum.AsDefaultValue) {
-		if t.ProcNum.Value == nil && i.ProcNum != nil {
-			process["proc_num"] = nil
-			changed = true
-		} else if t.ProcNum.Value != nil && i.ProcNum == nil {
-			process["proc_num"] = *t.ProcNum.Value
-			changed = true
-		} else if t.ProcNum.Value != nil && i.ProcNum != nil && *t.ProcNum.Value != *i.ProcNum {
-			process["proc_num"] = *t.ProcNum.Value
-			changed = true
-		}
-	}
-
-	if IsAsDefaultValue(t.StopCmd.AsDefaultValue) {
-		if t.StopCmd.Value == nil && i.StopCmd != nil {
-			process["stop_cmd"] = nil
-			changed = true
-		} else if t.StopCmd.Value != nil && i.StopCmd == nil {
-			process["stop_cmd"] = *t.StopCmd.Value
-			changed = true
-		} else if t.StopCmd.Value != nil && i.StopCmd != nil && *t.StopCmd.Value != *i.StopCmd {
-			process["stop_cmd"] = *t.StopCmd.Value
-			changed = true
-		}
-	}
-
-	if IsAsDefaultValue(t.RestartCmd.AsDefaultValue) {
-		if t.RestartCmd.Value == nil && i.RestartCmd != nil {
-			process["restart_cmd"] = nil
-			changed = true
-		} else if t.RestartCmd.Value != nil && i.RestartCmd == nil {
-			process["restart_cmd"] = *t.RestartCmd.Value
-			changed = true
-		} else if t.RestartCmd.Value != nil && i.RestartCmd != nil && *t.RestartCmd.Value != *i.RestartCmd {
-			process["restart_cmd"] = *t.RestartCmd.Value
-			changed = true
-		}
-	}
-
-	if IsAsDefaultValue(t.ForceStopCmd.AsDefaultValue) {
-		if t.ForceStopCmd.Value == nil && i.ForceStopCmd != nil {
-			process["face_stop_cmd"] = nil
-			changed = true
-		} else if t.ForceStopCmd.Value != nil && i.ForceStopCmd == nil {
-			process["face_stop_cmd"] = *t.ForceStopCmd.Value
-			changed = true
-		} else if t.ForceStopCmd.Value != nil && i.ForceStopCmd != nil && *t.ForceStopCmd.Value != *i.ForceStopCmd {
-			process["face_stop_cmd"] = *t.ForceStopCmd.Value
-			changed = true
-		}
-	}
-
-	if IsAsDefaultValue(t.FuncName.AsDefaultValue) {
-		if t.FuncName.Value == nil && i.FuncName != nil {
-			process["bk_func_name"] = nil
-			changed = true
-		} else if t.FuncName.Value != nil && i.FuncName == nil {
-			process["bk_func_name"] = *t.FuncName.Value
-			changed = true
-		} else if t.FuncName.Value != nil && i.FuncName != nil && *t.FuncName.Value != *i.FuncName {
-			process["bk_func_name"] = *t.FuncName.Value
-			changed = true
-		}
-	}
-
-	if IsAsDefaultValue(t.WorkPath.AsDefaultValue) {
-		if t.WorkPath.Value == nil && i.WorkPath != nil {
-			process["work_path"] = nil
-			changed = true
-		} else if t.WorkPath.Value != nil && i.WorkPath == nil {
-			process["work_path"] = *t.WorkPath.Value
-			changed = true
-		} else if t.WorkPath.Value != nil && i.WorkPath != nil && *t.WorkPath.Value != *i.WorkPath {
-			process["work_path"] = *t.WorkPath.Value
-			changed = true
-		}
-	}
-
-	if IsAsDefaultValue(t.ReloadCmd.AsDefaultValue) {
-		if t.ReloadCmd.Value == nil && i.ReloadCmd != nil {
-			process["reload_cmd"] = nil
-			changed = true
-		} else if t.ReloadCmd.Value != nil && i.ReloadCmd == nil {
-			process["reload_cmd"] = *t.ReloadCmd.Value
-			changed = true
-		} else if t.ReloadCmd.Value != nil && i.ReloadCmd != nil && *t.ReloadCmd.Value != *i.ReloadCmd {
-			process["reload_cmd"] = *t.ReloadCmd.Value
-			changed = true
-		}
-	}
-
-	if IsAsDefaultValue(t.ProcessName.AsDefaultValue) {
-		if t.ProcessName.Value == nil && i.ProcessName != nil {
-			process["bk_process_name"] = nil
-			changed = true
-		} else if t.ProcessName.Value != nil && i.ProcessName == nil {
-			process["bk_process_name"] = *t.ProcessName.Value
-			changed = true
-		} else if t.ProcessName.Value != nil && i.ProcessName != nil && *t.ProcessName.Value != *i.ProcessName {
-			process["bk_process_name"] = *t.ProcessName.Value
-			changed = true
-		}
-	}
-
-	if IsAsDefaultValue(t.AutoStart.AsDefaultValue) {
-		if t.AutoStart.Value == nil && i.AutoStart != nil {
-			process["auto_start"] = nil
-			changed = true
-		} else if t.AutoStart.Value != nil && i.AutoStart == nil {
-			process["auto_start"] = *t.AutoStart.Value
-			changed = true
-		} else if t.AutoStart.Value != nil && i.AutoStart != nil && *t.AutoStart.Value != *i.AutoStart {
-			process["auto_start"] = *t.AutoStart.Value
-			changed = true
-		}
-	}
-
-	if IsAsDefaultValue(t.StartCheckSecs.AsDefaultValue) {
-		if t.StartCheckSecs.Value != nil && i.StartCheckSecs == nil {
-			process["bk_start_check_secs"] = *t.StartCheckSecs.Value
-			changed = true
-		} else if t.StartCheckSecs.Value == nil && i.StartCheckSecs != nil {
-			process["bk_start_check_secs"] = nil
-			changed = true
-		} else if t.StartCheckSecs.Value != nil && i.StartCheckSecs != nil && *t.StartCheckSecs.Value != *i.StartCheckSecs {
-			process["bk_start_check_secs"] = *t.StartCheckSecs.Value
-			changed = true
-		}
-	}
-
-	if IsAsDefaultValue(t.StartCmd.AsDefaultValue) {
-		if t.StartCmd.Value == nil && i.StartCmd != nil {
-			process["start_cmd"] = nil
-			changed = true
-		} else if t.StartCmd.Value != nil && i.StartCmd == nil {
-			process["start_cmd"] = *t.StartCmd.Value
-			changed = true
-		} else if t.StartCmd.Value != nil && i.StartCmd != nil && *t.StartCmd.Value != *i.StartCmd {
-			process["start_cmd"] = *t.StartCmd.Value
-			changed = true
-		}
-	}
-
-	if IsAsDefaultValue(t.User.AsDefaultValue) {
-		if t.User.Value == nil && i.User != nil {
-			process["user"] = nil
-			changed = true
-		} else if t.User.Value != nil && i.User == nil {
-			process["user"] = *t.User.Value
-			changed = true
-		} else if t.User.Value != nil && i.User != nil && *t.User.Value != *i.User {
-			process["user"] = *t.User.Value
-			changed = true
-		}
-	}
-
-	if IsAsDefaultValue(t.TimeoutSeconds.AsDefaultValue) {
-		if t.TimeoutSeconds.Value != nil && i.TimeoutSeconds == nil {
-			process["timeout"] = *t.TimeoutSeconds.Value
-			changed = true
-		} else if t.TimeoutSeconds.Value == nil && i.TimeoutSeconds != nil {
-			process["timeout"] = nil
-			changed = true
-		} else if t.TimeoutSeconds.Value != nil && i.TimeoutSeconds != nil && *t.TimeoutSeconds.Value != *i.TimeoutSeconds {
-			process["timeout"] = *t.TimeoutSeconds.Value
-			changed = true
-		}
-	}
-
-	if IsAsDefaultValue(t.Description.AsDefaultValue) {
-		if t.Description.Value == nil && i.Description != nil {
-			process["description"] = nil
-			changed = true
-		} else if t.Description.Value != nil && i.Description == nil {
-			process["description"] = *t.Description.Value
-			changed = true
-		} else if t.Description.Value != nil && i.Description != nil && *t.Description.Value != *i.Description {
-			process["description"] = *t.Description.Value
-			changed = true
-		}
-	}
-
-	if IsAsDefaultValue(t.StartParamRegex.AsDefaultValue) {
-		if t.StartParamRegex.Value == nil && i.StartParamRegex != nil {
-			process["bk_start_param_regex"] = nil
-			changed = true
-		} else if t.StartParamRegex.Value != nil && i.StartParamRegex == nil {
-			process["bk_start_param_regex"] = *t.StartParamRegex.Value
-			changed = true
-		} else if t.StartParamRegex.Value != nil && i.StartParamRegex != nil && *t.StartParamRegex.Value != *i.StartParamRegex {
-			process["bk_start_param_regex"] = *t.StartParamRegex.Value
-			changed = true
-		}
-	}
-
-	if IsAsDefaultValue(t.PidFile.AsDefaultValue) {
-		if t.PidFile.Value == nil && i.PidFile != nil {
-			process["pid_file"] = nil
-			changed = true
-		} else if t.PidFile.Value != nil && i.PidFile == nil {
-			process["pid_file"] = *t.PidFile.Value
-			changed = true
-		} else if t.PidFile.Value != nil && i.PidFile != nil && *t.PidFile.Value != *i.PidFile {
-			process["pid_file"] = *t.PidFile.Value
-			changed = true
-		}
-	}
-
-	if IsAsDefaultValue(t.Priority.AsDefaultValue) {
-		if t.Priority.Value == nil && i.Priority != nil {
-			process["priority"] = nil
-			changed = true
-		} else if t.Priority.Value != nil && i.Priority == nil {
-			process["priority"] = *t.Priority.Value
-			changed = true
-		} else if t.Priority.Value != nil && i.Priority != nil && *t.Priority.Value != *i.Priority {
-			process["priority"] = *t.Priority.Value
-			changed = true
-		}
-	}
+	changed = processTemplateProperty(t.ProcNum.AsDefaultValue, t.ProcNum.Value, i.ProcNum, process,
+		"proc_num")
+	changed = processTemplateProperty(t.StopCmd.AsDefaultValue, t.StopCmd.Value, i.StopCmd, process,
+		"stop_cmd") || changed
+	changed = processTemplateProperty(t.RestartCmd.AsDefaultValue, t.RestartCmd.Value, i.RestartCmd, process,
+		"restart_cmd") || changed
+	changed = processTemplateProperty(t.ForceStopCmd.AsDefaultValue, t.ForceStopCmd.Value, i.ForceStopCmd, process,
+		"face_stop_cmd") || changed
+	changed = processTemplateProperty(t.FuncName.AsDefaultValue, t.FuncName.Value, i.FuncName, process,
+		"bk_func_name") || changed
+	changed = processTemplateProperty(t.WorkPath.AsDefaultValue, t.WorkPath.Value, i.WorkPath, process,
+		"work_path") || changed
+	changed = processTemplateProperty(t.ReloadCmd.AsDefaultValue, t.ReloadCmd.Value, i.ReloadCmd, process,
+		"reload_cmd") || changed
+	changed = processTemplateProperty(t.ProcessName.AsDefaultValue, t.ProcessName.Value, i.ProcessName, process,
+		"bk_process_name") || changed
+	changed = processTemplateProperty(t.AutoStart.AsDefaultValue, t.AutoStart.Value, i.AutoStart, process,
+		"auto_start") || changed
+	changed = processTemplateProperty(t.StartCheckSecs.AsDefaultValue, t.StartCheckSecs.Value, i.StartCheckSecs, process,
+		"bk_start_check_secs") || changed
+	changed = processTemplateProperty(t.StartCmd.AsDefaultValue, t.StartCmd.Value, i.StartCmd, process,
+		"start_cmd") || changed
+	changed = processTemplateProperty(t.User.AsDefaultValue, t.User.Value, i.User, process,
+		"user") || changed
+	changed = processTemplateProperty(t.TimeoutSeconds.AsDefaultValue, t.TimeoutSeconds.Value, i.TimeoutSeconds, process,
+		"timeout") || changed
+	changed = processTemplateProperty(t.Description.AsDefaultValue, t.Description.Value, i.Description, process,
+		"description") || changed
+	changed = processTemplateProperty(t.StartParamRegex.AsDefaultValue, t.StartParamRegex.Value, i.StartParamRegex,
+		process, "bk_start_param_regex") || changed
+	changed = processTemplateProperty(t.PidFile.AsDefaultValue, t.PidFile.Value, i.PidFile, process,
+		"pid_file") || changed
+	changed = processTemplateProperty(t.Priority.AsDefaultValue, t.Priority.Value, i.Priority, process,
+		"priority") || changed
 
 	bindInfo, bindInfoChanged, bindInfoIsNamePortChanged, err := t.BindInfo.ExtractChangeInfoBindInfo(i, host)
 	if err != nil {
@@ -1669,93 +1501,59 @@ func (pt *ProcessTemplate) ExtractInstanceUpdateData(input *Process, host map[st
 
 	data := make(map[string]interface{})
 	property := pt.Property
-	if IsAsDefaultValue(property.FuncName.AsDefaultValue) == false {
-		if input.FuncName != nil {
-			data["bk_func_name"] = *input.FuncName
-		}
+	if !IsAsDefaultValue(property.FuncName.AsDefaultValue) && input.FuncName != nil {
+		data["bk_func_name"] = *input.FuncName
 	}
-	if IsAsDefaultValue(property.ProcessName.AsDefaultValue) == false {
-		if input.ProcessName != nil {
-			data["bk_process_name"] = *input.ProcessName
-		}
+	if !IsAsDefaultValue(property.ProcessName.AsDefaultValue) && input.ProcessName != nil {
+		data["bk_process_name"] = *input.ProcessName
 	}
-	if IsAsDefaultValue(property.StartParamRegex.AsDefaultValue) == false {
-		if input.StartParamRegex != nil {
-			data["bk_start_param_regex"] = *input.StartParamRegex
-		}
+	if !IsAsDefaultValue(property.StartParamRegex.AsDefaultValue) && input.StartParamRegex != nil {
+		data["bk_start_param_regex"] = *input.StartParamRegex
 	}
-	if IsAsDefaultValue(property.StartCheckSecs.AsDefaultValue) == false {
-		if input.StartCheckSecs != nil {
-			data["bk_start_check_secs"] = *input.StartCheckSecs
-		}
+	if !IsAsDefaultValue(property.StartCheckSecs.AsDefaultValue) && input.StartCheckSecs != nil {
+		data["bk_start_check_secs"] = *input.StartCheckSecs
 	}
-	if IsAsDefaultValue(property.User.AsDefaultValue) == false {
-		if input.User != nil {
-			data["user"] = *input.User
-		}
+	if !IsAsDefaultValue(property.User.AsDefaultValue) && input.User != nil {
+		data["user"] = *input.User
 	}
-	if IsAsDefaultValue(property.StopCmd.AsDefaultValue) == false {
-		if input.StopCmd != nil {
-			data["stop_cmd"] = *input.StopCmd
-		}
+	if !IsAsDefaultValue(property.StopCmd.AsDefaultValue) && input.StopCmd != nil {
+		data["stop_cmd"] = *input.StopCmd
 	}
-	if IsAsDefaultValue(property.ProcNum.AsDefaultValue) == false {
-		if input.ProcNum != nil {
-			data["proc_num"] = *input.ProcNum
-		}
+	if !IsAsDefaultValue(property.ProcNum.AsDefaultValue) && input.ProcNum != nil {
+		data["proc_num"] = *input.ProcNum
 	}
 
-	if IsAsDefaultValue(property.Description.AsDefaultValue) == false {
-		if input.Description != nil {
-			data["description"] = *input.Description
-		}
+	if !IsAsDefaultValue(property.Description.AsDefaultValue) && input.Description != nil {
+		data["description"] = *input.Description
 	}
 
-	if IsAsDefaultValue(property.TimeoutSeconds.AsDefaultValue) == false {
-		if input.TimeoutSeconds != nil {
-			data["timeout"] = *input.TimeoutSeconds
-		}
+	if !IsAsDefaultValue(property.TimeoutSeconds.AsDefaultValue) && input.TimeoutSeconds != nil {
+		data["timeout"] = *input.TimeoutSeconds
 	}
-	if IsAsDefaultValue(property.AutoStart.AsDefaultValue) == false {
-		if input.AutoStart != nil {
-			data["auto_start"] = *input.AutoStart
-		}
+	if !IsAsDefaultValue(property.AutoStart.AsDefaultValue) && input.AutoStart != nil {
+		data["auto_start"] = *input.AutoStart
 	}
-	if IsAsDefaultValue(property.PidFile.AsDefaultValue) == false {
-		if input.PidFile != nil {
-			data["pid_file"] = *input.PidFile
-		}
+	if !IsAsDefaultValue(property.PidFile.AsDefaultValue) && input.PidFile != nil {
+		data["pid_file"] = *input.PidFile
 	}
-	if IsAsDefaultValue(property.ReloadCmd.AsDefaultValue) == false {
-		if input.ReloadCmd != nil {
-			data["reload_cmd"] = *input.ReloadCmd
-		}
+	if !IsAsDefaultValue(property.ReloadCmd.AsDefaultValue) && input.ReloadCmd != nil {
+		data["reload_cmd"] = *input.ReloadCmd
 	}
-	if IsAsDefaultValue(property.RestartCmd.AsDefaultValue) == false {
-		if input.RestartCmd != nil {
-			data["restart_cmd"] = *input.RestartCmd
-		}
+	if !IsAsDefaultValue(property.RestartCmd.AsDefaultValue) && input.RestartCmd != nil {
+		data["restart_cmd"] = *input.RestartCmd
 	}
-	if IsAsDefaultValue(property.ForceStopCmd.AsDefaultValue) == false {
-		if input.ForceStopCmd != nil {
-			data["face_stop_cmd"] = *input.ForceStopCmd
-		}
+	if !IsAsDefaultValue(property.ForceStopCmd.AsDefaultValue) && input.ForceStopCmd != nil {
+		data["face_stop_cmd"] = *input.ForceStopCmd
 	}
-	if IsAsDefaultValue(property.WorkPath.AsDefaultValue) == false {
-		if input.WorkPath != nil {
-			data["work_path"] = *input.WorkPath
-		}
+	if !IsAsDefaultValue(property.WorkPath.AsDefaultValue) && input.WorkPath != nil {
+		data["work_path"] = *input.WorkPath
 	}
 
-	if IsAsDefaultValue(property.Priority.AsDefaultValue) == false {
-		if input.Priority != nil {
-			data["priority"] = *input.Priority
-		}
+	if !IsAsDefaultValue(property.Priority.AsDefaultValue) && input.Priority != nil {
+		data["priority"] = *input.Priority
 	}
-	if IsAsDefaultValue(property.StartCmd.AsDefaultValue) == false {
-		if input.StartCmd != nil {
-			data["start_cmd"] = *input.StartCmd
-		}
+	if !IsAsDefaultValue(property.StartCmd.AsDefaultValue) && input.StartCmd != nil {
+		data["start_cmd"] = *input.StartCmd
 	}
 
 	// bind info 每次都是全量更新
@@ -1878,7 +1676,7 @@ func (pt *ProcessProperty) validateFields() (string, error) {
 
 // Update all not nil field from input to pt
 // rawProperty allows us set property field to nil
-//  参数rawProperty，input 数据是一样的，只不过一个是map,一个struct。 因为struct 是有默认行为的。 rawProperty为了获取用户是否输入
+// 参数rawProperty，input 数据是一样的，只不过一个是map,一个struct。 因为struct 是有默认行为的。 rawProperty为了获取用户是否输入
 func (pt *ProcessProperty) Update(input ProcessProperty, rawProperty map[string]interface{}) {
 	selfType := reflect.TypeOf(pt).Elem()
 	selfVal := reflect.ValueOf(pt).Elem()
