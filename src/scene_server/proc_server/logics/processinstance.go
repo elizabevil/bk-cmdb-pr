@@ -235,8 +235,8 @@ func (lgc *Logic) CreateProcessInstances(kit *rest.Kit, processDatas []map[strin
 	result, err := lgc.CoreAPI.CoreService().Instance().CreateManyInstance(kit.Ctx, kit.Header,
 		common.BKInnerObjIDProc, &inputParam)
 	if err != nil {
-		blog.Errorf("CreateProcessInstances failed, http request failed, err: %+v, inputParam:%#v, rid: %s", err,
-			inputParam, kit.Rid)
+		blog.Errorf("CreateProcessInstances failed, http request failed, err: %+v, inputParam:%#v, rid: %s",
+			err, inputParam, kit.Rid)
 		return nil, errors.CCHttpError
 	}
 
@@ -265,6 +265,12 @@ func (lgc *Logic) CreateProcessInstances(kit *rest.Kit, processDatas []map[strin
 	return processIDs, nil
 }
 
+// compareTemplateProperty compare the template property
+func compareTemplateProperty[T comparable](processPropertyValue *T, processValue *T) bool {
+	return (processPropertyValue == nil) != (processValue == nil) ||
+		(processPropertyValue != nil && processValue != nil && *processPropertyValue != *processValue)
+}
+
 // DiffWithProcessTemplate TODO
 // it works to find the different attribute value between the process instance and it's bounded process template.
 // if needDetail is true, returns with the changed attribute's details, otherwise only returns if process is changed.
@@ -276,106 +282,83 @@ func (lgc *Logic) DiffWithProcessTemplate(t *metadata.ProcessProperty, i *metada
 		return changes, false, nil
 	}
 
-	if metadata.IsAsDefaultValue(t.ProcNum.AsDefaultValue) {
-		if (t.ProcNum.Value == nil && i.ProcNum != nil) ||
-			(t.ProcNum.Value != nil && i.ProcNum == nil) ||
-			(t.ProcNum.Value != nil && i.ProcNum != nil && *t.ProcNum.Value != *i.ProcNum) {
-			if !needDetail {
-				return changes, true, nil
-			}
-			changes = append(changes, metadata.ProcessChangedAttribute{
-				ID:                    attrMap["proc_num"].ID,
-				PropertyID:            "proc_num",
-				PropertyName:          attrMap["proc_num"].PropertyName,
-				PropertyValue:         i.ProcNum,
-				TemplatePropertyValue: t.ProcNum,
-			})
+	if metadata.IsAsDefaultValue(t.ProcNum.AsDefaultValue) && compareTemplateProperty(t.ProcNum.Value, i.ProcNum) {
+		if !needDetail {
+			return changes, true, nil
 		}
+		changes = append(changes, metadata.ProcessChangedAttribute{
+			ID:                    attrMap["proc_num"].ID,
+			PropertyID:            "proc_num",
+			PropertyName:          attrMap["proc_num"].PropertyName,
+			PropertyValue:         i.ProcNum,
+			TemplatePropertyValue: t.ProcNum,
+		})
+	}
+	if metadata.IsAsDefaultValue(t.StopCmd.AsDefaultValue) && compareTemplateProperty(t.StopCmd.Value, i.StopCmd) {
+		if !needDetail {
+			return changes, true, nil
+		}
+		changes = append(changes, metadata.ProcessChangedAttribute{
+			ID:                    attrMap["stop_cmd"].ID,
+			PropertyID:            "stop_cmd",
+			PropertyName:          attrMap["stop_cmd"].PropertyName,
+			PropertyValue:         i.StopCmd,
+			TemplatePropertyValue: t.StopCmd,
+		})
+	}
+	if metadata.IsAsDefaultValue(t.RestartCmd.AsDefaultValue) &&
+		compareTemplateProperty(t.RestartCmd.Value, i.RestartCmd) {
+		if !needDetail {
+			return changes, true, nil
+		}
+		changes = append(changes, metadata.ProcessChangedAttribute{
+			ID:                    attrMap["restart_cmd"].ID,
+			PropertyID:            "restart_cmd",
+			PropertyName:          attrMap["restart_cmd"].PropertyName,
+			PropertyValue:         i.RestartCmd,
+			TemplatePropertyValue: t.RestartCmd,
+		})
 	}
 
-	if metadata.IsAsDefaultValue(t.StopCmd.AsDefaultValue) {
-		if (t.StopCmd.Value == nil && i.StopCmd != nil) ||
-			(t.StopCmd.Value != nil && i.StopCmd == nil) ||
-			(t.StopCmd.Value != nil && i.StopCmd != nil && *t.StopCmd.Value != *i.StopCmd) {
-			if !needDetail {
-				return changes, true, nil
-			}
-			changes = append(changes, metadata.ProcessChangedAttribute{
-				ID:                    attrMap["stop_cmd"].ID,
-				PropertyID:            "stop_cmd",
-				PropertyName:          attrMap["stop_cmd"].PropertyName,
-				PropertyValue:         i.StopCmd,
-				TemplatePropertyValue: t.StopCmd,
-			})
+	if metadata.IsAsDefaultValue(t.ForceStopCmd.AsDefaultValue) &&
+		compareTemplateProperty(t.ForceStopCmd.Value, i.ForceStopCmd) {
+		if !needDetail {
+			return changes, true, nil
 		}
+		changes = append(changes, metadata.ProcessChangedAttribute{
+			ID:                    attrMap["face_stop_cmd"].ID,
+			PropertyID:            "face_stop_cmd",
+			PropertyName:          attrMap["face_stop_cmd"].PropertyName,
+			PropertyValue:         i.ForceStopCmd,
+			TemplatePropertyValue: t.ForceStopCmd,
+		})
 	}
 
-	if metadata.IsAsDefaultValue(t.RestartCmd.AsDefaultValue) {
-		if (t.RestartCmd.Value == nil && i.RestartCmd != nil) ||
-			(t.RestartCmd.Value != nil && i.RestartCmd == nil) ||
-			(t.RestartCmd.Value != nil && i.RestartCmd != nil && *t.RestartCmd.Value != *i.RestartCmd) {
-			if !needDetail {
-				return changes, true, nil
-			}
-			changes = append(changes, metadata.ProcessChangedAttribute{
-				ID:                    attrMap["restart_cmd"].ID,
-				PropertyID:            "restart_cmd",
-				PropertyName:          attrMap["restart_cmd"].PropertyName,
-				PropertyValue:         i.RestartCmd,
-				TemplatePropertyValue: t.RestartCmd,
-			})
+	if metadata.IsAsDefaultValue(t.FuncName.AsDefaultValue) &&
+		compareTemplateProperty(t.FuncName.Value, i.FuncName) {
+		if !needDetail {
+			return changes, true, nil
 		}
+		changes = append(changes, metadata.ProcessChangedAttribute{
+			ID:                    attrMap["bk_func_name"].ID,
+			PropertyID:            "bk_func_name",
+			PropertyName:          attrMap["bk_func_name"].PropertyName,
+			PropertyValue:         i.FuncName,
+			TemplatePropertyValue: t.FuncName,
+		})
 	}
 
-	if metadata.IsAsDefaultValue(t.ForceStopCmd.AsDefaultValue) {
-		if (t.ForceStopCmd.Value == nil && i.ForceStopCmd != nil) ||
-			(t.ForceStopCmd.Value != nil && i.ForceStopCmd == nil) ||
-			(t.ForceStopCmd.Value != nil && i.ForceStopCmd != nil && *t.ForceStopCmd.Value != *i.ForceStopCmd) {
-			if !needDetail {
-				return changes, true, nil
-			}
-			changes = append(changes, metadata.ProcessChangedAttribute{
-				ID:                    attrMap["face_stop_cmd"].ID,
-				PropertyID:            "face_stop_cmd",
-				PropertyName:          attrMap["face_stop_cmd"].PropertyName,
-				PropertyValue:         i.ForceStopCmd,
-				TemplatePropertyValue: t.ForceStopCmd,
-			})
+	if metadata.IsAsDefaultValue(t.WorkPath.AsDefaultValue) && compareTemplateProperty(t.WorkPath.Value, i.WorkPath) {
+		if !needDetail {
+			return changes, true, nil
 		}
-	}
-
-	if metadata.IsAsDefaultValue(t.FuncName.AsDefaultValue) {
-		if (t.FuncName.Value == nil && i.FuncName != nil) ||
-			(t.FuncName.Value != nil && i.FuncName == nil) ||
-			(t.FuncName.Value != nil && i.FuncName != nil && *t.FuncName.Value != *i.FuncName) {
-			if !needDetail {
-				return changes, true, nil
-			}
-			changes = append(changes, metadata.ProcessChangedAttribute{
-				ID:                    attrMap["bk_func_name"].ID,
-				PropertyID:            "bk_func_name",
-				PropertyName:          attrMap["bk_func_name"].PropertyName,
-				PropertyValue:         i.FuncName,
-				TemplatePropertyValue: t.FuncName,
-			})
-		}
-	}
-
-	if metadata.IsAsDefaultValue(t.WorkPath.AsDefaultValue) {
-		if (t.WorkPath.Value == nil && i.WorkPath != nil) ||
-			(t.WorkPath.Value != nil && i.WorkPath == nil) ||
-			(t.WorkPath.Value != nil && i.WorkPath != nil && *t.WorkPath.Value != *i.WorkPath) {
-			if !needDetail {
-				return changes, true, nil
-			}
-			changes = append(changes, metadata.ProcessChangedAttribute{
-				ID:                    attrMap["work_path"].ID,
-				PropertyID:            "work_path",
-				PropertyName:          attrMap["work_path"].PropertyName,
-				PropertyValue:         i.WorkPath,
-				TemplatePropertyValue: t.WorkPath,
-			})
-		}
+		changes = append(changes, metadata.ProcessChangedAttribute{
+			ID:                    attrMap["work_path"].ID,
+			PropertyID:            "work_path",
+			PropertyName:          attrMap["work_path"].PropertyName,
+			PropertyValue:         i.WorkPath,
+			TemplatePropertyValue: t.WorkPath,
+		})
 	}
 
 	if metadata.IsAsDefaultValue(t.BindInfo.AsDefaultValue) {
@@ -397,192 +380,154 @@ func (lgc *Logic) DiffWithProcessTemplate(t *metadata.ProcessProperty, i *metada
 		}
 
 	}
-
-	if metadata.IsAsDefaultValue(t.Priority.AsDefaultValue) {
-		if (t.Priority.Value == nil && i.Priority != nil) ||
-			(t.Priority.Value != nil && i.Priority == nil) ||
-			(t.Priority.Value != nil && i.Priority != nil && *t.Priority.Value != *i.Priority) {
-			if !needDetail {
-				return changes, true, nil
-			}
-			changes = append(changes, metadata.ProcessChangedAttribute{
-				ID:                    attrMap["priority"].ID,
-				PropertyID:            "priority",
-				PropertyName:          attrMap["priority"].PropertyName,
-				PropertyValue:         i.Priority,
-				TemplatePropertyValue: t.Priority,
-			})
+	if metadata.IsAsDefaultValue(t.Priority.AsDefaultValue) && compareTemplateProperty(t.Priority.Value, i.Priority) {
+		if !needDetail {
+			return changes, true, nil
 		}
+		changes = append(changes, metadata.ProcessChangedAttribute{
+			ID:                    attrMap["priority"].ID,
+			PropertyID:            "priority",
+			PropertyName:          attrMap["priority"].PropertyName,
+			PropertyValue:         i.Priority,
+			TemplatePropertyValue: t.Priority,
+		})
+
 	}
 
-	if metadata.IsAsDefaultValue(t.ReloadCmd.AsDefaultValue) {
-		if (t.ReloadCmd.Value == nil && i.ReloadCmd != nil) ||
-			(t.ReloadCmd.Value != nil && i.ReloadCmd == nil) ||
-			(t.ReloadCmd.Value != nil && i.ReloadCmd != nil && *t.ReloadCmd.Value != *i.ReloadCmd) {
-			if !needDetail {
-				return changes, true, nil
-			}
-			changes = append(changes, metadata.ProcessChangedAttribute{
-				ID:                    attrMap["reload_cmd"].ID,
-				PropertyID:            "reload_cmd",
-				PropertyName:          attrMap["reload_cmd"].PropertyName,
-				PropertyValue:         i.ReloadCmd,
-				TemplatePropertyValue: t.ReloadCmd,
-			})
+	if metadata.IsAsDefaultValue(t.ReloadCmd.AsDefaultValue) && compareTemplateProperty(t.ReloadCmd.Value, i.ReloadCmd) {
+		if !needDetail {
+			return changes, true, nil
 		}
+		changes = append(changes, metadata.ProcessChangedAttribute{
+			ID:                    attrMap["reload_cmd"].ID,
+			PropertyID:            "reload_cmd",
+			PropertyName:          attrMap["reload_cmd"].PropertyName,
+			PropertyValue:         i.ReloadCmd,
+			TemplatePropertyValue: t.ReloadCmd,
+		})
 	}
 
-	if metadata.IsAsDefaultValue(t.ProcessName.AsDefaultValue) {
-		if (t.ProcessName.Value == nil && i.ProcessName != nil) ||
-			(t.ProcessName.Value != nil && i.ProcessName == nil) ||
-			(t.ProcessName.Value != nil && i.ProcessName != nil && *t.ProcessName.Value != *i.ProcessName) {
-			if !needDetail {
-				return changes, true, nil
-			}
-			changes = append(changes, metadata.ProcessChangedAttribute{
-				ID:                    attrMap["bk_process_name"].ID,
-				PropertyID:            "bk_process_name",
-				PropertyName:          attrMap["bk_process_name"].PropertyName,
-				PropertyValue:         i.ProcessName,
-				TemplatePropertyValue: t.ProcessName,
-			})
+	if metadata.IsAsDefaultValue(t.ProcessName.AsDefaultValue) &&
+		compareTemplateProperty(t.ProcessName.Value, i.ProcessName) {
+		if !needDetail {
+			return changes, true, nil
 		}
+		changes = append(changes, metadata.ProcessChangedAttribute{
+			ID:                    attrMap["bk_process_name"].ID,
+			PropertyID:            "bk_process_name",
+			PropertyName:          attrMap["bk_process_name"].PropertyName,
+			PropertyValue:         i.ProcessName,
+			TemplatePropertyValue: t.ProcessName,
+		})
 	}
 
-	if metadata.IsAsDefaultValue(t.PidFile.AsDefaultValue) {
-		if (t.PidFile.Value == nil && i.PidFile != nil) ||
-			(t.PidFile.Value != nil && i.PidFile == nil) ||
-			(t.PidFile.Value != nil && i.PidFile != nil && *t.PidFile.Value != *i.PidFile) {
-			if !needDetail {
-				return changes, true, nil
-			}
-			changes = append(changes, metadata.ProcessChangedAttribute{
-				ID:                    attrMap["pid_file"].ID,
-				PropertyID:            "pid_file",
-				PropertyName:          attrMap["pid_file"].PropertyName,
-				PropertyValue:         i.PidFile,
-				TemplatePropertyValue: t.PidFile,
-			})
+	if metadata.IsAsDefaultValue(t.PidFile.AsDefaultValue) &&
+		compareTemplateProperty(t.PidFile.Value, i.PidFile) {
+		if !needDetail {
+			return changes, true, nil
 		}
+		changes = append(changes, metadata.ProcessChangedAttribute{
+			ID:                    attrMap["pid_file"].ID,
+			PropertyID:            "pid_file",
+			PropertyName:          attrMap["pid_file"].PropertyName,
+			PropertyValue:         i.PidFile,
+			TemplatePropertyValue: t.PidFile,
+		})
 	}
 
-	if metadata.IsAsDefaultValue(t.AutoStart.AsDefaultValue) {
-		if (t.AutoStart.Value == nil && i.AutoStart != nil) ||
-			(t.AutoStart.Value != nil && i.AutoStart == nil) ||
-			(t.AutoStart.Value != nil && i.AutoStart != nil && *t.AutoStart.Value != *i.AutoStart) {
-			if !needDetail {
-				return changes, true, nil
-			}
-			changes = append(changes, metadata.ProcessChangedAttribute{
-				ID:                    attrMap["auto_start"].ID,
-				PropertyID:            "auto_start",
-				PropertyName:          attrMap["auto_start"].PropertyName,
-				PropertyValue:         i.AutoStart,
-				TemplatePropertyValue: t.AutoStart,
-			})
+	if metadata.IsAsDefaultValue(t.AutoStart.AsDefaultValue) && compareTemplateProperty(t.AutoStart.Value, i.AutoStart) {
+		if !needDetail {
+			return changes, true, nil
 		}
+		changes = append(changes, metadata.ProcessChangedAttribute{
+			ID:                    attrMap["auto_start"].ID,
+			PropertyID:            "auto_start",
+			PropertyName:          attrMap["auto_start"].PropertyName,
+			PropertyValue:         i.AutoStart,
+			TemplatePropertyValue: t.AutoStart,
+		})
 	}
 
-	if metadata.IsAsDefaultValue(t.StartCheckSecs.AsDefaultValue) {
-		if (t.StartCheckSecs.Value == nil && i.StartCheckSecs != nil) ||
-			(t.StartCheckSecs.Value != nil && i.StartCheckSecs == nil) ||
-			(t.StartCheckSecs.Value != nil && i.StartCheckSecs != nil && *t.StartCheckSecs.Value != *i.StartCheckSecs) {
-			if !needDetail {
-				return changes, true, nil
-			}
-			changes = append(changes, metadata.ProcessChangedAttribute{
-				ID:                    attrMap["bk_start_check_secs"].ID,
-				PropertyID:            "bk_start_check_secs",
-				PropertyName:          attrMap["bk_start_check_secs"].PropertyName,
-				PropertyValue:         i.StartCheckSecs,
-				TemplatePropertyValue: t.StartCheckSecs,
-			})
+	if metadata.IsAsDefaultValue(t.StartCheckSecs.AsDefaultValue) &&
+		compareTemplateProperty(t.StartCheckSecs.Value, i.StartCheckSecs) {
+		if !needDetail {
+			return changes, true, nil
 		}
+		changes = append(changes, metadata.ProcessChangedAttribute{
+			ID:                    attrMap["bk_start_check_secs"].ID,
+			PropertyID:            "bk_start_check_secs",
+			PropertyName:          attrMap["bk_start_check_secs"].PropertyName,
+			PropertyValue:         i.StartCheckSecs,
+			TemplatePropertyValue: t.StartCheckSecs,
+		})
 	}
 
-	if metadata.IsAsDefaultValue(t.StartCmd.AsDefaultValue) {
-		if (t.StartCmd.Value == nil && i.StartCmd != nil) ||
-			(t.StartCmd.Value != nil && i.StartCmd == nil) ||
-			(t.StartCmd.Value != nil && i.StartCmd != nil && *t.StartCmd.Value != *i.StartCmd) {
-			if !needDetail {
-				return changes, true, nil
-			}
-			changes = append(changes, metadata.ProcessChangedAttribute{
-				ID:                    attrMap["start_cmd"].ID,
-				PropertyID:            "start_cmd",
-				PropertyName:          attrMap["start_cmd"].PropertyName,
-				PropertyValue:         i.StartCmd,
-				TemplatePropertyValue: t.StartCmd,
-			})
+	if metadata.IsAsDefaultValue(t.StartCmd.AsDefaultValue) && compareTemplateProperty(t.StartCmd.Value, i.StartCmd) {
+		if !needDetail {
+			return changes, true, nil
 		}
+		changes = append(changes, metadata.ProcessChangedAttribute{
+			ID:                    attrMap["start_cmd"].ID,
+			PropertyID:            "start_cmd",
+			PropertyName:          attrMap["start_cmd"].PropertyName,
+			PropertyValue:         i.StartCmd,
+			TemplatePropertyValue: t.StartCmd,
+		})
 	}
 
-	if metadata.IsAsDefaultValue(t.User.AsDefaultValue) {
-		if (t.User.Value == nil && i.User != nil) ||
-			(t.User.Value != nil && i.User == nil) ||
-			(t.User.Value != nil && i.User != nil && *t.User.Value != *i.User) {
-			if !needDetail {
-				return changes, true, nil
-			}
-			changes = append(changes, metadata.ProcessChangedAttribute{
-				ID:                    attrMap["user"].ID,
-				PropertyID:            "user",
-				PropertyName:          attrMap["user"].PropertyName,
-				PropertyValue:         i.User,
-				TemplatePropertyValue: t.User,
-			})
+	if metadata.IsAsDefaultValue(t.User.AsDefaultValue) && compareTemplateProperty(t.User.Value, i.User) {
+		if !needDetail {
+			return changes, true, nil
 		}
+		changes = append(changes, metadata.ProcessChangedAttribute{
+			ID:                    attrMap["user"].ID,
+			PropertyID:            "user",
+			PropertyName:          attrMap["user"].PropertyName,
+			PropertyValue:         i.User,
+			TemplatePropertyValue: t.User,
+		})
 	}
 
-	if metadata.IsAsDefaultValue(t.TimeoutSeconds.AsDefaultValue) {
-		if (t.TimeoutSeconds.Value == nil && i.TimeoutSeconds != nil) ||
-			(t.TimeoutSeconds.Value != nil && i.TimeoutSeconds == nil) ||
-			(t.TimeoutSeconds.Value != nil && i.TimeoutSeconds != nil && *t.TimeoutSeconds.Value != *i.TimeoutSeconds) {
-			if !needDetail {
-				return changes, true, nil
-			}
-			changes = append(changes, metadata.ProcessChangedAttribute{
-				ID:                    attrMap["timeout"].ID,
-				PropertyID:            "timeout",
-				PropertyName:          attrMap["timeout"].PropertyName,
-				PropertyValue:         i.TimeoutSeconds,
-				TemplatePropertyValue: t.TimeoutSeconds,
-			})
+	if metadata.IsAsDefaultValue(t.TimeoutSeconds.AsDefaultValue) &&
+		compareTemplateProperty(t.TimeoutSeconds.Value, i.TimeoutSeconds) {
+		if !needDetail {
+			return changes, true, nil
 		}
+		changes = append(changes, metadata.ProcessChangedAttribute{
+			ID:                    attrMap["timeout"].ID,
+			PropertyID:            "timeout",
+			PropertyName:          attrMap["timeout"].PropertyName,
+			PropertyValue:         i.TimeoutSeconds,
+			TemplatePropertyValue: t.TimeoutSeconds,
+		})
 	}
 
-	if metadata.IsAsDefaultValue(t.Description.AsDefaultValue) {
-		if (t.Description.Value == nil && i.Description != nil) ||
-			(t.Description.Value != nil && i.Description == nil) ||
-			(t.Description.Value != nil && i.Description != nil && *t.Description.Value != *i.Description) {
-			if !needDetail {
-				return changes, true, nil
-			}
-			changes = append(changes, metadata.ProcessChangedAttribute{
-				ID:                    attrMap["description"].ID,
-				PropertyID:            "description",
-				PropertyName:          attrMap["description"].PropertyName,
-				PropertyValue:         i.Description,
-				TemplatePropertyValue: t.Description,
-			})
+	if metadata.IsAsDefaultValue(t.Description.AsDefaultValue) &&
+		compareTemplateProperty(t.Description.Value, i.Description) {
+		if !needDetail {
+			return changes, true, nil
 		}
+		changes = append(changes, metadata.ProcessChangedAttribute{
+			ID:                    attrMap["description"].ID,
+			PropertyID:            "description",
+			PropertyName:          attrMap["description"].PropertyName,
+			PropertyValue:         i.Description,
+			TemplatePropertyValue: t.Description,
+		})
 	}
 
-	if metadata.IsAsDefaultValue(t.StartParamRegex.AsDefaultValue) {
-		if (t.StartParamRegex.Value == nil && i.StartParamRegex != nil) ||
-			(t.StartParamRegex.Value != nil && i.StartParamRegex == nil) ||
-			(t.StartParamRegex.Value != nil && i.StartParamRegex != nil && *t.StartParamRegex.Value != *i.StartParamRegex) {
-			if !needDetail {
-				return changes, true, nil
-			}
-			changes = append(changes, metadata.ProcessChangedAttribute{
-				ID:                    attrMap["bk_start_param_regex"].ID,
-				PropertyID:            "bk_start_param_regex",
-				PropertyName:          attrMap["bk_start_param_regex"].PropertyName,
-				PropertyValue:         i.StartParamRegex,
-				TemplatePropertyValue: t.StartParamRegex,
-			})
+	if metadata.IsAsDefaultValue(t.StartParamRegex.AsDefaultValue) &&
+		compareTemplateProperty(t.StartParamRegex.Value, i.StartParamRegex) {
+		if !needDetail {
+			return changes, true, nil
 		}
+		changes = append(changes, metadata.ProcessChangedAttribute{
+			ID:                    attrMap["bk_start_param_regex"].ID,
+			PropertyID:            "bk_start_param_regex",
+			PropertyName:          attrMap["bk_start_param_regex"].PropertyName,
+			PropertyValue:         i.StartParamRegex,
+			TemplatePropertyValue: t.StartParamRegex,
+		})
 	}
 
 	return changes, len(changes) > 0, nil
