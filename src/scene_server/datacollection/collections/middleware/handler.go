@@ -38,7 +38,7 @@ const (
 	defaultRelateAttr = "host"
 )
 
-func (d *Discover) parseData(msg *string) (data map[string]interface{}, err error) {
+func (d *Discover) parseData(msg *string) (data map[string]any, err error) {
 	dataStr := gjson.Get(*msg, "data.data").String()
 	if err = json.Unmarshal([]byte(dataStr), &data); err != nil {
 		blog.Errorf("parse data error: %s", err)
@@ -71,14 +71,14 @@ func (d *Discover) CreateInstKey(objID string, ownerID string, val []string) str
 }
 
 // GetInstFromRedis TODO
-func (d *Discover) GetInstFromRedis(instKey string) (map[string]interface{}, error) {
+func (d *Discover) GetInstFromRedis(instKey string) (map[string]any, error) {
 
 	val, err := d.redisCli.Get(d.ctx, instKey).Result()
 	if err != nil {
 		return nil, fmt.Errorf("%s: get inst cache error: %s", instKey, err)
 	}
 
-	var cacheData = make(map[string]interface{})
+	var cacheData = make(map[string]any)
 	err = json.Unmarshal([]byte(val), &cacheData)
 	if err != nil {
 		return nil, fmt.Errorf("marshal condition error: %s", err)
@@ -147,60 +147,17 @@ func (d *Discover) UpdateOrCreateInst(msg *string) error {
 	}
 
 	rid := httpheader.GetRid(d.httpHeader)
-
 	ownerID := d.parseOwnerId(msg)
-
 	objID := d.parseObjID(msg)
-
-	// get must check unique to judge if the instance exists
-	cond := map[string]interface{}{
-		common.BKObjIDField: objID,
-		"must_check":        true,
-	}
-	uniqueResp, err := d.CoreAPI.CoreService().Model().ReadModelAttrUnique(d.ctx, d.httpHeader,
-		metadata.QueryCondition{Condition: cond})
+	keys, err := d.getModelPropertyIDs(objID, rid, ownerID)
 	if err != nil {
-		blog.Errorf("search model unique failed, cond: %s, error: %s, rid: %s", cond, err.Error(), rid)
-		return fmt.Errorf("search model unique failed: %s", err.Error())
+		return err
 	}
-
-	if uniqueResp.Count != 1 {
-		return fmt.Errorf("model %s has wrong must check unique num", objID)
-	}
-	keyIDs := make([]int64, 0)
-	for _, key := range uniqueResp.Info[0].Keys {
-		keyIDs = append(keyIDs, int64(key.ID))
-	}
-	keys := make([]string, 0)
-	cond = map[string]interface{}{
-		common.BKObjIDField:   objID,
-		common.BKOwnerIDField: ownerID,
-		common.BKFieldID: map[string]interface{}{
-			common.BKDBIN: keyIDs,
-		},
-	}
-	attrResp, err := d.CoreAPI.CoreService().Model().ReadModelAttr(d.ctx, d.httpHeader, objID,
-		&metadata.QueryCondition{Condition: cond})
-	if err != nil {
-		blog.Errorf("search model attribute failed, cond: %s, error: %s, rid: %s", cond, err.Error(), rid)
-		return fmt.Errorf("search model attribute failed: %s", err.Error())
-	}
-
-	if attrResp.Count <= 0 {
-		blog.Errorf("unique model attribute count illegal, cond: %s, rid: %s", cond, rid)
-		return fmt.Errorf("search model attribute failed, return is empty")
-	}
-
-	for _, attr := range attrResp.Info {
-		keys = append(keys, attr.PropertyID)
-	}
-
 	bodyData, err := d.parseData(msg)
 	if err != nil {
 		return fmt.Errorf("parse data error: %s", err)
 	}
-
-	cond = map[string]interface{}{
+	cond := map[string]any{
 		common.BKObjIDField:   objID,
 		common.BKOwnerIDField: ownerID,
 	}
@@ -220,71 +177,21 @@ func (d *Discover) UpdateOrCreateInst(msg *string) error {
 	}
 
 	blog.Infof("get inst result: %v", inst)
-
 	instIDField := common.GetInstIDField(objID)
-
-	if len(inst) <= 0 {
-		resp, err := d.CoreAPI.CoreService().Instance().CreateInstance(d.ctx, d.httpHeader, objID,
-			&metadata.CreateModelInstance{Data: bodyData})
-		if err != nil {
-			blog.Errorf("search model failed %s", err.Error())
-			return fmt.Errorf("search model failed: %s", err.Error())
-		}
-
-		blog.Infof("create inst result: %v", resp)
-
-		// add audit log.
-		if err := func() error {
-			// ready audit interface of instance.
-			audit := auditlog.NewInstanceAudit(d.CoreAPI.CoreService())
-			kit := &rest.Kit{
-				Rid:             rid,
-				Header:          d.httpHeader,
-				Ctx:             d.ctx,
-				CCError:         d.CCErr.CreateDefaultCCErrorIf(httpheader.GetLanguage(d.httpHeader)),
-				User:            common.CCSystemCollectorUserName,
-				SupplierAccount: common.BKDefaultOwnerID,
-			}
-
-			// generate audit log for create instance.
-			data := []mapstr.MapStr{mapstr.NewFromMap(bodyData)}
-			generateAuditParameter := auditlog.NewGenerateAuditCommonParameter(kit,
-				metadata.AuditCreate).WithOperateFrom(metadata.FromDataCollection)
-			auditLog, err := audit.GenerateAuditLog(generateAuditParameter, objID, data)
-			if err != nil {
-				blog.Errorf("generate instance audit log failed after create instance, objID: %s, err: %v, rid: %s",
-					objID, err, rid)
-				return err
-			}
-
-			// save audit log.
-			if err := audit.SaveAuditLog(kit, auditLog...); err != nil {
-				blog.Errorf("save instance audit log failed after create instance, objID: %s, err: %v, rid: %s",
-					objID, err, rid)
-				return err
-			}
-
-			return nil
-		}(); err != nil && blog.V(3) {
-			blog.Errorf("save inst create audit log failed, err: %+v, rid: %s", err.Error(), rid)
-		}
-		return nil
+	err = d.createInstance(inst, bodyData, objID, rid)
+	if err != nil {
+		return err
 	}
-
 	instID, err := util.GetInt64ByInterface(inst[instIDField])
-	if nil != err {
+	if err != nil {
 		return fmt.Errorf("get bk_inst_id failed: %s %s", inst[instIDField], err.Error())
 	}
-
-	dataChange := map[string]interface{}{}
+	dataChange := map[string]any{}
 	hasDiff := false
 	for attrId, attrValue := range bodyData {
-
 		if attrId == defaultRelateAttr {
-			if relateList, ok := inst[defaultRelateAttr].([]interface{}); ok && len(relateList) == 1 {
-
-				relateObj, ok := relateList[0].(map[string]interface{})
-
+			if relateList, ok := inst[defaultRelateAttr].([]any); ok && len(relateList) == 1 {
+				relateObj, ok := relateList[0].(map[string]any)
 				if ok && (relateObj["id"] != "" && relateObj["id"] != "0" && relateObj["id"] != nil) {
 					blog.Infof("skip updating single relation attr: [%s]=%v, since it is existed:%v.",
 						defaultRelateAttr, attrValue, relateObj["id"])
@@ -295,13 +202,10 @@ func (d *Discover) UpdateOrCreateInst(msg *string) error {
 						hasDiff = true
 					}
 				}
-
 				continue
 			}
-
 			blog.Errorf("parse relation data failed, skip update: \n%v\n", inst[defaultRelateAttr])
 			continue
-
 		}
 		if inst[attrId] != attrValue {
 			dataChange[attrId] = attrValue
@@ -309,11 +213,15 @@ func (d *Discover) UpdateOrCreateInst(msg *string) error {
 			hasDiff = true
 		}
 	}
-
 	if !hasDiff {
 		blog.Infof("no need to update inst")
 		return nil
 	}
+	return d.updateInstance(instKeyStr, instIDField, rid, objID, instID, inst, dataChange)
+}
+
+func (d *Discover) updateInstance(instKeyStr, instIDField, rid, objID string, instID int64,
+	inst, dataChange map[string]any) error {
 
 	// remove unchangeable fields.
 	delete(inst, common.BKObjIDField)
@@ -323,8 +231,6 @@ func (d *Discover) UpdateOrCreateInst(msg *string) error {
 	delete(inst, common.LastTimeField)
 	delete(inst, common.CreateTimeField)
 
-	// ready audit interface of instance.
-	audit := auditlog.NewInstanceAudit(d.CoreAPI.CoreService())
 	kit := &rest.Kit{
 		Rid:             rid,
 		Header:          d.httpHeader,
@@ -335,9 +241,12 @@ func (d *Discover) UpdateOrCreateInst(msg *string) error {
 	}
 
 	// generate audit log before update instance.
-	auditCond := map[string]interface{}{instIDField: instID}
+	auditCond := map[string]any{instIDField: instID}
 	generateAuditParameter := auditlog.NewGenerateAuditCommonParameter(kit, metadata.AuditUpdate).
 		WithOperateFrom(metadata.FromDataCollection).WithUpdateFields(inst)
+
+	// ready audit interface of instance.
+	audit := auditlog.NewInstanceAudit(d.CoreAPI.CoreService())
 	auditLog, err := audit.GenerateAuditLogByCondGetData(generateAuditParameter, objID, auditCond)
 	if err != nil {
 		blog.Errorf("generate instance audit log failed after create instance, objID: %s, err: %v, rid: %s",
@@ -348,7 +257,7 @@ func (d *Discover) UpdateOrCreateInst(msg *string) error {
 	// to update.
 	input := metadata.UpdateOption{
 		Data: dataChange,
-		Condition: map[string]interface{}{
+		Condition: map[string]any{
 			instIDField: instID,
 		},
 		CanEditAll: true,
@@ -368,6 +277,102 @@ func (d *Discover) UpdateOrCreateInst(msg *string) error {
 			objID, err, rid)
 		return err
 	}
-
 	return nil
+}
+
+func (d *Discover) createInstance(inst map[string]any, bodyData map[string]any, objID, rid string) error {
+	if len(inst) > 0 {
+		return nil
+	}
+	resp, err := d.CoreAPI.CoreService().Instance().CreateInstance(d.ctx, d.httpHeader, objID,
+		&metadata.CreateModelInstance{Data: bodyData})
+	if err != nil {
+		blog.Errorf("search model failed %s", err.Error())
+		return fmt.Errorf("search model failed: %s", err.Error())
+	}
+
+	blog.Infof("create inst result: %v", resp)
+
+	// add audit log.
+	if err := func() error {
+		// ready audit interface of instance.
+		audit := auditlog.NewInstanceAudit(d.CoreAPI.CoreService())
+		kit := &rest.Kit{
+			Rid:             rid,
+			Header:          d.httpHeader,
+			Ctx:             d.ctx,
+			CCError:         d.CCErr.CreateDefaultCCErrorIf(httpheader.GetLanguage(d.httpHeader)),
+			User:            common.CCSystemCollectorUserName,
+			SupplierAccount: common.BKDefaultOwnerID,
+		}
+
+		// generate audit log for create instance.
+		data := []mapstr.MapStr{mapstr.NewFromMap(bodyData)}
+		generateAuditParameter := auditlog.NewGenerateAuditCommonParameter(kit,
+			metadata.AuditCreate).WithOperateFrom(metadata.FromDataCollection)
+		auditLog, err := audit.GenerateAuditLog(generateAuditParameter, objID, data)
+		if err != nil {
+			blog.Errorf("generate instance audit log failed after create instance, objID: %s, err: %v, rid: %s",
+				objID, err, rid)
+			return err
+		}
+
+		// save audit log.
+		if err := audit.SaveAuditLog(kit, auditLog...); err != nil {
+			blog.Errorf("save instance audit log failed after create instance, objID: %s, err: %v, rid: %s",
+				objID, err, rid)
+			return err
+		}
+
+		return nil
+	}(); err != nil && blog.V(3) {
+		blog.Errorf("save inst create audit log failed, err: %+v, rid: %s", err.Error(), rid)
+	}
+	return nil
+}
+
+func (d *Discover) getModelPropertyIDs(objID string, rid string, ownerID string) ([]string, error) {
+	// get must check unique to judge if the instance exists
+	cond := map[string]any{
+		common.BKObjIDField: objID,
+		"must_check":        true,
+	}
+	uniqueResp, err := d.CoreAPI.CoreService().Model().ReadModelAttrUnique(d.ctx, d.httpHeader,
+		metadata.QueryCondition{Condition: cond})
+	if err != nil {
+		blog.Errorf("search model unique failed, cond: %s, error: %s, rid: %s", cond, err.Error(), rid)
+		return nil, fmt.Errorf("search model unique failed: %s", err.Error())
+	}
+
+	if uniqueResp.Count != 1 {
+		return nil, fmt.Errorf("model %s has wrong must check unique num", objID)
+	}
+	keyIDs := make([]int64, 0)
+	for _, key := range uniqueResp.Info[0].Keys {
+		keyIDs = append(keyIDs, int64(key.ID))
+	}
+	keys := make([]string, 0)
+	cond = map[string]any{
+		common.BKObjIDField:   objID,
+		common.BKOwnerIDField: ownerID,
+		common.BKFieldID: map[string]any{
+			common.BKDBIN: keyIDs,
+		},
+	}
+	attrResp, err := d.CoreAPI.CoreService().Model().ReadModelAttr(d.ctx, d.httpHeader, objID,
+		&metadata.QueryCondition{Condition: cond})
+	if err != nil {
+		blog.Errorf("search model attribute failed, cond: %s, error: %s, rid: %s", cond, err.Error(), rid)
+		return nil, fmt.Errorf("search model attribute failed: %s", err.Error())
+	}
+
+	if attrResp.Count <= 0 {
+		blog.Errorf("unique model attribute count illegal, cond: %s, rid: %s", cond, rid)
+		return nil, fmt.Errorf("search model attribute failed, return is empty")
+	}
+
+	for _, attr := range attrResp.Info {
+		keys = append(keys, attr.PropertyID)
+	}
+	return keys, nil
 }
