@@ -407,71 +407,9 @@ func (ps *parseStream) host() *parseStream {
 		return ps
 	}
 
-	if ps.hitRegexp(findHostInstanceObjectPropertiesRegexp, http.MethodGet) {
-		ps.Attribute.Resources = []meta.ResourceAttribute{
-			{
-				Basic: meta.Basic{
-					Type:   meta.HostInstance,
-					Action: meta.Find,
-				},
-			},
-		}
-		return ps
-	}
-
-	// find host service_template_id relation
-	if ps.hitPattern(findHostsServiceTemplatesPattern, http.MethodPost) {
-
-		ps.Attribute.Resources = []meta.ResourceAttribute{
-			{
-				Basic: meta.Basic{
-					Type:   meta.HostInstance,
-					Action: meta.FindMany,
-				},
-			},
-		}
-
-		return ps
-	}
-
-	if ps.hitRegexp(findHostsBySetTemplatesRegex, http.MethodPost) {
-		bizID, err := strconv.ParseInt(ps.RequestCtx.Elements[6], 10, 64)
-		if err != nil {
-			ps.err = fmt.Errorf("find hosts by set templates, but got invalid business id: %s",
-				ps.RequestCtx.Elements[6])
-			return ps
-		}
-
-		ps.Attribute.Resources = []meta.ResourceAttribute{
-			{
-				BusinessID: bizID,
-				Basic: meta.Basic{
-					Type:   meta.HostInstance,
-					Action: meta.SkipAction,
-				},
-			},
-		}
-		return ps
-	}
-
-	if ps.hitRegexp(findHostsByTopoRegex, http.MethodPost) {
-		bizID, err := strconv.ParseInt(ps.RequestCtx.Elements[6], 10, 64)
-		if err != nil {
-			ps.err = fmt.Errorf("find hosts by set templates, but got invalid business id: %s",
-				ps.RequestCtx.Elements[6])
-			return ps
-		}
-
-		ps.Attribute.Resources = []meta.ResourceAttribute{
-			{
-				BusinessID: bizID,
-				Basic: meta.Basic{
-					Type:   meta.HostInstance,
-					Action: meta.SkipAction,
-				},
-			},
-		}
-		return ps
+	stream, done := ps.findHosts()
+	if done {
+		return stream
 	}
 
 	if ps.hitRegexp(findHostsTotalTopo, http.MethodPost) {
@@ -494,8 +432,51 @@ func (ps *parseStream) host() *parseStream {
 		return ps
 	}
 
-	// host lock authorize filter
-	if ps.hitPattern(lockHostPattern, http.MethodPost) {
+	stream, done = ps.lockHosts()
+	if done {
+		return stream
+	}
+
+	stream, done = ps.deleteHosts()
+	if done {
+		return stream
+	}
+
+	stream, done = ps.findHost()
+	if done {
+		return stream
+	}
+
+	stream, done = ps.findHostWithBiz()
+	if done {
+		return stream
+	}
+
+	stream, done = ps.findHostsForPattern()
+	if done {
+		return stream
+	}
+
+	stream, done = ps.findBizHosts()
+	if done {
+		return stream
+	}
+
+	stream, done = ps.updateHosts()
+	if done {
+		return stream
+	}
+
+	stream, done = ps.handleHosts()
+	if done {
+		return stream
+	}
+	return ps
+}
+
+func (ps *parseStream) handleHosts() (*parseStream, bool) {
+	// clone hosts property, but can not get the exactly host id.
+	if ps.hitPattern(cloneHostPropertyBatchPattern, http.MethodPut) {
 		ps.Attribute.Resources = []meta.ResourceAttribute{
 			{
 				Basic: meta.Basic{
@@ -504,10 +485,79 @@ func (ps *parseStream) host() *parseStream {
 				},
 			},
 		}
-		return ps
+		return ps, true
 	}
 
-	if ps.hitPattern(unLockHostPattern, http.MethodDelete) {
+	if ps.hitPattern(hostInstallPattern, http.MethodPost) {
+		ps.Attribute.Resources = []meta.ResourceAttribute{
+			{
+				Basic: meta.Basic{
+					Type:   meta.InstallBK,
+					Action: meta.Update,
+				},
+			},
+		}
+		return ps, true
+	}
+
+	if ps.hitPattern(systemUserConfig, http.MethodPost) {
+		ps.Attribute.Resources = []meta.ResourceAttribute{
+			{
+				Basic: meta.Basic{
+					Type:   meta.SystemConfig,
+					Action: meta.FindMany,
+				},
+			},
+		}
+		return ps, true
+	}
+
+	if ps.hitPattern(getHostModuleRelationPattern, http.MethodPost) {
+		bizID, err := ps.parseBusinessID()
+		if err != nil {
+			ps.err = err
+			return ps, true
+		}
+		ps.Attribute.Resources = []meta.ResourceAttribute{
+			{
+				BusinessID: bizID,
+				Basic: meta.Basic{
+					Type:   meta.MainlineInstanceTopology,
+					Action: meta.Find,
+				},
+			},
+		}
+		return ps, true
+	}
+
+	if ps.hitPattern(addHostsToBusinessIdlePattern, http.MethodPost) {
+		bizID, err := ps.parseBusinessID()
+		if err != nil {
+			ps.err = err
+			return ps, true
+		}
+		ps.Attribute.Resources = []meta.ResourceAttribute{
+			{
+				BusinessID: bizID,
+				Basic: meta.Basic{
+					Type:   meta.HostInstance,
+					Action: meta.Update,
+				},
+				Layers: meta.Layers{{
+					Type:       meta.Business,
+					InstanceID: bizID,
+				}},
+			},
+		}
+
+		return ps, true
+	}
+	return nil, false
+}
+
+func (ps *parseStream) updateHosts() (*parseStream, bool) {
+	// update hosts batch. but can not get the exactly host id.
+	if ps.hitPattern(updateHostInfoBatchPattern, http.MethodPut) {
 		ps.Attribute.Resources = []meta.ResourceAttribute{
 			{
 				Basic: meta.Basic{
@@ -516,33 +566,38 @@ func (ps *parseStream) host() *parseStream {
 				},
 			},
 		}
-		return ps
+
+		return ps, true
 	}
 
-	if ps.hitPattern(queryHostLockPattern, http.MethodPost) {
-		ps.Attribute.Resources = []meta.ResourceAttribute{
-			{
-				Basic: meta.Basic{
-					Type:   meta.HostInstance,
-					Action: meta.SkipAction,
-				},
-			},
-		}
-		return ps
-	}
-
-	// delete hosts batch operation.
-	if ps.hitPattern(deleteHostBatchPattern, http.MethodDelete) {
+	// update import hosts batch. but can not get the exactly host id.
+	if ps.hitPattern(updateImportHostsPattern, http.MethodPut) {
 		ps.Attribute.Resources = []meta.ResourceAttribute{
 			{
 				Basic: meta.Basic{
 					Type: meta.HostInstance,
-					// Action: meta.DeleteMany,
+					// Action: meta.UpdateMany,
 					Action: meta.SkipAction,
 				},
 			},
 		}
-		return ps
+
+		return ps, true
+	}
+
+	// update hosts property batch. but can not get the exactly host id.
+	if ps.hitPattern(updateHostPropertyBatchPattern, http.MethodPut) {
+		ps.Attribute.Resources = []meta.ResourceAttribute{
+			{
+				Basic: meta.Basic{
+					Type: meta.HostInstance,
+					// Action: meta.UpdateMany,
+					Action: meta.SkipAction,
+				},
+			},
+		}
+
+		return ps, true
 	}
 
 	if ps.hitPattern(updateHostCloudAreaFieldPattern, http.MethodPut) {
@@ -550,11 +605,11 @@ func (ps *parseStream) host() *parseStream {
 		body, err := ps.RequestCtx.getRequestBody()
 		if err != nil {
 			ps.err = err
-			return ps
+			return ps, true
 		}
 		if err := json.Unmarshal(body, &input); err != nil {
 			ps.err = fmt.Errorf("unmarshal request body failed, err: %+v", err)
-			return ps
+			return ps, true
 		}
 
 		ps.Attribute.Resources = make([]meta.ResourceAttribute, 0)
@@ -569,76 +624,19 @@ func (ps *parseStream) host() *parseStream {
 			}
 			ps.Attribute.Resources = append(ps.Attribute.Resources, iamResource)
 		}
-		return ps
+		return ps, true
 	}
 
-	// clean the hosts in a set or module, and move these hosts to the business idle module
-	// when these hosts only exist in this set or module. otherwise these hosts will only be
-	// removed from this set or module.
-	if ps.hitPattern(cleanHostInSetOrModulePattern, http.MethodPost) {
-		bizID, err := ps.parseBusinessID()
+	return nil, false
+}
+
+func (ps *parseStream) findBizHosts() (*parseStream, bool) {
+	// find hosts under business specified by path parameter
+	if ps.hitRegexp(findBizHostsRegex, http.MethodPost) {
+		bizID, err := strconv.ParseInt(ps.RequestCtx.Elements[4], 10, 64)
 		if err != nil {
-			ps.err = err
-			return ps
-		}
-		ps.Attribute.Resources = []meta.ResourceAttribute{
-			{
-				BusinessID: bizID,
-				Basic: meta.Basic{
-					Type:   meta.ProcessServiceInstance,
-					Action: meta.Update,
-				},
-			},
-		}
-
-		return ps
-	}
-
-	if ps.hitPattern(findHostTopoRelationPattern, http.MethodPost) {
-		bizID, err := ps.parseBusinessID()
-		if err != nil {
-			ps.err = err
-			return ps
-		}
-		ps.Attribute.Resources = []meta.ResourceAttribute{
-			{
-				BusinessID: bizID,
-				Basic: meta.Basic{
-					Type:   meta.HostInstance,
-					Action: meta.FindMany,
-				},
-			},
-		}
-
-		return ps
-	}
-
-	if ps.hitRegexp(countHostByTopoNodeRegexp, http.MethodPost) {
-		bizID, err := strconv.ParseInt(ps.RequestCtx.Elements[5], 10, 64)
-		if err != nil {
-			ps.err = fmt.Errorf("count host by topo node, but got invalid business id: %s", ps.RequestCtx.Elements[5])
-			return ps
-		}
-
-		ps.Attribute.Resources = []meta.ResourceAttribute{
-			{
-				BusinessID: bizID,
-				Basic: meta.Basic{
-					Type:   meta.HostInstance,
-					Action: meta.FindMany,
-				},
-			},
-		}
-
-		return ps
-	}
-
-	// find hosts for home page with condition operation.
-	if ps.hitPattern(findHostsWithoutBizPattern, http.MethodPost) {
-		bizID, err := ps.parseBusinessID()
-		if err != nil {
-			ps.err = err
-			return ps
+			ps.err = fmt.Errorf("list business's hosts, but got invalid business id: %s", ps.RequestCtx.Elements[4])
+			return ps, true
 		}
 		ps.Attribute.Resources = []meta.ResourceAttribute{
 			{
@@ -649,16 +647,16 @@ func (ps *parseStream) host() *parseStream {
 				},
 			},
 		}
-
-		return ps
+		return ps, true
 	}
 
-	// find hosts with condition operation.
-	if ps.hitPattern(findHostsWithBizPattern, http.MethodPost) {
-		bizID, err := ps.parseBusinessID()
+	// find hosts under business specified by path parameter with their topology information
+	if ps.hitRegexp(findBizHostsTopoRegex, http.MethodPost) {
+		bizID, err := strconv.ParseInt(ps.RequestCtx.Elements[4], 10, 64)
 		if err != nil {
-			ps.err = err
-			return ps
+			ps.err = fmt.Errorf("list business's hosts with topo, but got invalid business id: %s",
+				ps.RequestCtx.Elements[4])
+			return ps, true
 		}
 		ps.Attribute.Resources = []meta.ResourceAttribute{
 			{
@@ -669,10 +667,35 @@ func (ps *parseStream) host() *parseStream {
 				},
 			},
 		}
-
-		return ps
+		return ps, true
 	}
 
+	if ps.hitRegexp(findHostsByBizSetPattern, http.MethodPost) {
+		if len(ps.RequestCtx.Elements) != 6 {
+			ps.err = fmt.Errorf("get invalid url elements length %d", len(ps.RequestCtx.Elements))
+			return ps, true
+		}
+		bizSetID, err := strconv.ParseInt(ps.RequestCtx.Elements[5], 10, 64)
+		if err != nil {
+			ps.err = fmt.Errorf("get invalid business set id %s, err: %v", ps.RequestCtx.Elements[5], err)
+			return ps, true
+		}
+		ps.Attribute.Resources = []meta.ResourceAttribute{
+			{
+				Basic: meta.Basic{
+					Type:       meta.BizSet,
+					Action:     meta.AccessBizSet,
+					InstanceID: bizSetID,
+				},
+			},
+		}
+		return ps, true
+	}
+
+	return nil, false
+}
+
+func (ps *parseStream) findHostsForPattern() (*parseStream, bool) {
 	// find hosts with for resource pool only for ui.
 	if ps.hitPattern(findHostsForResourcePattern, http.MethodPost) {
 		ps.Attribute.Resources = []meta.ResourceAttribute{
@@ -684,46 +707,7 @@ func (ps *parseStream) host() *parseStream {
 			},
 		}
 
-		return ps
-	}
-
-	if ps.hitRegexp(findHostsByBizSetPattern, http.MethodPost) {
-		if len(ps.RequestCtx.Elements) != 6 {
-			ps.err = fmt.Errorf("get invalid url elements length %d", len(ps.RequestCtx.Elements))
-			return ps
-		}
-
-		bizSetID, err := strconv.ParseInt(ps.RequestCtx.Elements[5], 10, 64)
-		if err != nil {
-			ps.err = fmt.Errorf("get invalid business set id %s, err: %v", ps.RequestCtx.Elements[5], err)
-			return ps
-		}
-
-		ps.Attribute.Resources = []meta.ResourceAttribute{
-			{
-				Basic: meta.Basic{
-					Type:       meta.BizSet,
-					Action:     meta.AccessBizSet,
-					InstanceID: bizSetID,
-				},
-			},
-		}
-
-		return ps
-	}
-
-	// find hosts without app id
-	if ps.hitPattern(findBizHostsWithoutAppPattern, http.MethodPost) {
-		ps.Attribute.Resources = []meta.ResourceAttribute{
-			{
-				Basic: meta.Basic{
-					Type:   meta.HostInstance,
-					Action: meta.FindMany,
-				},
-			},
-		}
-
-		return ps
+		return ps, true
 	}
 
 	// find resource pool hosts
@@ -736,48 +720,7 @@ func (ps *parseStream) host() *parseStream {
 				},
 			},
 		}
-		return ps
-	}
-
-	// find hosts under business specified by path parameter
-	if ps.hitRegexp(findBizHostsRegex, http.MethodPost) {
-		bizID, err := strconv.ParseInt(ps.RequestCtx.Elements[4], 10, 64)
-		if err != nil {
-			ps.err = fmt.Errorf("list business's hosts, but got invalid business id: %s", ps.RequestCtx.Elements[4])
-			return ps
-		}
-		ps.Attribute.Resources = []meta.ResourceAttribute{
-			{
-				BusinessID: bizID,
-				Basic: meta.Basic{
-					Type:   meta.HostInstance,
-					Action: meta.SkipAction,
-				},
-			},
-		}
-
-		return ps
-	}
-
-	// find hosts under business specified by path parameter with their topology information
-	if ps.hitRegexp(findBizHostsTopoRegex, http.MethodPost) {
-		bizID, err := strconv.ParseInt(ps.RequestCtx.Elements[4], 10, 64)
-		if err != nil {
-			ps.err = fmt.Errorf("list business's hosts with topo, but got invalid business id: %s",
-				ps.RequestCtx.Elements[4])
-			return ps
-		}
-		ps.Attribute.Resources = []meta.ResourceAttribute{
-			{
-				BusinessID: bizID,
-				Basic: meta.Basic{
-					Type:   meta.HostInstance,
-					Action: meta.SkipAction,
-				},
-			},
-		}
-
-		return ps
+		return ps, true
 	}
 
 	// list host's detail and it's topology info
@@ -791,7 +734,99 @@ func (ps *parseStream) host() *parseStream {
 			},
 		}
 		blog.Infof("hit auth, url: %s rid: %s", ps.RequestCtx.URI, ps.RequestCtx.Rid)
-		return ps
+		return ps, true
+	}
+
+	return nil, false
+}
+
+func (ps *parseStream) findHostWithBiz() (*parseStream, bool) {
+	// find hosts without app id
+	if ps.hitPattern(findBizHostsWithoutAppPattern, http.MethodPost) {
+		ps.Attribute.Resources = []meta.ResourceAttribute{
+			{
+				Basic: meta.Basic{
+					Type:   meta.HostInstance,
+					Action: meta.FindMany,
+				},
+			},
+		}
+
+		return ps, true
+	}
+
+	// find hosts for home page with condition operation.
+	if ps.hitPattern(findHostsWithoutBizPattern, http.MethodPost) {
+		bizID, err := ps.parseBusinessID()
+		if err != nil {
+			ps.err = err
+			return ps, true
+		}
+		ps.Attribute.Resources = []meta.ResourceAttribute{
+			{
+				BusinessID: bizID,
+				Basic: meta.Basic{
+					Type:   meta.HostInstance,
+					Action: meta.SkipAction,
+				},
+			},
+		}
+		return ps, true
+	}
+
+	// find hosts with condition operation.
+	if ps.hitPattern(findHostsWithBizPattern, http.MethodPost) {
+		bizID, err := ps.parseBusinessID()
+		if err != nil {
+			ps.err = err
+			return ps, true
+		}
+		ps.Attribute.Resources = []meta.ResourceAttribute{
+			{
+				BusinessID: bizID,
+				Basic: meta.Basic{
+					Type:   meta.HostInstance,
+					Action: meta.SkipAction,
+				},
+			},
+		}
+		return ps, true
+	}
+	return nil, false
+}
+
+func (ps *parseStream) findHost() (*parseStream, bool) {
+	if ps.hitPattern(findHostTopoRelationPattern, http.MethodPost) {
+		bizID, err := ps.parseBusinessID()
+		if err != nil {
+			ps.err = err
+			return ps, true
+		}
+		ps.Attribute.Resources = []meta.ResourceAttribute{
+			{
+				BusinessID: bizID,
+				Basic: meta.Basic{
+					Type:   meta.HostInstance,
+					Action: meta.FindMany,
+				},
+			},
+		}
+		return ps, true
+	}
+
+	// find host service_template_id relation
+	if ps.hitPattern(findHostsServiceTemplatesPattern, http.MethodPost) {
+
+		ps.Attribute.Resources = []meta.ResourceAttribute{
+			{
+				Basic: meta.Basic{
+					Type:   meta.HostInstance,
+					Action: meta.FindMany,
+				},
+			},
+		}
+
+		return ps, true
 	}
 
 	if ps.hitPattern(findHostsDetailsPattern, http.MethodPost) {
@@ -799,7 +834,7 @@ func (ps *parseStream) host() *parseStream {
 		val, err := ps.RequestCtx.getValueFromBody(common.BKAppIDField)
 		if err != nil {
 			ps.err = err
-			return ps
+			return ps, true
 		}
 
 		if val.Exists() {
@@ -816,131 +851,162 @@ func (ps *parseStream) host() *parseStream {
 			},
 		}
 
-		return ps
+		return ps, true
 	}
 
-	// update hosts batch. but can not get the exactly host id.
-	if ps.hitPattern(updateHostInfoBatchPattern, http.MethodPut) {
-		ps.Attribute.Resources = []meta.ResourceAttribute{
-			{
-				Basic: meta.Basic{
-					Type:   meta.HostInstance,
-					Action: meta.SkipAction,
-				},
-			},
-		}
+	return nil, false
+}
 
-		return ps
-	}
-
-	// update import hosts batch. but can not get the exactly host id.
-	if ps.hitPattern(updateImportHostsPattern, http.MethodPut) {
+func (ps *parseStream) deleteHosts() (*parseStream, bool) {
+	// delete hosts batch operation.
+	if ps.hitPattern(deleteHostBatchPattern, http.MethodDelete) {
 		ps.Attribute.Resources = []meta.ResourceAttribute{
 			{
 				Basic: meta.Basic{
 					Type: meta.HostInstance,
-					// Action: meta.UpdateMany,
+					// Action: meta.DeleteMany,
 					Action: meta.SkipAction,
 				},
 			},
 		}
-
-		return ps
+		return ps, true
 	}
 
-	// update hosts property batch. but can not get the exactly host id.
-	if ps.hitPattern(updateHostPropertyBatchPattern, http.MethodPut) {
-		ps.Attribute.Resources = []meta.ResourceAttribute{
-			{
-				Basic: meta.Basic{
-					Type: meta.HostInstance,
-					// Action: meta.UpdateMany,
-					Action: meta.SkipAction,
-				},
-			},
-		}
-
-		return ps
-	}
-
-	// clone hosts property, but can not get the exactly host id.
-	if ps.hitPattern(cloneHostPropertyBatchPattern, http.MethodPut) {
-		ps.Attribute.Resources = []meta.ResourceAttribute{
-			{
-				Basic: meta.Basic{
-					Type:   meta.HostInstance,
-					Action: meta.SkipAction,
-				},
-			},
-		}
-		return ps
-	}
-
-	if ps.hitPattern(hostInstallPattern, http.MethodPost) {
-		ps.Attribute.Resources = []meta.ResourceAttribute{
-			{
-				Basic: meta.Basic{
-					Type:   meta.InstallBK,
-					Action: meta.Update,
-				},
-			},
-		}
-		return ps
-	}
-
-	if ps.hitPattern(systemUserConfig, http.MethodPost) {
-		ps.Attribute.Resources = []meta.ResourceAttribute{
-			{
-				Basic: meta.Basic{
-					Type:   meta.SystemConfig,
-					Action: meta.FindMany,
-				},
-			},
-		}
-		return ps
-	}
-
-	if ps.hitPattern(getHostModuleRelationPattern, http.MethodPost) {
+	// clean the hosts in a set or module, and move these hosts to the business idle module
+	// when these hosts only exist in this set or module. otherwise these hosts will only be
+	// removed from this set or module.
+	if ps.hitPattern(cleanHostInSetOrModulePattern, http.MethodPost) {
 		bizID, err := ps.parseBusinessID()
 		if err != nil {
 			ps.err = err
-			return ps
+			return ps, true
 		}
 		ps.Attribute.Resources = []meta.ResourceAttribute{
 			{
 				BusinessID: bizID,
 				Basic: meta.Basic{
-					Type:   meta.MainlineInstanceTopology,
+					Type:   meta.ProcessServiceInstance,
+					Action: meta.Update,
+				},
+			},
+		}
+
+		return ps, true
+	}
+	return nil, false
+}
+
+func (ps *parseStream) lockHosts() (*parseStream, bool) {
+	// host lock authorize filter
+	if ps.hitPattern(lockHostPattern, http.MethodPost) {
+		ps.Attribute.Resources = []meta.ResourceAttribute{
+			{
+				Basic: meta.Basic{
+					Type:   meta.HostInstance,
+					Action: meta.SkipAction,
+				},
+			},
+		}
+		return ps, true
+	}
+
+	if ps.hitPattern(unLockHostPattern, http.MethodDelete) {
+		ps.Attribute.Resources = []meta.ResourceAttribute{
+			{
+				Basic: meta.Basic{
+					Type:   meta.HostInstance,
+					Action: meta.SkipAction,
+				},
+			},
+		}
+		return ps, true
+	}
+
+	if ps.hitPattern(queryHostLockPattern, http.MethodPost) {
+		ps.Attribute.Resources = []meta.ResourceAttribute{
+			{
+				Basic: meta.Basic{
+					Type:   meta.HostInstance,
+					Action: meta.SkipAction,
+				},
+			},
+		}
+		return ps, true
+	}
+	return nil, false
+}
+
+func (ps *parseStream) findHosts() (*parseStream, bool) {
+	if ps.hitRegexp(findHostInstanceObjectPropertiesRegexp, http.MethodGet) {
+		ps.Attribute.Resources = []meta.ResourceAttribute{
+			{
+				Basic: meta.Basic{
+					Type:   meta.HostInstance,
 					Action: meta.Find,
 				},
 			},
 		}
-		return ps
+		return ps, true
 	}
 
-	if ps.hitPattern(addHostsToBusinessIdlePattern, http.MethodPost) {
-		bizID, err := ps.parseBusinessID()
+	if ps.hitRegexp(countHostByTopoNodeRegexp, http.MethodPost) {
+		bizID, err := strconv.ParseInt(ps.RequestCtx.Elements[5], 10, 64)
 		if err != nil {
-			ps.err = err
-			return ps
+			ps.err = fmt.Errorf("count host by topo node, but got invalid business id: %s", ps.RequestCtx.Elements[5])
+			return ps, true
 		}
 		ps.Attribute.Resources = []meta.ResourceAttribute{
 			{
 				BusinessID: bizID,
 				Basic: meta.Basic{
 					Type:   meta.HostInstance,
-					Action: meta.Update,
+					Action: meta.FindMany,
 				},
-				Layers: meta.Layers{{
-					Type:       meta.Business,
-					InstanceID: bizID,
-				}},
 			},
 		}
-
-		return ps
+		return ps, true
 	}
-	return ps
+
+	if ps.hitRegexp(findHostsBySetTemplatesRegex, http.MethodPost) {
+		bizID, err := strconv.ParseInt(ps.RequestCtx.Elements[6], 10, 64)
+		if err != nil {
+			ps.err = fmt.Errorf("find hosts by set templates, but got invalid business id: %s",
+				ps.RequestCtx.Elements[6])
+			return ps, true
+		}
+
+		ps.Attribute.Resources = []meta.ResourceAttribute{
+			{
+				BusinessID: bizID,
+				Basic: meta.Basic{
+					Type:   meta.HostInstance,
+					Action: meta.SkipAction,
+				},
+			},
+		}
+		return ps, true
+	}
+
+	if ps.hitRegexp(findHostsByTopoRegex, http.MethodPost) {
+		bizID, err := strconv.ParseInt(ps.RequestCtx.Elements[6], 10, 64)
+		if err != nil {
+			ps.err = fmt.Errorf("find hosts by set templates, but got invalid business id: %s",
+				ps.RequestCtx.Elements[6])
+			return ps, true
+		}
+
+		ps.Attribute.Resources = []meta.ResourceAttribute{
+			{
+				BusinessID: bizID,
+				Basic: meta.Basic{
+					Type:   meta.HostInstance,
+					Action: meta.SkipAction,
+				},
+			},
+		}
+		return ps, true
+	}
+	return nil, false
 }
 
 func (ps *parseStream) hostTransfer() *parseStream {
@@ -948,365 +1014,34 @@ func (ps *parseStream) hostTransfer() *parseStream {
 		return ps
 	}
 
-	// add new hosts to resource pool
-	if ps.hitPattern(addHostsToHostPoolPattern, http.MethodPost) {
-		dirID, err := ps.getResourcePoolDefaultDirID()
-		if err != nil {
-			ps.err = fmt.Errorf("invalid directory id value, %s", err.Error())
-			return ps
-		}
-		ps.Attribute.Resources = []meta.ResourceAttribute{
-			{
-				Basic: meta.Basic{
-					Type:   meta.HostInstance,
-					Action: meta.AddHostToResourcePool,
-				},
-				Layers: []meta.Item{
-					{
-						Type:       meta.ResourcePoolDirectory,
-						InstanceID: dirID,
-					},
-				},
-			},
-		}
-
-		return ps
+	stream, done := ps.addHostsPattern()
+	if done {
+		return stream
 	}
 
-	// add new hosts come from excel to resource pool directory
-	if ps.hitPattern(addHostsByExcelPattern, http.MethodPost) {
-		val, err := ps.RequestCtx.getValueFromBody("bk_module_id")
-		if err != nil {
-			ps.err = err
-			return ps
-		}
-		dirID := val.Int()
-		if dirID == 0 {
-			var err error
-			dirID, err = ps.getResourcePoolDefaultDirID()
-			if err != nil {
-				ps.err = fmt.Errorf("invalid directory id value, %s", err.Error())
-				return ps
-			}
-		}
-		ps.Attribute.Resources = []meta.ResourceAttribute{
-			{
-				Basic: meta.Basic{
-					Type:   meta.HostInstance,
-					Action: meta.AddHostToResourcePool,
-				},
-				Layers: []meta.Item{
-					{
-						Type:       meta.ResourcePoolDirectory,
-						InstanceID: dirID,
-					},
-				},
-			},
-		}
-
-		return ps
+	stream, done = ps.addHostsToResourcePool()
+	if done {
+		return stream
 	}
 
-	// add hosts to resource pool directory
-	if ps.hitPattern(addHostsToResourcePoolPattern, http.MethodPost) {
-		val, err := ps.RequestCtx.getValueFromBody("directory")
-		if err != nil {
-			ps.err = err
-			return ps
-		}
-		dirID := val.Int()
-		if dirID == 0 {
-			var err error
-			dirID, err = ps.getResourcePoolDefaultDirID()
-			if err != nil {
-				ps.err = fmt.Errorf("invalid directory id value, %s", err.Error())
-				return ps
-			}
-		}
-		ps.Attribute.Resources = []meta.ResourceAttribute{
-			{
-				Basic: meta.Basic{
-					Type:   meta.HostInstance,
-					Action: meta.AddHostToResourcePool,
-				},
-				Layers: []meta.Item{
-					{
-						Type:       meta.ResourcePoolDirectory,
-						InstanceID: dirID,
-					},
-				},
-			},
-		}
-
-		return ps
+	stream, done = ps.moveHostToBiz()
+	if done {
+		return stream
 	}
 
-	// move hosts from a module to resource pool.
-	if ps.hitPattern(moveHostsFromModuleToResPoolPattern, http.MethodPost) {
-		bizID, err := ps.parseBusinessID()
-		if err != nil {
-			ps.err = err
-			return ps
-		}
-
-		rawDirID, err := ps.RequestCtx.getValueFromBody(common.BKModuleIDField)
-		if err != nil {
-			ps.err = err
-			return ps
-		}
-		dirID := rawDirID.Int()
-
-		// if directory id is not specified, transfer host to the default directory, use it to authorize
-		if dirID == 0 {
-			dirID, err = ps.getResourcePoolDefaultDirID()
-			if err != nil {
-				ps.err = fmt.Errorf("invalid directory id value, %s", err.Error())
-				return ps
-			}
-		}
-
-		ps.Attribute.Resources = []meta.ResourceAttribute{
-			{
-				BusinessID: bizID,
-				Basic: meta.Basic{
-					Type:   meta.HostInstance,
-					Action: meta.MoveBizHostFromModuleToResPool,
-				},
-				Layers: []meta.Item{
-					{
-						Type:       meta.Business,
-						InstanceID: bizID,
-					},
-					{
-						Type:       meta.ResourcePoolDirectory,
-						InstanceID: dirID,
-					},
-				},
-			},
-		}
-
-		return ps
+	stream, done = ps.moveResPoolHostToBiz()
+	if done {
+		return stream
 	}
 
-	// move hosts to business module operation, transfer host in the same business.
-	if ps.hitPattern(moveHostToBusinessModulePattern, http.MethodPost) {
-		bizID, err := ps.parseBusinessID()
-		if err != nil {
-			ps.err = err
-			return ps
-		}
-		ps.Attribute.Resources = []meta.ResourceAttribute{
-			{
-				BusinessID: bizID,
-				Basic: meta.Basic{
-					Type:   meta.ProcessServiceInstance,
-					Action: meta.Update,
-				},
-			},
-		}
-
-		return ps
+	stream, done = ps.moveHost()
+	if done {
+		return stream
 	}
 
-	// move resource pool hosts to a business idle module operation.
-	if ps.hitPattern(moveResPoolHostToBizIdleModulePattern, http.MethodPost) {
-		opt := new(hostPool)
-		body, err := ps.RequestCtx.getRequestBody()
-		if err != nil {
-			ps.err = err
-			return ps
-		}
-		if err := json.Unmarshal(body, opt); err != nil {
-			ps.err = err
-			return ps
-		}
-
-		relation, err := ps.getRscPoolHostModuleRelation(opt.HostID)
-		if err != nil {
-			ps.err = err
-			return ps
-		}
-
-		for _, id := range opt.HostID {
-			srcModuleID, exist := relation[id]
-			if !exist {
-				ps.err = errors.New("host not exist in resource pool")
-				return ps
-			}
-
-			ps.Attribute.Resources = []meta.ResourceAttribute{
-				{
-					BusinessID: opt.Business,
-					Basic: meta.Basic{
-						Type:       meta.HostInstance,
-						Action:     meta.MoveResPoolHostToBizIdleModule,
-						InstanceID: id,
-					},
-					Layers: []meta.Item{{Type: meta.ModelModule, InstanceID: srcModuleID},
-						{Type: meta.Business, InstanceID: opt.Business}},
-				},
-			}
-		}
-
-		return ps
-	}
-
-	// move host to a business fault module.
-	if ps.hitPattern(moveHostsToBizFaultModulePattern, http.MethodPost) {
-		bizID, err := ps.parseBusinessID()
-		if err != nil {
-			ps.err = err
-			return ps
-		}
-		ps.Attribute.Resources = []meta.ResourceAttribute{
-			{
-				BusinessID: bizID,
-				Basic: meta.Basic{
-					Type:   meta.ProcessServiceInstance,
-					Action: meta.Update,
-				},
-			},
-		}
-
-		return ps
-	}
-
-	// move host to a business recycle module.
-	if ps.hitPattern(moveHostsToBizRecycleModulePattern, http.MethodPost) {
-		bizID, err := ps.parseBusinessID()
-		if err != nil {
-			ps.err = err
-			return ps
-		}
-		ps.Attribute.Resources = []meta.ResourceAttribute{
-			{
-				BusinessID: bizID,
-				Basic: meta.Basic{
-					Type:   meta.ProcessServiceInstance,
-					Action: meta.Update,
-				},
-			},
-		}
-
-		return ps
-	}
-
-	// move hosts to a business idle module.
-	if ps.hitPattern(moveHostsToBizIdleModulePattern, http.MethodPost) {
-		bizID, err := ps.parseBusinessID()
-		if err != nil {
-			ps.err = err
-			return ps
-		}
-		ps.Attribute.Resources = []meta.ResourceAttribute{
-			{
-				BusinessID: bizID,
-				Basic: meta.Basic{
-					Type:   meta.ProcessServiceInstance,
-					Action: meta.Update,
-				},
-			},
-		}
-
-		return ps
-	}
-
-	// transfer host to another business
-	if ps.hitPattern(moveHostAcrossBizPattern, http.MethodPost) {
-		val, err := ps.RequestCtx.getValueFromBody("src_bk_biz_id")
-		if err != nil {
-			ps.err = err
-			return ps
-		}
-		srcBizID := val.Int()
-		if srcBizID == 0 {
-			ps.err = errors.New("src_bk_biz_id invalid")
-			return ps
-		}
-		val, err = ps.RequestCtx.getValueFromBody("dst_bk_biz_id")
-		if err != nil {
-			ps.err = err
-			return ps
-		}
-		dstBizID := val.Int()
-		if dstBizID == 0 {
-			ps.err = errors.New("dst_bk_biz_id invalid")
-			return ps
-		}
-		ps.Attribute.Resources = []meta.ResourceAttribute{
-			{
-				BusinessID: srcBizID,
-				Basic: meta.Basic{
-					Type:   meta.HostInstance,
-					Action: meta.MoveHostToAnotherBizModule,
-				},
-				Layers: []meta.Item{
-					{
-						Type:       meta.Business,
-						InstanceID: srcBizID,
-					},
-					{
-						Type:       meta.Business,
-						InstanceID: dstBizID,
-					},
-				},
-			},
-		}
-		return ps
-	}
-
-	// transfer resource hosts to another business.
-	if ps.hitPattern(moveResourceHostAcrossBizPattern, http.MethodPost) {
-
-		// src biz ids
-		bizIds := make([]int64, 0)
-		val, err := ps.RequestCtx.getValueFromBody("resource_hosts.#.src_bk_biz_id")
-		if err != nil {
-			ps.err = err
-			return ps
-		}
-
-		val.ForEach(
-			func(key, value gjson.Result) bool {
-				bizIds = append(bizIds, value.Int())
-				return true
-			})
-
-		if len(bizIds) == 0 {
-			ps.err = errors.New("src bk_biz_id must be set")
-			return ps
-		}
-		val, err = ps.RequestCtx.getValueFromBody("dst_bk_biz_id")
-		if err != nil {
-			ps.err = err
-			return ps
-		}
-		dstBizID := val.Int()
-		if dstBizID == 0 {
-			ps.err = errors.New("dst_bk_biz_id invalid")
-			return ps
-		}
-		for _, bizId := range bizIds {
-			ps.Attribute.Resources = append(ps.Attribute.Resources, meta.ResourceAttribute{
-				BusinessID: bizId,
-				Basic: meta.Basic{
-					Type:   meta.HostInstance,
-					Action: meta.MoveHostToAnotherBizModule,
-				},
-				Layers: []meta.Item{
-					{
-						Type:       meta.Business,
-						InstanceID: bizId,
-					},
-					{
-						Type:       meta.Business,
-						InstanceID: dstBizID,
-					},
-				},
-			})
-		}
-
-		return ps
+	stream, done = ps.moveResourceHostAcrossBiz()
+	if done {
+		return stream
 	}
 
 	// synchronize hosts directly to a module in a business if this host does not exist.
@@ -1330,6 +1065,216 @@ func (ps *parseStream) hostTransfer() *parseStream {
 	//	return ps
 	// }
 
+	stream, done = ps.clearServiceInstanceHost()
+	if done {
+		return stream
+	}
+
+	return ps
+}
+
+func (ps *parseStream) addHostsToResourcePool() (*parseStream, bool) {
+	// add hosts to resource pool directory
+	if ps.hitPattern(addHostsToResourcePoolPattern, http.MethodPost) {
+		val, err := ps.RequestCtx.getValueFromBody("directory")
+		if err != nil {
+			ps.err = err
+			return ps, true
+		}
+		dirID := val.Int()
+		if dirID == 0 {
+			var err error
+			dirID, err = ps.getResourcePoolDefaultDirID()
+			if err != nil {
+				ps.err = fmt.Errorf("invalid directory id value, %s", err.Error())
+				return ps, true
+			}
+		}
+		ps.Attribute.Resources = []meta.ResourceAttribute{
+			{
+				Basic: meta.Basic{
+					Type:   meta.HostInstance,
+					Action: meta.AddHostToResourcePool,
+				},
+				Layers: []meta.Item{
+					{
+						Type:       meta.ResourcePoolDirectory,
+						InstanceID: dirID,
+					},
+				},
+			},
+		}
+		return ps, true
+	}
+
+	// move hosts from a module to resource pool.
+	if ps.hitPattern(moveHostsFromModuleToResPoolPattern, http.MethodPost) {
+		bizID, err := ps.parseBusinessID()
+		if err != nil {
+			ps.err = err
+			return ps, true
+		}
+		rawDirID, err := ps.RequestCtx.getValueFromBody(common.BKModuleIDField)
+		if err != nil {
+			ps.err = err
+			return ps, true
+		}
+		dirID := rawDirID.Int()
+
+		// if directory id is not specified, transfer host to the default directory, use it to authorize
+		if dirID == 0 {
+			dirID, err = ps.getResourcePoolDefaultDirID()
+			if err != nil {
+				ps.err = fmt.Errorf("invalid directory id value, %s", err.Error())
+				return ps, true
+			}
+		}
+
+		ps.Attribute.Resources = []meta.ResourceAttribute{
+			{
+				BusinessID: bizID,
+				Basic: meta.Basic{
+					Type:   meta.HostInstance,
+					Action: meta.MoveBizHostFromModuleToResPool,
+				},
+				Layers: []meta.Item{
+					{
+						Type:       meta.Business,
+						InstanceID: bizID,
+					},
+					{
+						Type:       meta.ResourcePoolDirectory,
+						InstanceID: dirID,
+					},
+				},
+			},
+		}
+
+		return ps, true
+	}
+	return nil, false
+}
+
+func (ps *parseStream) addHostsPattern() (*parseStream, bool) {
+	// add new hosts to resource pool
+	if ps.hitPattern(addHostsToHostPoolPattern, http.MethodPost) {
+		dirID, err := ps.getResourcePoolDefaultDirID()
+		if err != nil {
+			ps.err = fmt.Errorf("invalid directory id value, %s", err.Error())
+			return ps, true
+		}
+		ps.Attribute.Resources = []meta.ResourceAttribute{
+			{
+				Basic: meta.Basic{
+					Type:   meta.HostInstance,
+					Action: meta.AddHostToResourcePool,
+				},
+				Layers: []meta.Item{
+					{
+						Type:       meta.ResourcePoolDirectory,
+						InstanceID: dirID,
+					},
+				},
+			},
+		}
+
+		return ps, true
+	}
+
+	// add new hosts come from excel to resource pool directory
+	if ps.hitPattern(addHostsByExcelPattern, http.MethodPost) {
+		val, err := ps.RequestCtx.getValueFromBody("bk_module_id")
+		if err != nil {
+			ps.err = err
+			return ps, true
+		}
+		dirID := val.Int()
+		if dirID == 0 {
+			var err error
+			dirID, err = ps.getResourcePoolDefaultDirID()
+			if err != nil {
+				ps.err = fmt.Errorf("invalid directory id value, %s", err.Error())
+				return ps, true
+			}
+		}
+		ps.Attribute.Resources = []meta.ResourceAttribute{
+			{
+				Basic: meta.Basic{
+					Type:   meta.HostInstance,
+					Action: meta.AddHostToResourcePool,
+				},
+				Layers: []meta.Item{
+					{
+						Type:       meta.ResourcePoolDirectory,
+						InstanceID: dirID,
+					},
+				},
+			},
+		}
+
+		return ps, true
+	}
+	return nil, false
+}
+
+func (ps *parseStream) moveResourceHostAcrossBiz() (*parseStream, bool) {
+	// transfer resource hosts to another business.
+	if ps.hitPattern(moveResourceHostAcrossBizPattern, http.MethodPost) {
+
+		// src biz ids
+		bizIds := make([]int64, 0)
+		val, err := ps.RequestCtx.getValueFromBody("resource_hosts.#.src_bk_biz_id")
+		if err != nil {
+			ps.err = err
+			return ps, true
+		}
+
+		val.ForEach(
+			func(key, value gjson.Result) bool {
+				bizIds = append(bizIds, value.Int())
+				return true
+			})
+
+		if len(bizIds) == 0 {
+			ps.err = errors.New("src bk_biz_id must be set")
+			return ps, true
+		}
+		val, err = ps.RequestCtx.getValueFromBody("dst_bk_biz_id")
+		if err != nil {
+			ps.err = err
+			return ps, true
+		}
+		dstBizID := val.Int()
+		if dstBizID == 0 {
+			ps.err = errors.New("dst_bk_biz_id invalid")
+			return ps, true
+		}
+		for _, bizId := range bizIds {
+			ps.Attribute.Resources = append(ps.Attribute.Resources, meta.ResourceAttribute{
+				BusinessID: bizId,
+				Basic: meta.Basic{
+					Type:   meta.HostInstance,
+					Action: meta.MoveHostToAnotherBizModule,
+				},
+				Layers: []meta.Item{
+					{
+						Type:       meta.Business,
+						InstanceID: bizId,
+					},
+					{
+						Type:       meta.Business,
+						InstanceID: dstBizID,
+					},
+				},
+			})
+		}
+
+		return ps, true
+	}
+	return nil, false
+}
+
+func (ps *parseStream) clearServiceInstanceHost() (*parseStream, bool) {
 	if ps.hitRegexp(transferHostWithAutoClearServiceInstanceRegex, http.MethodPost) ||
 		ps.hitRegexp(transferHostWithAutoClearServiceInstancePreviewRegex, http.MethodPost) {
 
@@ -1337,7 +1282,7 @@ func (ps *parseStream) hostTransfer() *parseStream {
 		if err != nil {
 			ps.err = fmt.Errorf("transfer host with auto clear service instance, but got invalid business id: %s",
 				ps.RequestCtx.Elements[5])
-			return ps
+			return ps, true
 		}
 
 		ps.Attribute.Resources = []meta.ResourceAttribute{
@@ -1364,49 +1309,7 @@ func (ps *parseStream) hostTransfer() *parseStream {
 			},
 		}
 
-		return ps
-	}
-
-	// move the resource pool host to another dir in resource pool
-	if ps.hitPattern(moveRscPoolHostToRscPoolDir, http.MethodPost) {
-		opt := new(metadata.TransferHostResourceDirectory)
-		body, err := ps.RequestCtx.getRequestBody()
-		if err != nil {
-			ps.err = err
-			return ps
-		}
-		if err := json.Unmarshal(body, opt); err != nil {
-			ps.err = err
-			return ps
-		}
-
-		relation, err := ps.getRscPoolHostModuleRelation(opt.HostID)
-		if err != nil {
-			ps.err = err
-			return ps
-		}
-
-		for _, id := range opt.HostID {
-			srcModuleID, exist := relation[id]
-			if !exist {
-				ps.err = errors.New("host not exist in resource pool")
-				return ps
-			}
-
-			ps.Attribute.Resources = []meta.ResourceAttribute{
-				{
-					Basic: meta.Basic{
-						Type:       meta.HostInstance,
-						Action:     meta.MoveResPoolHostToDirectory,
-						InstanceID: id,
-					},
-					Layers: []meta.Item{{Type: meta.ModelModule, InstanceID: srcModuleID},
-						{Type: meta.ModelModule, InstanceID: opt.ModuleID}},
-				},
-			}
-		}
-
-		return ps
+		return ps, true
 	}
 
 	if ps.hitPattern(countHostCPUPattern, http.MethodPost) {
@@ -1418,10 +1321,215 @@ func (ps *parseStream) hostTransfer() *parseStream {
 				},
 			},
 		}
-		return ps
+		return ps, true
+	}
+	return nil, false
+}
+
+func (ps *parseStream) moveHost() (*parseStream, bool) {
+	// transfer host to another business
+	if ps.hitPattern(moveHostAcrossBizPattern, http.MethodPost) {
+		val, err := ps.RequestCtx.getValueFromBody("src_bk_biz_id")
+		if err != nil {
+			ps.err = err
+			return ps, true
+		}
+		srcBizID := val.Int()
+		if srcBizID == 0 {
+			ps.err = errors.New("src_bk_biz_id invalid")
+			return ps, true
+		}
+		val, err = ps.RequestCtx.getValueFromBody("dst_bk_biz_id")
+		if err != nil {
+			ps.err = err
+			return ps, true
+		}
+		dstBizID := val.Int()
+		if dstBizID == 0 {
+			ps.err = errors.New("dst_bk_biz_id invalid")
+			return ps, true
+		}
+		ps.Attribute.Resources = []meta.ResourceAttribute{{
+			BusinessID: srcBizID,
+			Basic: meta.Basic{
+				Type:   meta.HostInstance,
+				Action: meta.MoveHostToAnotherBizModule,
+			},
+			Layers: []meta.Item{
+				{
+					Type:       meta.Business,
+					InstanceID: srcBizID,
+				},
+				{
+					Type:       meta.Business,
+					InstanceID: dstBizID,
+				},
+			},
+		}}
+		return ps, true
+	}
+	// move the resource pool host to another dir in resource pool
+	if ps.hitPattern(moveRscPoolHostToRscPoolDir, http.MethodPost) {
+		opt := new(metadata.TransferHostResourceDirectory)
+		body, err := ps.RequestCtx.getRequestBody()
+		if err != nil {
+			ps.err = err
+			return ps, true
+		}
+		if err := json.Unmarshal(body, opt); err != nil {
+			ps.err = err
+			return ps, true
+		}
+		relation, err := ps.getRscPoolHostModuleRelation(opt.HostID)
+		if err != nil {
+			ps.err = err
+			return ps, true
+		}
+		for _, id := range opt.HostID {
+			srcModuleID, exist := relation[id]
+			if !exist {
+				ps.err = errors.New("host not exist in resource pool")
+				return ps, true
+			}
+			ps.Attribute.Resources = []meta.ResourceAttribute{{
+				Basic: meta.Basic{
+					Type:       meta.HostInstance,
+					Action:     meta.MoveResPoolHostToDirectory,
+					InstanceID: id,
+				},
+				Layers: []meta.Item{{Type: meta.ModelModule, InstanceID: srcModuleID},
+					{Type: meta.ModelModule, InstanceID: opt.ModuleID}},
+			}}
+		}
+		return ps, true
+	}
+	return nil, false
+}
+
+func (ps *parseStream) moveHostToBiz() (*parseStream, bool) {
+	// move host to a business recycle module.
+	if ps.hitPattern(moveHostsToBizRecycleModulePattern, http.MethodPost) {
+		bizID, err := ps.parseBusinessID()
+		if err != nil {
+			ps.err = err
+			return ps, true
+		}
+		ps.Attribute.Resources = []meta.ResourceAttribute{
+			{
+				BusinessID: bizID,
+				Basic: meta.Basic{
+					Type:   meta.ProcessServiceInstance,
+					Action: meta.Update,
+				},
+			},
+		}
+		return ps, true
 	}
 
-	return ps
+	// move hosts to a business idle module.
+	if ps.hitPattern(moveHostsToBizIdleModulePattern, http.MethodPost) {
+		bizID, err := ps.parseBusinessID()
+		if err != nil {
+			ps.err = err
+			return ps, true
+		}
+		ps.Attribute.Resources = []meta.ResourceAttribute{
+			{
+				BusinessID: bizID,
+				Basic: meta.Basic{
+					Type:   meta.ProcessServiceInstance,
+					Action: meta.Update,
+				},
+			},
+		}
+		return ps, true
+	}
+
+	// move host to a business fault module.
+	if ps.hitPattern(moveHostsToBizFaultModulePattern, http.MethodPost) {
+		bizID, err := ps.parseBusinessID()
+		if err != nil {
+			ps.err = err
+			return ps, true
+		}
+		ps.Attribute.Resources = []meta.ResourceAttribute{
+			{
+				BusinessID: bizID,
+				Basic: meta.Basic{
+					Type:   meta.ProcessServiceInstance,
+					Action: meta.Update,
+				},
+			},
+		}
+		return ps, true
+	}
+
+	// move hosts to business module operation, transfer host in the same business.
+	if ps.hitPattern(moveHostToBusinessModulePattern, http.MethodPost) {
+		bizID, err := ps.parseBusinessID()
+		if err != nil {
+			ps.err = err
+			return ps, true
+		}
+		ps.Attribute.Resources = []meta.ResourceAttribute{
+			{
+				BusinessID: bizID,
+				Basic: meta.Basic{
+					Type:   meta.ProcessServiceInstance,
+					Action: meta.Update,
+				},
+			},
+		}
+		return ps, true
+	}
+	return nil, false
+}
+
+func (ps *parseStream) moveResPoolHostToBiz() (*parseStream, bool) {
+	// move resource pool hosts to a business idle module operation.
+	if ps.hitPattern(moveResPoolHostToBizIdleModulePattern, http.MethodPost) {
+		opt := new(hostPool)
+		body, err := ps.RequestCtx.getRequestBody()
+		if err != nil {
+			ps.err = err
+			return ps, true
+		}
+		if err := json.Unmarshal(body, opt); err != nil {
+			ps.err = err
+			return ps, true
+		}
+
+		relation, err := ps.getRscPoolHostModuleRelation(opt.HostID)
+		if err != nil {
+			ps.err = err
+			return ps, true
+		}
+
+		for _, id := range opt.HostID {
+			srcModuleID, exist := relation[id]
+			if !exist {
+				ps.err = errors.New("host not exist in resource pool")
+				return ps, true
+			}
+
+			ps.Attribute.Resources = []meta.ResourceAttribute{
+				{
+					BusinessID: opt.Business,
+					Basic: meta.Basic{
+						Type:       meta.HostInstance,
+						Action:     meta.MoveResPoolHostToBizIdleModule,
+						InstanceID: id,
+					},
+					Layers: []meta.Item{{Type: meta.ModelModule, InstanceID: srcModuleID},
+						{Type: meta.Business, InstanceID: opt.Business}},
+				},
+			}
+		}
+
+		return ps, true
+	}
+
+	return nil, false
 }
 
 const (
