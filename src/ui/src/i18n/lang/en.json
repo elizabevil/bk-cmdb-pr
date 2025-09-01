@@ -1921,5 +1921,7 @@
     "x分钟前刷新": "Last refreshed {time}m ago",
     "精确匹配": "Exact match",
     "注：已存在服务实例的主机，不能再勾选": "Note: Hosts with existing service instances cannot be selected",
-    "点击选择组织": "Click to Select Org"
+    "点击选择组织": "Click to Select Org",
+    "版本更新": "Version Update",
+    "建议「刷新页面」体验新的特性，「暂不刷新」可能会遇到未知异常，可手动刷新解决。": "It is recommended to \"Refresh Page\" to experience new features. \"Skip Refresh\" may cause unexpected errors. You can also \"Refresh Manually\" to resolve issues."
 }

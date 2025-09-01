@@ -263,6 +263,14 @@ data:
       enableMultiTenantMode: {{ .Values.tenant.enableMultiTenantMode }}
       disableVerifyTenant: {{ .Values.tenant.disableVerifyTenant }}
 
+    # 审计中心数据上报配置
+    auditCenter:
+      enabled: {{ .Values.common.auditCenter.enabled }}
+      appCode: {{ .Values.common.auditCenter.appCode }}
+      appSecret: {{ .Values.common.auditCenter.appSecret }}
+      endpoint: {{ .Values.common.auditCenter.endpoint }}
+      token: {{ .Values.common.auditCenter.token }}
+
   extra.yaml: |-
     
 

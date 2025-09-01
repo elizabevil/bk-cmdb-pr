@@ -31,6 +31,7 @@ import (
 	"configcenter/src/common/rdapi"
 	"configcenter/src/common/webservice/restfulservice"
 	"configcenter/src/source_controller/cacheservice/app/options"
+	"configcenter/src/source_controller/cacheservice/audit"
 	"configcenter/src/source_controller/cacheservice/cache"
 	cacheop "configcenter/src/source_controller/cacheservice/cache"
 	"configcenter/src/source_controller/cacheservice/event/bsrelation"
@@ -79,8 +80,7 @@ func (s *cacheService) SetConfig(cfg options.Config, engine *backbone.Engine, er
 	if errf != nil {
 		s.err = errf
 	}
-
-	if nil != lang {
+	if lang != nil {
 		s.langFactory = make(map[common.LanguageType]language.DefaultCCLanguageIf)
 		s.langFactory[common.Chinese] = lang.CreateDefaultCCLanguageIf(string(common.Chinese))
 		s.langFactory[common.English] = lang.CreateDefaultCCLanguageIf(string(common.English))
@@ -134,11 +134,14 @@ func (s *cacheService) SetConfig(cfg options.Config, engine *backbone.Engine, er
 		return err
 	}
 
+	if err = audit.RunAuditDataReporting(cfg.Audit, taskScheduler); err != nil {
+		return err
+	}
+
 	if err = taskScheduler.Start(); err != nil {
 		blog.Errorf("start event watch task scheduler failed, err: %v", err)
 		return err
 	}
-
 	return nil
 }
 

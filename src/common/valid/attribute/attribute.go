@@ -27,6 +27,7 @@ import (
 	"configcenter/src/common/metadata"
 	"configcenter/src/common/util"
 	"configcenter/src/common/valid"
+	"configcenter/src/common/valid/attribute/manager"
 )
 
 // ValidPropertyOption valid property field option
@@ -56,6 +57,14 @@ func ValidPropertyOption(kit *rest.Kit, propertyType string, option interface{},
 			return kit.CCError.Errorf(common.CCErrCommParamsIsInvalid, "option")
 		}
 		return ValidIDRuleOption(kit, option, attrTypeMap)
+	}
+
+	if handle, ok := manager.Get(propertyType); ok {
+		if err := handle.ValidateOption(kit.Ctx, option, extraOpt); err != nil {
+			blog.Errorf("valid property option failed, property type: %s, option: %+v, extra opt: %+v, err: %v, rid: %s",
+				propertyType, option, extraOpt, err, kit.Rid)
+			return kit.CCError.Errorf(common.CCErrCommParamsIsInvalid, err.Error())
+		}
 	}
 
 	return nil
