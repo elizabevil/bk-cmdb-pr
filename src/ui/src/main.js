@@ -29,6 +29,7 @@ import cmdbSearchComponent from './components/search/index'
 import routerActions from './router/actions'
 import tools from './utils/tools'
 import { gotoLoginPage } from '@/utils/login-helper'
+import { watchVersion } from '@/utils/check-version'
 import clipboard from 'vue-clipboard2'
 import './magicbox'
 import './directives'
@@ -66,6 +67,10 @@ api.get(`${window.API_HOST}is_login`).then(() => {
       return !subEnv ? <App /> : <IframeEntry />
     }
   })
+
+  if (process.env.NODE_ENV === 'production') {
+    watchVersion()
+  }
 })
   .catch(() => {
     gotoLoginPage()

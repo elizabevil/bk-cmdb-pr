@@ -20,6 +20,7 @@ package options
 import (
 	"configcenter/src/common/auth"
 	"configcenter/src/common/core/cc/config"
+	auditconf "configcenter/src/source_controller/cacheservice/audit/config"
 	"configcenter/src/storage/dal/mongo"
 	"configcenter/src/storage/dal/redis"
 
@@ -36,6 +37,7 @@ type Config struct {
 	Mongo      mongo.Config
 	WatchMongo mongo.Config
 	Redis      redis.Config
+	Audit      *auditconf.Config
 }
 
 // NewServerOption create a ServerOption object
