@@ -1,0 +1,12 @@
+{{- if .Values.transferservice.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "{{ .Release.Name }}-configures"
+  labels:
+    component: transferservice
+data:
+  sync_conf.yaml: |-
+    name: "name"
+
+{{ end }}
