@@ -192,7 +192,9 @@ func (m *modelAttribute) CreateModelAttributes(kit *rest.Kit, objID string, inpu
 		if (!inputParam.FromTemplate && attr.TemplateID != 0) || (inputParam.FromTemplate && attr.TemplateID == 0) {
 			blog.Errorf("scene parameter invalid, attr: %+v, from template: %v rid: %s", attr,
 				inputParam.FromTemplate, kit.Rid)
-			addExceptionFunc(int64(attrIdx), err, &attr)
+			msg := fmt.Sprintf("fromTemplate(%v) does not match templateID(%v)",
+				inputParam.FromTemplate, attr.TemplateID)
+			addExceptionFunc(int64(attrIdx), kit.CCError.CCErrorf(common.CCErrCommParamsIsInvalid, msg), &attr)
 		}
 
 		if attr.IsPre && attr.PropertyID == common.BKInstNameField {
