@@ -37,14 +37,14 @@ type ServiceClientInterface interface {
 		data map[string]interface{}) (resp *metadata.ResponseInstData, err error)
 	ServiceInstanceAddLabels(ctx context.Context, h http.Header, data map[string]interface{}) (resp *metadata.Response,
 		err error)
-	ServiceInstanceRemoveLabels(ctx context.Context, h http.Header,
-		data map[string]interface{}) (resp *metadata.Response, err error)
+	ServiceInstanceRemoveLabels(ctx context.Context, h http.Header, data map[string]interface{}) (
+		resp *metadata.Response, err error)
 	ServiceInstanceFindLabels(ctx context.Context, h http.Header, data map[string]interface{}) (resp *metadata.Response,
 		err error)
 	UpdateSvrInstanceLabels(ctx context.Context, h http.Header, data *selector.SvcInstLabelUpdateOption) error
 
-	CreateServiceTemplate(ctx context.Context, h http.Header,
-		data map[string]interface{}) (resp *metadata.ResponseDataMapStr, err error)
+	CreateServiceTemplate(ctx context.Context, h http.Header, data map[string]interface{}) (
+		resp *metadata.ResponseDataMapStr, err error)
 	DeleteServiceTemplate(ctx context.Context, h http.Header,
 		input *metadata.DeleteServiceTemplatesInput) errors.CCErrorCoder
 	SearchServiceTemplate(ctx context.Context, h http.Header,
