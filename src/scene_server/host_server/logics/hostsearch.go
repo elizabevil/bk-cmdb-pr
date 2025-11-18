@@ -378,6 +378,10 @@ func init() {
 }
 
 func (sh *searchHost) validCondValueType(attrType string, value interface{}) error {
+	if value == nil {
+		blog.V(4).Infof("condition item field %s value is nil", attrType)
+		return nil
+	}
 	switch attrType {
 	case common.FieldTypeInt, common.FieldTypeFloat, common.FieldTypeOrganization:
 		if !util.IsNumeric(value) {
