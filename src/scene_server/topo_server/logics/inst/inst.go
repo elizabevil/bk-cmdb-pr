@@ -87,14 +87,16 @@ func NewInstOperation(client apimachinery.ClientSetInterface, lang language.CCLa
 
 // ObjectWithInsts a struct include object msg and insts array
 type ObjectWithInsts struct {
+	AssoID int64
+	instID int64
 	Object metadata.Object
-	Insts  []mapstr.MapStr
+	Inst   mapstr.MapStr
 }
 
 // ObjectAssoPair a struct include object msg and association
 type ObjectAssoPair struct {
-	Object    metadata.Object
-	AssocName string
+	Object     metadata.Object
+	AssocNames []string
 }
 
 // ConditionItem subcondition
@@ -1048,7 +1050,7 @@ func (c *commonInst) findInstTopo(kit *rest.Kit, objID string, instID int64, nee
 
 	tmpResults := map[string]*metadata.CommonInstTopo{}
 
-	topoInsts, relation, err := c.getAssociatedObjectWithInsts(kit, objID, instID, needChild)
+	topoInsts, err := c.getAssociatedObjectWithInsts(kit, objID, instID, needChild)
 	if err != nil {
 		return 0, nil, err
 	}
@@ -1066,36 +1068,27 @@ func (c *commonInst) findInstTopo(kit *rest.Kit, objID string, instID int64, nee
 			tmpResults[object.ObjectID] = commonInst
 		}
 
-		commonInst.Count = commonInst.Count + len(topoInst.Insts)
-
-		for _, inst := range topoInst.Insts {
-
-			id, err := inst.Int64(metadata.GetInstIDFieldByObjID(object.ObjectID))
-			if err != nil {
-				return 0, nil, err
-			}
-
-			name, err := inst.String(metadata.GetInstNameFieldName(object.ObjectID))
-			if err != nil {
-				return 0, nil, err
-			}
-
-			instAsst := metadata.InstNameAsst{
-				ID:         strconv.Itoa(int(id)),
-				InstID:     id,
-				InstName:   name,
-				ObjectName: object.ObjectName,
-				ObjIcon:    object.ObjIcon,
-				ObjID:      object.ObjectID,
-				AssoID:     relation[id],
-			}
-
-			tmpResults[object.ObjectID].Children = append(tmpResults[object.ObjectID].Children, instAsst)
+		name, err := topoInst.Inst.String(metadata.GetInstNameFieldName(object.ObjectID))
+		if err != nil {
+			return 0, nil, err
 		}
+
+		instAsst := metadata.InstNameAsst{
+			ID:         strconv.Itoa(int(topoInst.instID)),
+			InstID:     topoInst.instID,
+			InstName:   name,
+			ObjectName: object.ObjectName,
+			ObjIcon:    object.ObjIcon,
+			ObjID:      object.ObjectID,
+			AssoID:     topoInst.AssoID,
+		}
+
+		tmpResults[object.ObjectID].Children = append(tmpResults[object.ObjectID].Children, instAsst)
 	}
 
 	results := make([]*metadata.CommonInstTopo, 0)
 	for _, subResult := range tmpResults {
+		subResult.Count = len(subResult.Children)
 		results = append(results, subResult)
 	}
 
@@ -1443,32 +1436,27 @@ func (c *commonInst) innerHasHost(kit *rest.Kit, moduleIDs []int64) (bool, error
 // getAssociatedObjectWithInsts TODO
 // GetObjectWithInsts get object with insts, get parent or child depends on needChild
 func (c *commonInst) getAssociatedObjectWithInsts(kit *rest.Kit, objID string, instID int64, needChild bool) (
-	[]*ObjectWithInsts, map[int64]int64, error) {
-
+	[]*ObjectWithInsts, error) {
 	cond := mapstr.New()
 	if needChild {
 		cond.Set(common.BKObjIDField, objID)
 	} else {
 		cond.Set(common.BKAsstObjIDField, objID)
 	}
-
 	objPairs, err := c.searchAssoObjects(kit, needChild, cond)
 	if err != nil {
 		blog.Errorf("failed to get the object(%s)'s parent, err: %v, rid: %s", objID, err, kit.Rid)
-		return nil, nil, err
+		return nil, err
 	}
-
-	relation := make(map[int64]int64)
 	result := make([]*ObjectWithInsts, 0)
 	for _, objPair := range objPairs {
-
+		tempResult := make([]*ObjectWithInsts, 0)
 		queryCond := &metadata.InstAsstQueryCondition{
 			Cond: metadata.QueryCondition{Condition: mapstr.MapStr{
-				common.AssociationObjAsstIDField: objPair.AssocName,
+				common.AssociationObjAsstIDField: mapstr.MapStr{common.BKDBIN: objPair.AssocNames},
 			}},
 			ObjID: objPair.Object.ObjectID,
 		}
-
 		if needChild {
 			queryCond.Cond.Condition.Set(common.BKInstIDField, instID)
 			queryCond.Cond.Condition.Set(common.BKObjIDField, objID)
@@ -1478,19 +1466,16 @@ func (c *commonInst) getAssociatedObjectWithInsts(kit *rest.Kit, objID string, i
 			queryCond.Cond.Condition.Set(common.BKObjIDField, objPair.Object.ObjectID)
 			queryCond.Cond.Condition.Set(common.BKAsstObjIDField, objID)
 		}
-
 		rsp, err := c.clientSet.CoreService().Association().ReadInstAssociation(kit.Ctx, kit.Header, queryCond)
 		if err != nil {
 			blog.Errorf("search inst association failed , err: %v, rid: %s", err, kit.Rid)
-			return nil, nil, err
+			return nil, err
 		}
-
 		// found no noe inst association with this object and association info.
 		// which means that, this object association has not been instantiated.
 		if len(rsp.Info) == 0 {
 			continue
 		}
-
 		instIDs := make([]int64, 0)
 		for _, item := range rsp.Info {
 			var instID int64
@@ -1499,30 +1484,55 @@ func (c *commonInst) getAssociatedObjectWithInsts(kit *rest.Kit, objID string, i
 			} else {
 				instID = item.InstID
 			}
-			relation[instID] = item.ID
 			instIDs = append(instIDs, instID)
+			tempResult = append(tempResult, &ObjectWithInsts{
+				AssoID: item.ID,
+				instID: instID,
+				Object: objPair.Object,
+			})
 		}
-
-		innerCond := &metadata.QueryCondition{
-			Condition: mapstr.MapStr{objPair.Object.GetInstIDFieldName(): mapstr.MapStr{common.BKDBIN: instIDs}},
-			Fields: []string{common.GetInstIDField(objPair.Object.ObjectID),
-				common.GetInstNameField(objPair.Object.ObjectID)},
-		}
-		if objPair.Object.IsCommon() {
-			innerCond.Condition[common.BKObjIDField] = objPair.Object.ObjectID
-		}
-
-		rspItems, err := c.FindInst(kit, objPair.Object.ObjectID, innerCond)
+		rspItems, err := c.findInstsWithObjPair(kit, instIDs, objPair)
 		if err != nil {
-			blog.Errorf("failed to search the insts by the condition(%#v), err: %v, rid: %s", innerCond, err, kit.Rid)
-			return result, nil, err
+			return make([]*ObjectWithInsts, 0), err
 		}
-
-		rstObj := &ObjectWithInsts{Object: objPair.Object, Insts: rspItems.Info}
-		result = append(result, rstObj)
+		tempMap := make(map[int64]mapstr.MapStr)
+		for _, info := range rspItems.Info {
+			id, err := info.Int64(common.GetInstIDField(objPair.Object.ObjectID))
+			if err != nil {
+				return nil, err
+			}
+			tempMap[id] = info
+		}
+		for i, inst := range tempResult {
+			if value, ok := tempMap[inst.instID]; ok {
+				tempResult[i].Inst = value
+				continue
+			}
+			return nil, fmt.Errorf("failed to find the inst (%v) by the condition(%#v)", inst, queryCond)
+		}
+		result = append(result, tempResult...)
 	}
+	return result, nil
+}
 
-	return result, relation, nil
+func (c *commonInst) findInstsWithObjPair(kit *rest.Kit, instIDs []int64, objPair ObjectAssoPair) (
+	*metadata.InstResult, error) {
+
+	instIDs = util.IntArrayUnique(instIDs)
+	innerCond := &metadata.QueryCondition{
+		Condition: mapstr.MapStr{objPair.Object.GetInstIDFieldName(): mapstr.MapStr{common.BKDBIN: instIDs}},
+		Fields: []string{common.GetInstIDField(objPair.Object.ObjectID),
+			common.GetInstNameField(objPair.Object.ObjectID)},
+	}
+	if objPair.Object.IsCommon() {
+		innerCond.Condition[common.BKObjIDField] = objPair.Object.ObjectID
+	}
+	rspItems, err := c.FindInst(kit, objPair.Object.ObjectID, innerCond)
+	if err != nil {
+		blog.Errorf("failed to search the inst by the condition(%#v), err: %v, rid: %s", innerCond, err, kit.Rid)
+		return nil, err
+	}
+	return rspItems, nil
 }
 
 func (c *commonInst) searchAssoObjects(kit *rest.Kit, needChild bool, cond mapstr.MapStr) ([]ObjectAssoPair,
@@ -1544,18 +1554,22 @@ func (c *commonInst) searchAssoObjects(kit *rest.Kit, needChild bool, cond mapst
 		return make([]ObjectAssoPair, 0), nil
 	}
 
-	objAssoMap := make(map[string]metadata.Association, 0)
+	objAssoMap := make(map[string][]string)
 	var objIDArray []string
 	for _, asst := range rsp.Info {
+		targetID := asst.ObjectID
 		if needChild {
-			objIDArray = append(objIDArray, asst.AsstObjID)
-			objAssoMap[asst.AsstObjID] = asst
-		} else {
-			objIDArray = append(objIDArray, asst.ObjectID)
-			objAssoMap[asst.ObjectID] = asst
+			targetID = asst.AsstObjID
 		}
+		objIDArray = append(objIDArray, targetID)
+		if len(objAssoMap[targetID]) == 0 {
+			objAssoMap[targetID] = []string{asst.AssociationName}
+			continue
+		}
+		objAssoMap[targetID] = append(objAssoMap[targetID], asst.AssociationName)
 	}
 
+	objIDArray = util.StrArrayUnique(objIDArray)
 	queryCond := &metadata.QueryCondition{
 		Condition:      mapstr.MapStr{metadata.ModelFieldObjectID: mapstr.MapStr{common.BKDBIN: objIDArray}},
 		Fields:         []string{common.BKObjNameField, common.BKObjIDField, common.BKObjIconField},
@@ -1571,11 +1585,11 @@ func (c *commonInst) searchAssoObjects(kit *rest.Kit, needChild bool, cond mapst
 		return make([]ObjectAssoPair, 0), nil
 	}
 
-	pair := make([]ObjectAssoPair, 0)
+	pair := make([]ObjectAssoPair, 0, len(rspRst.Info))
 	for _, object := range rspRst.Info {
 		pair = append(pair, ObjectAssoPair{
-			Object:    object,
-			AssocName: objAssoMap[object.ObjectID].AssociationName,
+			Object:     object,
+			AssocNames: objAssoMap[object.ObjectID],
 		})
 	}
 
