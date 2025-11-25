@@ -11,6 +11,7 @@
  */
 
 import { t } from '@/i18n'
+import xss from 'xss'
 import { BUILTIN_PASTE_SPLIT_FIELDS } from '@/dictionary/model-constants.js'
 
 const hex2grb = (hex) => {
@@ -343,6 +344,21 @@ export function* paginateIterator(list, pageSize) {
     yield list.slice(index, index + pageSize)
     index += pageSize
   }
+}
+
+/**
+ * 过滤XSS攻击，只保留纯文本
+ * @param {string} str 字符串
+ * @returns 过滤后的字符串
+ */
+export function filterXSS(str) {
+  if (!str) return str
+  const result = xss(str, {
+    whiteList: {},
+    stripIgnoreTag: true,
+    stripIgnoreTagBody: ['script']
+  })
+  return result
 }
 
 /**
