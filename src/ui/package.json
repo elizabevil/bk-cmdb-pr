@@ -11,12 +11,13 @@
     "build": "node builder/build.js",
     "build:analyzer": "cross-env ANALYZER=true node builder/build.js",
     "start": "npm run dev -- --env",
+    "serve": "node builder/serve.js",
     "lint": "eslint --ext .js,.vue ./src --cache",
     "lint-output": "eslint --ext .js,.vue --output-file ./eslint.html --format html ./src",
     "lint-fix": "eslint --fix --ext .js,.vue ./src"
   },
   "dependencies": {
-    "@babel/runtime": "^7.27.1",
+    "@babel/runtime": "^7.28.4",
     "@blueking/bkui-library": "^0.0.0-beta.6",
     "@blueking/functional-dependency": "^0.0.1-beta.10",
     "@blueking/login-modal": "^1.0.0",
@@ -113,7 +114,7 @@
     "minimist": "^1.2.5",
     "os-browserify": "^0.3.0",
     "path-browserify": "^1.0.1",
-    "path-to-regexp": "^6.2.1",
+    "path-to-regexp": "^6.3.0",
     "postcss": "^8.2.10",
     "postcss-deep-scopable": "0.0.2",
     "postcss-loader": "^5.2.0",

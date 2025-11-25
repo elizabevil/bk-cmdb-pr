@@ -32,6 +32,7 @@ import (
 	"configcenter/src/common/errors"
 	"configcenter/src/common/mapstr"
 	"configcenter/src/common/util"
+	"configcenter/src/common/valid/attribute/manager"
 
 	"github.com/tidwall/gjson"
 	"go.mongodb.org/mongo-driver/bson"
@@ -174,6 +175,7 @@ type CreateObjAttDesResp struct {
 
 // Validate Attribute
 func (attribute *Attribute) Validate(ctx context.Context, data interface{}, key string) errors.RawErrorInfo {
+	rid := util.ExtractRequestIDFromContext(ctx)
 	var attrValidatorMap = map[string]func(context.Context, interface{}, string) errors.RawErrorInfo{
 		common.FieldTypeSingleChar:   attribute.validChar,
 		common.FieldTypeLongChar:     attribute.validLongChar,
@@ -203,16 +205,29 @@ func (attribute *Attribute) Validate(ctx context.Context, data interface{}, key 
 		// TODO what validation should do on these types
 		rawError = attribute.validTable(ctx, data, key)
 	default:
+		// notice: 注意default 这里的实现逻辑， 用break 做了执行流程的终止。 pr 建议，降低圈复杂度
+
 		validator, exists := attrValidatorMap[fieldType]
-		if !exists {
-			rawError = errors.RawErrorInfo{
-				ErrCode: common.CCErrCommUnexpectedFieldType,
-				Args:    []interface{}{fieldType},
+		if exists {
+			rawError = validator(ctx, data, key)
+			break
+		}
+		// 是否为扩展字段类型
+		if handle, ok := manager.Get(fieldType); ok {
+			if err := handle.Validate(ctx, key, fieldType, attribute.IsRequired, attribute.Option, data); err != nil {
+				blog.Errorf("validate attribute fail, field type: %s, err: %v, rid: %s", fieldType, err, rid)
+				return errors.RawErrorInfo{
+					ErrCode: common.CCErrCommParamsInvalid,
+					Args:    []interface{}{err.Error()},
+				}
 			}
 			break
 		}
+		rawError = errors.RawErrorInfo{
+			ErrCode: common.CCErrCommUnexpectedFieldType,
+			Args:    []interface{}{fieldType},
+		}
 
-		rawError = validator(ctx, data, key)
 	}
 	// 如果出现了问题，并且报错原内容为propertyID，则替换为propertyName。
 	if rawError.ErrCode != 0 {

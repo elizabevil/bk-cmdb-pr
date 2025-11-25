@@ -28,6 +28,7 @@ import (
 	"configcenter/src/common/blog"
 	"configcenter/src/common/types"
 	"configcenter/src/source_controller/cacheservice/app/options"
+	auditconf "configcenter/src/source_controller/cacheservice/audit/config"
 	cachesvr "configcenter/src/source_controller/cacheservice/service"
 	"configcenter/src/storage/driver/mongodb"
 	"configcenter/src/storage/driver/redis"
@@ -63,8 +64,9 @@ func Run(ctx context.Context, cancel context.CancelFunc, op *options.ServerOptio
 	input := &backbone.BackboneParameter{
 		ConfigUpdate: cacheSvr.onCacheServiceConfigUpdate,
 		ConfigPath:   op.ServConf.ExConfig,
-		SrvRegdiscv:  backbone.SrvRegdiscv{Regdiscv: op.ServConf.RegDiscover, TLSConfig: op.ServConf.GetTLSClientConf()},
-		SrvInfo:      svrInfo,
+		SrvRegdiscv: backbone.SrvRegdiscv{Regdiscv: op.ServConf.RegDiscover,
+			TLSConfig: op.ServConf.GetTLSClientConf()},
+		SrvInfo: svrInfo,
 	}
 
 	engine, err := backbone.NewBackbone(ctx, input)
@@ -142,6 +144,14 @@ func initResource(cacheSvr *CacheServer) error {
 	if err != nil {
 		blog.Errorf("parse iam config failed: %v", err)
 		return err
+	}
+
+	cacheSvr.Config.Audit = new(auditconf.Config)
+	if cc.IsExist("auditCenter") {
+		if err = cc.UnmarshalKey("auditCenter", cacheSvr.Config.Audit); err != nil {
+			blog.Errorf("parse audit center config failed, err: %v", err)
+			return err
+		}
 	}
 
 	return nil
