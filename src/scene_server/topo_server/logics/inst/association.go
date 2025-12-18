@@ -245,7 +245,7 @@ func (assoc *association) CheckInstAsstMapping(kit *rest.Kit, objID string, mapp
 		}
 
 		if instCnt[0] >= 1 {
-			return kit.CCError.Error(common.CCErrorTopoCreateMultipleInstancesForOneToOneAssociation)
+			return kit.CCError.Error(common.CCErrorTopoCreateMultipleInstancesForOneToManyAssociation)
 		}
 
 	default:
