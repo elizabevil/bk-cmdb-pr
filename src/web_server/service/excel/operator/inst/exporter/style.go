@@ -18,6 +18,7 @@ package exporter
 
 import (
 	"configcenter/pkg/excel"
+	"configcenter/src/common"
 )
 
 type styleType string
@@ -37,6 +38,8 @@ const (
 	noEditField styleType = "noEditField"
 	// example 例子数据的单元格类型
 	example styleType = "example"
+	// normalField 普通数据单元格类型
+	normalField styleType = "normal"
 
 	requiredFieldColor = "#FF0000"
 	noEditHeaderColor  = "fabf8f"
@@ -51,6 +54,30 @@ const (
 var generalBorder = []excel.Border{
 	{Type: excel.Left, Color: borderColor, Style: 1}, {Type: excel.Right, Color: borderColor, Style: 1},
 	{Type: excel.Top, Color: borderColor, Style: 1}, {Type: excel.Bottom, Color: borderColor, Style: 1},
+}
+var styleTypeMap = map[styleType]excel.Style{
+	requiredField: excel.Style{Fill: &excel.Fill{Type: excel.Pattern, Color: []string{noEditHeaderColor}, Pattern: 1},
+		Border: generalBorder},
+
+	noEditHeader: excel.Style{Fill: &excel.Fill{Type: excel.Pattern, Color: []string{noEditFieldColor}, Pattern: 1},
+		Border: generalBorder},
+
+	noEditField: excel.Style{Fill: &excel.Fill{Type: excel.Pattern, Color: []string{firstRowColor}, Pattern: 1},
+		Border: generalBorder},
+
+	firstRow: excel.Style{Fill: &excel.Fill{Type: excel.Pattern, Color: []string{generalHeaderColor}, Pattern: 1},
+		Border: generalBorder},
+
+	generalHeader: excel.Style{Fill: &excel.Fill{Type: excel.Pattern, Color: []string{tableHeaderColor}, Pattern: 1},
+		Border: generalBorder},
+
+	tableHeader: excel.Style{Fill: &excel.Fill{Type: excel.Pattern, Color: []string{exampleColor}, Pattern: 1},
+		Border: generalBorder},
+
+	example: excel.Style{Fill: &excel.Fill{Type: excel.Pattern, Color: []string{firstRowColor}, Pattern: 1},
+		Border: generalBorder, Font: &excel.Font{Color: requiredFieldColor}},
+
+	normalField: excel.Style{Fill: &excel.Fill{Type: excel.Pattern, Pattern: 1}, Border: generalBorder},
 }
 
 var createStyleFuncMap = make(map[styleType]createStyleFunc)
@@ -67,6 +94,35 @@ func init() {
 
 type createStyleFunc func(s *styleCreator) (int, error)
 
+// handlePropertyTypeNumFmt propType->excel code
+func handlePropertyTypeNumFmt(propType string) int {
+	switch propType {
+	case common.FieldTypeInt:
+		return 1
+	case common.FieldTypeFloat:
+		return 2
+	case common.FieldTypeLongChar, common.FieldTypeSingleChar:
+		return 49
+	case common.FieldTypeInnerTable,
+		common.FieldTypeEnum,
+		common.FieldTypeEnumMulti,
+		common.FieldTypeBool:
+		return 0
+	}
+	return 0
+}
+
+func getDataStyleFunc(style styleType, property string) createStyleFunc {
+	return func(s *styleCreator) (int, error) {
+		style := styleTypeMap[style]
+		style.NumFmt = handlePropertyTypeNumFmt(property)
+		result, err := s.excel.NewStyle(&style)
+		if err != nil {
+			return 0, err
+		}
+		return result, nil
+	}
+}
 func getNoEditHeaderStyleFunc() createStyleFunc {
 	return func(s *styleCreator) (int, error) {
 		style := &excel.Style{Fill: &excel.Fill{Type: "pattern", Color: []string{noEditHeaderColor}, Pattern: 1},
@@ -203,5 +259,24 @@ func (s *styleCreator) getStyle(style styleType) (int, error) {
 		}
 	}
 
+	return result, nil
+}
+
+func (s *styleCreator) getPropertyStyle(style styleType, propertyType string) (int, error) {
+
+	if len(propertyType) == 0 {
+		return s.getStyle(style)
+	}
+
+	styleKey := styleType(string(style) + "_" + propertyType)
+	result, ok := s.styleMap[styleKey]
+	if !ok {
+		var err error
+		result, err = getDataStyleFunc(style, propertyType)(s)
+		if err != nil {
+			return 0, err
+		}
+		s.styleMap[styleKey] = result
+	}
 	return result, nil
 }
