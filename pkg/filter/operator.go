@@ -706,7 +706,12 @@ func (o DatetimeLessOp) ToMgo(field string, value interface{}) (map[string]inter
 	if err != nil {
 		return nil, fmt.Errorf("convert value to time failed, err: %v", err)
 	}
-
+	timeType, _ := util.IsTime(value)
+	if timeType == util.DateOnlyType {
+		return mapstr.MapStr{
+			field: map[string]interface{}{common.BKDBLTE: value},
+		}, nil
+	}
 	return mapstr.MapStr{
 		field: map[string]interface{}{common.BKDBLT: v},
 	}, nil
@@ -747,6 +752,12 @@ func (o DatetimeLessOrEqualOp) ToMgo(field string, value interface{}) (map[strin
 	v, err := util.ConvToTime(value)
 	if err != nil {
 		return nil, fmt.Errorf("convert value to time failed, err: %v", err)
+	}
+	timeType, _ := util.IsTime(value)
+	if timeType == util.DateOnlyType {
+		return mapstr.MapStr{
+			field: map[string]interface{}{common.BKDBLTE: value},
+		}, nil
 	}
 
 	return mapstr.MapStr{
@@ -791,6 +802,12 @@ func (o DatetimeGreaterOp) ToMgo(field string, value interface{}) (map[string]in
 	if err != nil {
 		return nil, fmt.Errorf("convert value to time failed, err: %v", err)
 	}
+	timeType, _ := util.IsTime(value)
+	if timeType == util.DateOnlyType {
+		return mapstr.MapStr{
+			field: map[string]interface{}{common.BKDBGT: value},
+		}, nil
+	}
 
 	return mapstr.MapStr{
 		field: map[string]interface{}{common.BKDBGT: v},
@@ -832,6 +849,12 @@ func (o DatetimeGreaterOrEqualOp) ToMgo(field string, value interface{}) (map[st
 	v, err := util.ConvToTime(value)
 	if err != nil {
 		return nil, fmt.Errorf("convert value to time failed, err: %v", err)
+	}
+	timeType, _ := util.IsTime(value)
+	if timeType == util.DateOnlyType {
+		return mapstr.MapStr{
+			field: map[string]interface{}{common.BKDBGTE: value},
+		}, nil
 	}
 
 	return mapstr.MapStr{

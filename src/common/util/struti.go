@@ -90,6 +90,8 @@ const (
 	// timeWithLocationType the date time type compatible for values from db which is marshaled with time zone
 	timeWithLocationType DateTimeFieldType = "time_with_location"
 	invalidDateTimeType  DateTimeFieldType = "invalid"
+
+	DateOnlyType DateTimeFieldType = "date_only"
 )
 
 // IsTime 是否是时间类型
@@ -101,6 +103,9 @@ func IsTime(sInput interface{}) (DateTimeFieldType, bool) {
 		}
 		if timeWithLocationRegexp.MatchString(val) {
 			return timeWithLocationType, true
+		}
+		if dateRegexp.MatchString(val) {
+			return DateOnlyType, true
 		}
 		return invalidDateTimeType, false
 	default:
@@ -134,6 +139,8 @@ func Str2Time(timeStr string, timeType DateTimeFieldType) time.Time {
 		layout = "2006-01-02 15:04:05"
 	case timeWithLocationType:
 		layout = "2006-01-02T15:04:05Z07:00"
+	case DateOnlyType:
+		layout = time.DateOnly
 	default:
 		return time.Time{}
 	}
