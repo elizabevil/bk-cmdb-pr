@@ -112,7 +112,12 @@ func Run(ctx context.Context, cancel context.CancelFunc, op *options.ServerOptio
 }
 
 func initResource(coreSvr *CoreServer, op *options.ServerOption) error {
-	var err error
+	enumLimit, err := cc.Extra("objAttDes")
+	if err != nil {
+		return fmt.Errorf("read extraConfig with key limit err:%w", err)
+	}
+	common.SetEnumLimit(enumLimit.ObjAttDes.Enum.Limit)
+
 	coreSvr.Config.Mongo, err = coreSvr.Core.WithMongo()
 	if err != nil {
 		return err

@@ -1559,11 +1559,21 @@ const (
 	AttributeUnitMaxLength = 20
 	// AttributeOptionValueMaxLength TODO
 	AttributeOptionValueMaxLength = 128
-	// AttributeOptionArrayMaxLength TODO
-	AttributeOptionArrayMaxLength = 200
 	// ServiceCategoryMaxLength TODO
 	ServiceCategoryMaxLength = 128
 )
+
+var (
+	// AttributeOptionArrayMaxLength TODO
+	AttributeOptionArrayMaxLength = 200
+)
+
+// SetEnumLimit set AttributeOptionArrayMaxLength value,max:1000
+func SetEnumLimit(l int) {
+	if l > 0 {
+		AttributeOptionArrayMaxLength = int(math.Min(float64(l), float64(1000)))
+	}
+}
 
 const (
 	// NameFieldMaxLength TODO

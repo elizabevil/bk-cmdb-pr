@@ -389,6 +389,46 @@ func Mongo(prefix string) (mongo.Config, error) {
 	return c, nil
 }
 
+type enum struct {
+	Limit int `json:"limit" yaml:"limit" mapstructure:"limit"`
+}
+type objAttDes struct {
+	Enum enum `json:"enum" yaml:"enum" mapstructure:"enum"`
+}
+
+// ExtraConfig extral.yaml config
+type ExtraConfig struct {
+	ObjAttDes objAttDes `json:"objAttDes" yaml:"objAttDes" mapstructure:"objAttDes"`
+}
+
+// Extra return extra configuration information according to the prefix.
+func Extra(prefix string) (ExtraConfig, error) {
+	confLock.RLock()
+	defer confLock.RUnlock()
+	var parser *viperParser
+	for sleepCnt := 0; sleepCnt < common.APPConfigWaitTime; sleepCnt++ {
+		parser = getExtraParser()
+		if parser != nil {
+			break
+		}
+		blog.Warn("the configuration of extra is not ready yet")
+		time.Sleep(time.Duration(1) * time.Second)
+	}
+
+	if parser == nil {
+		blog.Errorf("can't find extra configuration")
+		return ExtraConfig{}, errors.New("can't find extra configuration")
+	}
+
+	return ExtraConfig{
+		ObjAttDes: objAttDes{
+			Enum: enum{
+				Limit: parser.getInt(prefix + ".enum.limit"),
+			},
+		},
+	}, nil
+}
+
 // Kafka return kafka configuration information according to the prefix.
 func Kafka(prefix string) (kafka.Config, error) {
 	confLock.RLock()
@@ -563,6 +603,14 @@ func getRedisParser() *viperParser {
 func getMongodbParser() *viperParser {
 	if mongodbParser != nil {
 		return mongodbParser
+	}
+
+	return localParser
+}
+
+func getExtraParser() *viperParser {
+	if extraParser != nil {
+		return extraParser
 	}
 
 	return localParser

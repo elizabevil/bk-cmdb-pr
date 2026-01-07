@@ -166,6 +166,11 @@ func parseSeverConfig(ctx context.Context, op *options.ServerOption) (*MigrateSe
 		return nil, fmt.Errorf("parse common config from file[%s] failed, err: %v", commonPath, err)
 	}
 
+	extraPath := process.Config.Configures.Dir + "/" + types.CCConfigureExtra
+	if err := cc.SetExtraFromFile(extraPath); err != nil {
+		return nil, fmt.Errorf("parse extra config from file[%s] failed, err: %v", extraPath, err)
+	}
+
 	process.Config.SnapReportMode, _ = cc.String("datacollection.hostsnap.reportMode")
 	process.Config.SnapKafka, _ = cc.Kafka("kafka.snap")
 
