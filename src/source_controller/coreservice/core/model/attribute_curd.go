@@ -22,7 +22,7 @@ import (
 	"regexp"
 	"strings"
 	"sync"
-	"time"
+	time "time"
 	"unicode/utf8"
 
 	"configcenter/src/common"
@@ -131,37 +131,37 @@ func (m *modelAttribute) save(kit *rest.Kit, attribute metadata.Attribute) (id u
 	attribute.OwnerID = kit.SupplierAccount
 
 	if attribute.CreateTime == nil {
-		attribute.CreateTime = &metadata.Time{}
-		attribute.CreateTime.Time = time.Now()
+		attribute.CreateTime = &metadata.Time{Time: time.Now()}
 	}
 	if attribute.LastTime == nil {
-		attribute.LastTime = &metadata.Time{}
-		attribute.LastTime.Time = time.Now()
+		attribute.LastTime = &metadata.Time{Time: time.Now()}
 	}
 	if attribute.IsMultiple == nil {
+		isMultiple := true
 		switch attribute.PropertyType {
 		case common.FieldTypeSingleChar, common.FieldTypeLongChar, common.FieldTypeInt, common.FieldTypeFloat,
 			common.FieldTypeEnum, common.FieldTypeDate, common.FieldTypeTime, common.FieldTypeTimeZone,
 			common.FieldTypeBool, common.FieldTypeList, common.FieldTypeIDRule:
-			isMultiple := false
+			isMultiple = false
 			attribute.IsMultiple = &isMultiple
 		case common.FieldTypeUser, common.FieldTypeOrganization, common.FieldTypeEnumQuote, common.FieldTypeEnumMulti:
-			isMultiple := true
 			attribute.IsMultiple = &isMultiple
 		default:
-			return 0, kit.CCError.Errorf(common.CCErrCommParamsInvalid, metadata.AttributeFieldPropertyType)
+			if _, ok := common.IsFieldTypeArray(attribute.PropertyType); ok {
+				attribute.IsMultiple = &isMultiple
+				break
+			}
+			return 0, kit.CCError.Errorf(common.CCErrCommParamsInvalid, attribute)
 		}
 	}
 	// 对于枚举，枚举多选，枚举引用字段, 默认值是放在option中的，需要将default置为nil
 	if attribute.Default != nil && (attribute.PropertyType == common.FieldTypeEnum ||
 		attribute.PropertyType == common.FieldTypeEnumMulti || attribute.PropertyType == common.FieldTypeEnumQuote) {
-
 		attribute.Default = nil
 	}
 	if err = m.saveCheck(kit, attribute); err != nil {
 		return 0, err
 	}
-
 	if err = mongodb.Client().Table(common.BKTableNameObjAttDes).Insert(kit.Ctx, attribute); err != nil {
 		return 0, err
 	}
@@ -180,7 +180,6 @@ func (m *modelAttribute) save(kit *rest.Kit, attribute metadata.Attribute) (id u
 			blog.Errorf("create index failed, index: %+v, err: %v, rid: %s", idx, err, kit.Rid)
 			return 0, kit.CCError.Error(common.CCErrObjectDBOpErrno)
 		}
-
 		unique := metadata.ObjectUnique{
 			ID:       id,
 			ObjID:    attribute.ObjectID,
@@ -561,6 +560,9 @@ func (m *modelAttribute) checkAttributeValidity(kit *rest.Kit, attribute metadat
 func (m *modelAttribute) validPropertyType(kit *rest.Kit, attribute metadata.Attribute, propertyType string) error {
 
 	if attribute.PropertyType != "" {
+		if _, ok := common.IsFieldTypeArray(attribute.PropertyType); ok {
+			return nil
+		}
 		if _, exists := validAttrPropertyTypes[attribute.PropertyType]; !exists {
 			if _, ok := manager.Get(attribute.PropertyType); !ok {
 				return kit.CCError.Errorf(common.CCErrCommParamsIsInvalid, metadata.AttributeFieldPropertyType)
@@ -641,6 +643,9 @@ func (m *modelAttribute) checkTableAttributeDefaultValue(kit *rest.Kit, option, 
 // checkAttributeDefaultValue 校验属性的default字段，对于枚举，枚举多选，枚举引用字段, 默认值是放在option中的，不能调用该函数校验
 func (m *modelAttribute) checkAttributeDefaultValue(kit *rest.Kit, attribute metadata.Attribute,
 	propertyType string) error {
+	if itemType, ok := common.IsFieldTypeArray(common.FieldTypeArray); ok {
+		return attrvalid.ValidFieldTypeArray(kit, attribute.Option, itemType)
+	}
 
 	var err error
 	switch propertyType {
