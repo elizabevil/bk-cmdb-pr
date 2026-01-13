@@ -225,7 +225,7 @@ func getCountGroupByField(kit *rest.Kit, inputParam metadata.ChartConfig) ([]met
 		return groupCountArr, nil
 	}
 
-	instCount, err = mongodb.Client().Table(common.GetObjectInstTableName(inputParam.ObjID, kit.SupplierAccount)).
+	instCount, err = mongodb.Client().Table(common.GetInstTableName(inputParam.ObjID, kit.SupplierAccount)).
 		Find(cond).Count(kit.Ctx)
 
 	if err != nil {
@@ -239,13 +239,12 @@ func getCountGroupByField(kit *rest.Kit, inputParam metadata.ChartConfig) ([]met
 			{common.BKDBMatch: M{common.BKDBAND: []M{
 				{inputParam.Field: M{common.BKDBExists: true}},
 				{inputParam.Field: M{common.BKDBNE: nil}},
-				{common.BKObjIDField: inputParam.ObjID},
 			}}},
 			{common.BKDBGroup: M{"_id": groupField, "count": M{common.BKDBSum: 1}}},
 		}
 
 		err := mongodb.Client().
-			Table(common.GetObjectInstTableName(inputParam.ObjID, kit.SupplierAccount)).
+			Table(common.GetInstTableName(inputParam.ObjID, kit.SupplierAccount)).
 			AggregateAll(kit.Ctx, pipeline, &groupCountArr)
 
 		if err != nil {
