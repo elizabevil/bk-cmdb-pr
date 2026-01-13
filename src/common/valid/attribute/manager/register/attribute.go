@@ -58,6 +58,7 @@ func Register(attr AttributeTypeI) {
 		blog.Errorf("attribute %s already exists", name)
 		panic(fmt.Sprintf("attribute %s already exists", name))
 	}
+	blog.Errorf("register attribute is success,%s", attr.Name())
 	attrTypeMap[name] = attr
 }
 

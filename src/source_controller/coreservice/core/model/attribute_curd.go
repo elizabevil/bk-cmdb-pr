@@ -543,10 +543,12 @@ func (m *modelAttribute) checkAttributeValidity(kit *rest.Kit, attribute metadat
 				common.AttributeUnitMaxLength)
 		}
 	}
+	blog.Errorf("validPropertyType=> %s,%#v\n", attribute.PropertyType, attribute)
 
 	if err := m.validPropertyType(kit, attribute, propertyType); err != nil {
 		return err
 	}
+	blog.Errorf("validPropertyType after=> %s,%#v\n", attribute.PropertyType, attribute)
 
 	if opt, ok := attribute.Option.(string); ok && opt != "" {
 		if common.AttributeOptionMaxLength < utf8.RuneCountInString(opt) {
@@ -562,7 +564,9 @@ func (m *modelAttribute) validPropertyType(kit *rest.Kit, attribute metadata.Att
 
 	if attribute.PropertyType != "" {
 		if _, exists := validAttrPropertyTypes[attribute.PropertyType]; !exists {
+			blog.Errorf("validAttrPropertyTypes=> %s,%#v\n", attribute.PropertyType, attribute)
 			if _, ok := manager.Get(attribute.PropertyType); !ok {
+				blog.Errorf("manager.Get(attribute.PropertyType)=> %s,%#v\n", attribute.PropertyType, attribute)
 				return kit.CCError.Errorf(common.CCErrCommParamsIsInvalid, metadata.AttributeFieldPropertyType)
 			}
 		}
@@ -1210,13 +1214,17 @@ func (m *modelAttribute) saveCheck(kit *rest.Kit, attr metadata.Attribute) error
 	if err := m.checkAddField(kit, attr); err != nil {
 		return err
 	}
+	blog.Errorf("checkAddField=> %s,%#v\n", attr.PropertyType, attr)
 
 	if err := m.checkAttributeMustNotEmpty(kit, attr); err != nil {
 		return err
 	}
+	blog.Errorf("checkAttributeMustNotEmpty=> %s,%#v\n", attr.PropertyType, attr)
+
 	if err := m.checkAttributeValidity(kit, attr, attr.PropertyType); err != nil {
 		return err
 	}
+	blog.Errorf("checkAttributeValidity=> %s,%#v\n", attr.PropertyType, attr)
 
 	// check name duplicate
 	if err := m.checkUnique(kit, true, attr.ObjectID, attr.PropertyID, attr.PropertyName, attr.BizID); err != nil {
@@ -1246,6 +1254,7 @@ func (m *modelAttribute) saveCheck(kit *rest.Kit, attr metadata.Attribute) error
 		blog.ErrorJSON("valid property option failed, err: %s, data: %s, rid: %s", err, attr, kit.Ctx)
 		return err
 	}
+	blog.Errorf("ValidPropertyOption=> %s,%#v\n", attr.PropertyType, attr)
 
 	if err = checkAddIDRule(kit, attr.ObjectID); err != nil {
 		blog.ErrorJSON("check add asset id, err: %s, data: %s, rid: %s", err, attr, kit.Ctx)

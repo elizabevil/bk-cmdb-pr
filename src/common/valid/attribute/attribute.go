@@ -59,6 +59,8 @@ func ValidPropertyOption(kit *rest.Kit, propertyType string, option interface{},
 		return ValidIDRuleOption(kit, option, attrTypeMap)
 	}
 
+	blog.Errorf("xxxxxxxxxxxxx=> %s,%#v", propertyType, option)
+
 	if handle, ok := manager.Get(propertyType); ok {
 		if err := handle.ValidateOption(kit.Ctx, option, extraOpt); err != nil {
 			blog.Errorf("valid property option failed, property type: %s, option: %+v, extra opt: %+v, err: %v, rid: %s",
