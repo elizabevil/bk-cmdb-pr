@@ -356,9 +356,12 @@ func fillLostListFieldValue(valData mapstr.MapStr, field metadata.Attribute) err
 func fillLostBoolFieldValue(valData mapstr.MapStr, field metadata.Attribute) error {
 	valData[field.PropertyID] = false
 	if field.Default == nil {
-		return nil
+		if field.Option == nil {
+			return nil
+		}
+		field.Default = field.Option
 	}
-
+	field.Option = field.Default
 	if err := valid.ValidateBoolType(field.Default); err != nil {
 		return err
 	}
