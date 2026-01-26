@@ -16,6 +16,7 @@ type ArrayOption[T any] struct {
 	Option T   `bson:"option" json:"option" `
 }
 
+// Valid ParseArrayOption len and cap
 func (a *ArrayOption[T]) Valid() error {
 	if a.Len < 0 || a.Len > a.Cap {
 		return fmt.Errorf("invalid array option,len:%d cap:%d", a.Len, a.Cap)
@@ -23,6 +24,7 @@ func (a *ArrayOption[T]) Valid() error {
 	return nil
 }
 
+// ParseArrayOption default option is len/cap
 func ParseArrayOption[T any](option any) (ArrayOption[T], error) {
 	if option == nil || option == "" {
 		return ArrayOption[T]{Len: math.MaxInt, Cap: math.MaxInt}, nil
