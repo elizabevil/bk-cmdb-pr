@@ -702,6 +702,11 @@ func (o DatetimeLessOp) ToMgo(field string, value interface{}) (map[string]inter
 		return nil, errors.New("field is empty")
 	}
 
+	if util.IsDate(value) {
+		return mapstr.MapStr{
+			field: map[string]interface{}{common.BKDBLTE: value},
+		}, nil
+	}
 	v, err := util.ConvToTime(value)
 	if err != nil {
 		return nil, fmt.Errorf("convert value to time failed, err: %v", err)
@@ -744,14 +749,20 @@ func (o DatetimeLessOrEqualOp) ToMgo(field string, value interface{}) (map[strin
 		return nil, errors.New("field is empty")
 	}
 
+	if util.IsDate(value) {
+		return mapstr.MapStr{
+			field: map[string]interface{}{common.BKDBLTE: value},
+		}, nil
+	}
 	v, err := util.ConvToTime(value)
 	if err != nil {
 		return nil, fmt.Errorf("convert value to time failed, err: %v", err)
 	}
 
 	return mapstr.MapStr{
-		field: map[string]interface{}{common.BKDBLTE: v},
+		field: map[string]interface{}{common.BKDBLT: v},
 	}, nil
+
 }
 
 // Match checks if the first data matches the second data by this operator
@@ -787,13 +798,18 @@ func (o DatetimeGreaterOp) ToMgo(field string, value interface{}) (map[string]in
 		return nil, errors.New("field is empty")
 	}
 
+	if util.IsDate(value) {
+		return mapstr.MapStr{
+			field: map[string]interface{}{common.BKDBLTE: value},
+		}, nil
+	}
 	v, err := util.ConvToTime(value)
 	if err != nil {
 		return nil, fmt.Errorf("convert value to time failed, err: %v", err)
 	}
 
 	return mapstr.MapStr{
-		field: map[string]interface{}{common.BKDBGT: v},
+		field: map[string]interface{}{common.BKDBLT: v},
 	}, nil
 }
 
@@ -829,13 +845,18 @@ func (o DatetimeGreaterOrEqualOp) ToMgo(field string, value interface{}) (map[st
 		return nil, errors.New("field is empty")
 	}
 
+	if util.IsDate(value) {
+		return mapstr.MapStr{
+			field: map[string]interface{}{common.BKDBLTE: value},
+		}, nil
+	}
 	v, err := util.ConvToTime(value)
 	if err != nil {
 		return nil, fmt.Errorf("convert value to time failed, err: %v", err)
 	}
 
 	return mapstr.MapStr{
-		field: map[string]interface{}{common.BKDBGTE: v},
+		field: map[string]interface{}{common.BKDBLT: v},
 	}, nil
 }
 

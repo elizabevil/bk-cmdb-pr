@@ -75,7 +75,10 @@ func IsDate(sInput interface{}) bool {
 		if len(val) == 0 {
 			return false
 		}
-		return dateRegexp.MatchString(val)
+		if _, err := time.Parse(time.DateOnly, val); err == nil {
+			return true
+		}
+		return false
 	default:
 		return false
 	}
