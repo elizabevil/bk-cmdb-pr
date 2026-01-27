@@ -147,11 +147,11 @@ func getHandleBoolTypeFunc() handleColPropFunc {
 
 func getHandleTableTypeFunc() handleColPropFunc {
 	return func(t *TmplOp, property *core.ColProp) ([][]excel.Cell, error) {
-		nameStyle, err := t.styleCreator.getStyle(firstRow)
+		nameStyle, err := t.styleCreator.getStyle(firstRow, property.PropertyType)
 		if err != nil {
 			return nil, err
 		}
-		headerStyle, err := t.styleCreator.getStyle(generalHeader)
+		headerStyle, err := t.styleCreator.getStyle(generalHeader, property.PropertyType)
 		if err != nil {
 			return nil, err
 		}
@@ -204,7 +204,7 @@ func getHandleTableTypeFunc() handleColPropFunc {
 			result[core.TableIDRowIdx] = append(result[core.TableIDRowIdx], properyResult[core.IDRowIdx]...)
 		}
 
-		tableHeaderStyle, err := t.styleCreator.getStyle(tableHeader)
+		tableHeaderStyle, err := t.styleCreator.getStyle(tableHeader, property.PropertyType)
 		if err != nil {
 			return nil, err
 		}
@@ -228,11 +228,11 @@ func getDefaultHandleTypeFunc() handleColPropFunc {
 			headerStyleType = noEditHeader
 		}
 
-		nameStyle, err := t.styleCreator.getStyle(nameStyleType)
+		nameStyle, err := t.styleCreator.getStyle(nameStyleType, property.PropertyType)
 		if err != nil {
 			return nil, err
 		}
-		headerStyle, err := t.styleCreator.getStyle(headerStyleType)
+		headerStyle, err := t.styleCreator.getStyle(headerStyleType, property.PropertyType)
 		if err != nil {
 			return nil, err
 		}

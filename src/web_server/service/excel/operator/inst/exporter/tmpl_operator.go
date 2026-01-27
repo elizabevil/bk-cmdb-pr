@@ -176,7 +176,7 @@ func (t *TmplOp) writeInstHeader(colProps []core.ColProp) error {
 func (t *TmplOp) handleProperty(colProps []core.ColProp) ([][]excel.Cell, error) {
 	ccLang := t.GetLang().CreateDefaultCCLanguageIf(httpheader.GetLanguage(t.GetKit().Header))
 
-	firstColStyle, err := t.styleCreator.getStyle(noEditHeader)
+	firstColStyle, err := t.styleCreator.getStyle(noEditHeader, "")
 	if err != nil {
 		blog.Errorf("get style failed, style: %s, err: %v, rid: %s", noEditHeader, err, t.GetKit().Rid)
 		return nil, err
@@ -197,7 +197,7 @@ func (t *TmplOp) handleProperty(colProps []core.ColProp) ([][]excel.Cell, error)
 		header[idx][0] = excel.Cell{Value: fieldName, StyleID: firstColStyle}
 	}
 
-	requiredStyle, err := t.styleCreator.getStyle(requiredField)
+	requiredStyle, err := t.styleCreator.getStyle(requiredField, "")
 	if err != nil {
 		blog.Errorf("get style failed, style: %s, err: %v, rid: %s", requiredField, err, t.GetKit().Rid)
 		return nil, err
@@ -326,7 +326,7 @@ func (t *TmplOp) writeAsstHeader() error {
 	lang := t.GetLang().CreateDefaultCCLanguageIf(httpheader.GetLanguage(t.GetKit().Header))
 
 	// 设置关联关系sheet表头第一列数据
-	firstColStyle, err := t.styleCreator.getStyle(noEditHeader)
+	firstColStyle, err := t.styleCreator.getStyle(noEditHeader, "")
 	if err != nil {
 		blog.Errorf("get style failed, style: %s, err: %v, rid: %s", noEditHeader, err, t.GetKit().Rid)
 		return err
@@ -336,7 +336,7 @@ func (t *TmplOp) writeAsstHeader() error {
 	}
 
 	// 设置关联关系sheet表头第一行数据(除第一列的单元格)
-	firstRowStyle, err := t.styleCreator.getStyle(firstRow)
+	firstRowStyle, err := t.styleCreator.getStyle(firstRow, "")
 	if err != nil {
 		return err
 	}
@@ -348,7 +348,7 @@ func (t *TmplOp) writeAsstHeader() error {
 	}
 
 	// 设置关联关系sheet表头第二行数据(除第一列的单元格)
-	exampleStyle, err := t.styleCreator.getStyle(example)
+	exampleStyle, err := t.styleCreator.getStyle(example, "")
 	if err != nil {
 		return err
 	}
