@@ -243,6 +243,24 @@ func (assoc *association) CheckInstAsstMapping(kit *rest.Kit, objID string, mapp
 			return kit.CCError.Error(common.CCErrorTopoCreateMultipleInstancesForOneToManyAssociation)
 		}
 
+	case metadata.ManyToOneMapping:
+		queryFilter := []map[string]interface{}{
+			{
+				common.AssociationObjAsstIDField: input.ObjectAsstID,
+				common.BKInstIDField:             input.InstID,
+			},
+		}
+		instCnt, err := assoc.clientSet.CoreService().Count().GetCountByFilter(kit.Ctx, kit.Header, tableName,
+			queryFilter)
+		if err != nil {
+			blog.Errorf("check instance with cond[%#v] failed, err: %v, rid: %s", queryFilter, err, kit.Rid)
+			return err
+		}
+
+		if instCnt[0] >= 1 {
+			return kit.CCError.Error(common.CCErrorTopoCreateMultipleInstancesForManyToOneAssociation)
+		}
+
 	default:
 		// after all the check, new association instance can be created.
 	}

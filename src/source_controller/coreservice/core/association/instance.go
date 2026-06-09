@@ -142,6 +142,18 @@ func (m *associationInstance) checkAssociationMapping(kit *rest.Kit, objAsstID s
 		if asstInstCount > 0 {
 			return kit.CCError.CCError(common.CCErrorTopoCreateMultipleInstancesForOneToManyAssociation)
 		}
+	case string(metadata.ManyToOneMapping):
+		instCount, err := m.countInstanceAssociation(kit, objectID, mapstr.MapStr{
+			common.AssociationObjAsstIDField: objAsstID,
+			common.BKInstIDField:             instID,
+		})
+		if err != nil {
+			return err
+		}
+
+		if instCount > 0 {
+			return kit.CCError.CCError(common.CCErrorTopoCreateMultipleInstancesForManyToOneAssociation)
+		}
 	}
 	return nil
 }
@@ -273,7 +285,7 @@ func (m *associationInstance) CreateOneInstanceAssociation(kit *rest.Kit,
 		asstInstManyKey := genAssoInstLockKey(inputParam.Data.AsstInstID, inputParam.Data.ObjectAsstID)
 		locked, err := locker.Lock(lock.StrFormat(asstInstManyKey), time.Minute)
 		if err != nil {
-			blog.Errorf("create one to many instance association, get lock failed, err: %v, rid: %s", kit.Rid)
+			blog.Errorf("create one to many instance association, get lock failed, err: %v, rid: %s", err, kit.Rid)
 			return nil, kit.CCError.CCErrorf(common.CCERrrCoreServiceConcurrent)
 		}
 		if !locked {
@@ -290,6 +302,33 @@ func (m *associationInstance) CreateOneInstanceAssociation(kit *rest.Kit,
 		id, err := m.save(kit, inputParam.Data)
 		if err != nil {
 			blog.Errorf("create one to one instance association failed, err: %v, rid: %s", err, kit.Rid)
+			return nil, err
+		}
+
+		return &metadata.CreateOneDataResult{Created: metadata.CreatedDataResult{ID: id}}, nil
+
+	case metadata.ManyToOneMapping:
+		locker := lock.NewLocker(driverRedis.Client())
+		instKey := genAssoInstLockKey(inputParam.Data.InstID, inputParam.Data.ObjectAsstID)
+		locked, err := locker.Lock(lock.StrFormat(instKey), time.Minute)
+		if err != nil {
+			blog.Errorf("create many to one instance association, get lock failed, err: %v, rid: %s", err, kit.Rid)
+			return nil, kit.CCError.CCErrorf(common.CCERrrCoreServiceConcurrent)
+		}
+		if !locked {
+			blog.Errorf("create many to one instance association, but get lock failed, rid: %s", kit.Rid)
+			return nil, kit.CCError.CCErrorf(common.CCERrrCoreServiceConcurrent)
+		}
+
+		defer func() {
+			if err := locker.Unlock(); err != nil {
+				blog.Errorf("release lock failed, err: %v,rid: %s", err, kit.Rid)
+			}
+		}()
+
+		id, err := m.save(kit, inputParam.Data)
+		if err != nil {
+			blog.Errorf("create many to one instance association failed, err: %v, rid: %s", err, kit.Rid)
 			return nil, err
 		}
 

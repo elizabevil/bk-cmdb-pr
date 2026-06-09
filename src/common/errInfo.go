@@ -417,6 +417,8 @@ const (
 
 	CCErrorTopoAssociationKindHasBeenUsed                     = 1101060
 	CCErrorTopoCreateMultipleInstancesForOneToManyAssociation = 1101061
+	// create new instance association, but association mapping is n:1
+	CCErrorTopoCreateMultipleInstancesForManyToOneAssociation = 1101063
 	// the given association id not unique.
 	CCErrorTopoObjectAssociationNotUnique           = 1101062
 	CCErrTopoAppDeleteFailed                        = 1101131

@@ -459,6 +459,10 @@ const (
 	// OneToManyMapping TODO
 	// the source object can be related with multiple destination objects
 	OneToManyMapping AssociationMapping = "1:n"
+	// ManyToOneMapping TODO
+	// the source object can be related with only one destination object, and destination object can be
+	// related by multiple source objects.
+	ManyToOneMapping AssociationMapping = "n:1"
 	// ManyToManyMapping TODO
 	// multiple source object can be related with multiple destination objects
 	ManyToManyMapping AssociationMapping = "n:n"

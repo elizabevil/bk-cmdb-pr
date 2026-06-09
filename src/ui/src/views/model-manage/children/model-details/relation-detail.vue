@@ -226,6 +226,9 @@
           id: 'n:n',
           name: 'N-N'
         }, {
+          id: 'n:1',
+          name: 'N-1'
+        }, {
           id: '1:n',
           name: '1-N'
         }, {
@@ -233,7 +236,7 @@
           name: '1-1'
         }]
         if (this.isSelfRelation) {
-          mappingList.splice(1, 1)
+          mappingList.splice(1, 2)
         }
         return mappingList
       },
