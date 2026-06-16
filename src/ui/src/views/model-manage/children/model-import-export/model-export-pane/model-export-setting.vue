@@ -167,11 +167,12 @@
   display: flex;
   justify-content: center;
   height: 100%;
-  overflow-y: auto;
+  overflow: auto;
 }
 
 .setting-form{
   margin-top: 48px;
+  min-width: 560px;
 
   &-input{
     width: 100%;
