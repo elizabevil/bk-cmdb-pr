@@ -214,8 +214,8 @@ watch:
   usr: $mongo_user
   pwd: "$mongo_pass"
   database: $db
-  maxOpenConns: 10
-  maxIdleConns: 5
+  maxOpenConns: 50
+  maxIdleConns: 50
   mechanism: SCRAM-SHA-1
   rsName: $rs_name
   socketTimeoutSeconds: 10
@@ -1178,7 +1178,7 @@ def main(argv):
             redis_ip = arg
             print('redis_ip:', redis_ip)
         elif opt in ("-p", "--redis_port"):
-            redis_port = arg
+            redis_port = int(arg)
             print('redis_port:', redis_port)
         elif opt in ("-s", "--redis_pass"):
             redis_pass = arg
@@ -1202,7 +1202,7 @@ def main(argv):
             mongo_ip = arg
             print('mongo_ip:', mongo_ip)
         elif opt in ("-P", "--mongo_port"):
-            mongo_port = arg
+            mongo_port = int(arg)
             print('mongo_port:', mongo_port)
         elif opt in ("-X", "--mongo_user"):
             mongo_user = arg
